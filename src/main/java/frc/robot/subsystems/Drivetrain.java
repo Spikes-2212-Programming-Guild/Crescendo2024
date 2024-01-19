@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.*;
+import edu.wpi.first.wpilibj.SerialPort;
 
 public class Drivetrain extends DashboardedSubsystem {
 
@@ -26,6 +27,8 @@ public class Drivetrain extends DashboardedSubsystem {
             (FRONT_LEFT_WHEEL_POSITION.getX() + BACK_RIGHT_WHEEL_POSITION.getX()) / 2,
             (FRONT_LEFT_WHEEL_POSITION.getY() + BACK_RIGHT_WHEEL_POSITION.getY()) / 2);
 
+    private static final String NAMESPACE_NAME = "drivetrain";
+
     private final SwerveModule frontLeft;
     private final SwerveModule frontRight;
     private final SwerveModule backLeft;
@@ -37,6 +40,17 @@ public class Drivetrain extends DashboardedSubsystem {
     private final AHRS gyro;
 
     private SwerveModulePosition[] modulePositions;
+
+    private static Drivetrain instance;
+
+    public static Drivetrain getInstance() {
+        if (instance == null) {
+            instance = new Drivetrain(NAMESPACE_NAME, SwerveModuleHolder.getFrontLeft(),
+                    SwerveModuleHolder.getFrontRight(), SwerveModuleHolder.getBackLeft(),
+                    SwerveModuleHolder.getBackRight(), new AHRS(SerialPort.Port.kMXP));
+        }
+        return instance;
+    }
 
     private Drivetrain(String namespaceName, SwerveModule frontLeft, SwerveModule frontRight, SwerveModule backLeft,
                        SwerveModule backRight, AHRS gyro) {
