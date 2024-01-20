@@ -4,6 +4,7 @@ public class RobotMap {
 
     public interface CAN {
 
+        int INTAKE_ROLLER_SPARKMAX = -1;
     }
     
     public interface DIO {
