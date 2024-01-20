@@ -30,4 +30,12 @@ public class IntakePlacer extends SparkGenericSubsystem {
         this.topLimitSwitch = topLimitSwitch;
         this.bottomLimitSwitch = bottomLimitSwitch;
     }
+
+    public boolean intakeUp() {
+        return topLimitSwitch.get();
+    }
+
+    public boolean intakeDown() {
+        return bottomLimitSwitch.get();
+    }
 }
