@@ -35,8 +35,6 @@ public class Drivetrain extends DashboardedSubsystem {
 
     private static final String NAMESPACE_NAME = "drivetrain";
 
-    private final SpikesLogger logger = new SpikesLogger();
-
     public final SwerveModule frontLeft;
     public final SwerveModule frontRight;
     public final SwerveModule backLeft;
@@ -46,10 +44,6 @@ public class Drivetrain extends DashboardedSubsystem {
 
     private final SwerveDriveKinematics kinematics;
     private final SwerveDriveOdometry odometry;
-
-//    private final SlewRateLimiter xRateLimiter = new SlewRateLimiter()
-
-//    private final SwerveDrivePoseEstimator poseEstimator;
 
     private final Limelight limelight;
     private final PhotonCamera photonCamera;
@@ -117,39 +111,20 @@ public class Drivetrain extends DashboardedSubsystem {
             } catch (Exception ignored) {
             }
         }
-//        NetworkTableValue targetingLatency = limelight.getValue("tl");
-//        NetworkTableValue captureLatency = limelight.getValue("cl");
-//        if (limelight.hasTarget()) {
-//            poseEstimator.addVisionMeasurement(limelight.getRobotPose().toPose2d(),
-//                    Timer.getFPGATimestamp() - (targetingLatency.getDouble() / 1000.0) -
-//                            (captureLatency.getDouble() / 1000.0));
-//        }
-//        poseEstimator.update(
-//                gyro.getRotation2d(),
-//                new SwerveModulePosition[]{
-//                        frontLeft.getPosition(),
-//                        frontRight.getPosition(),
-//                        backLeft.getPosition(),
-//                        backRight.getPosition()
-//                });
     }
 
     public void drive(double xSpeed, double ySpeed, double rotationSpeed,
                       boolean fieldRelative, boolean usePID) {
         ChassisSpeeds speeds;
         if (fieldRelative) {
-//            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed.get(), ySpeed.get(),
-//                    rotationSpeed.get(), poseEstimator.getEstimatedPosition().getRotation());
             speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed,
                     rotationSpeed, this.getRotation2d());
         } else {
             speeds = new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed);
         }
-        namespace.putNumber("rotation speed", rotationSpeed);
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds, CENTER_OF_ROBOT);
         SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_SPEED_METERS_PER_SECONDS);
         frontLeft.set(states[0], usePID);
-        namespace.putNumber("front left speed", frontLeft.driveController.getEncoder().getVelocity());
         frontRight.set(states[1], usePID);
         backLeft.set(states[2], usePID);
         backRight.set(states[3], usePID);
