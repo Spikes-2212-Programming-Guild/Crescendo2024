@@ -4,138 +4,145 @@ import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.revrobotics.*;
+import com.revrobotics.CANSparkLowLevel;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.spikes2212.command.DashboardedSubsystem;
 import com.spikes2212.control.FeedForwardController;
 import com.spikes2212.control.FeedForwardSettings;
 import com.spikes2212.control.PIDSettings;
+import com.spikes2212.dashboard.RootNamespace;
+import com.spikes2212.dashboard.SpikesLogger;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 
-/**
- * This class represents an MK4 swerve module, using 2 NEO motors. 1 for turning and 1 for driving.
- */
+import java.util.function.Supplier;
+
 public class SwerveModule extends DashboardedSubsystem {
 
-    /**
-     * The amount of times the motor needs to move in order to make a full rotation of a certain system.
-     */
-    private static final double TURN_GEAR_RATIO = 12.8;
-    private static final double DRIVING_GEAR_RATIO = 6.12;
+    private final SpikesLogger logger = new SpikesLogger();
+
+    private static final RootNamespace offsetNamespace = new RootNamespace("module offsets");
+
+    public static final Supplier<Double> FRONT_LEFT_OFFSET = offsetNamespace.addConstantDouble("front left offset",
+            -201.98);
+    public static final Supplier<Double> FRONT_RIGHT_OFFSET = offsetNamespace.addConstantDouble("front right offset",
+            0);
+    public static final Supplier<Double> BACK_LEFT_OFFSET = offsetNamespace.addConstantDouble("back left offset",
+            0);
+    public static final Supplier<Double> BACK_RIGHT_OFFSET = offsetNamespace.addConstantDouble("back right offset",
+            121.8164215); // 121.8164215
 
     private static final int PID_SLOT = 0;
-
-    private static final double SECONDS_IN_MINUTE = 60;
-    private static final double DEGREES_IN_ROTATION = 360;
-
+    private static final double STEERING_GEAR_RATIO = 12.8;
+    private static final double DRIVING_GEAR_RATIO = 6.12;
     private static final double WHEEL_DIAMETER_IN_INCHES = 4;
     private static final double INCHES_TO_METERS = 0.0254;
     private static final double WHEEL_CIRCUMFERENCE_METERS = WHEEL_DIAMETER_IN_INCHES * INCHES_TO_METERS * Math.PI;
 
-    private static final int TURN_CONTROLLER_FRAME_PERIOD_MS = 40;
-
-    private final CANSparkMax driveController;
-    private final CANSparkMax turnController;
+    public final CANSparkMax driveController;
+    public final CANSparkMax turnController;
     private final CANcoder absoluteEncoder;
+    private final double offset;
+    private final FeedForwardController driveFeedForwardController;
+    private final FeedForwardSettings driveFeedForwardSettings;
+    private final PIDSettings drivePIDSettings;
+    private final PIDSettings turnPIDSettings;
 
     private final RelativeEncoder driveEncoder;
     private final RelativeEncoder turnEncoder;
 
-    private final boolean driveInverted;
     private final boolean cancoderInverted;
+    private final boolean driveInverted;
 
-    private final double absoluteEncoderOffset;
-
-    private final PIDSettings drivePIDSettings;
-    private final PIDSettings turnPIDSettings;
-    private final FeedForwardSettings driveFeedForwardSettings;
-    private final FeedForwardController driveFeedForwardController;
+    private double lastAngle;
 
     public SwerveModule(String namespaceName, CANSparkMax driveController, CANSparkMax turnController,
-                        CANcoder absoluteEncoder, boolean driveInverted, boolean cancoderInverted,
-                        double absoluteEncoderOffset, PIDSettings drivePIDSettings,
-                        PIDSettings turnPIDSettings, FeedForwardSettings driveFeedForwardSettings) {
+                        CANcoder absoluteEncoder, boolean cancoderInverted, double offset, FeedForwardSettings driveFeedForwardSettings,
+                        PIDSettings drivePIDSettings, PIDSettings turnPIDSettings, boolean driveInverted) {
         super(namespaceName);
         this.driveController = driveController;
         this.turnController = turnController;
         this.absoluteEncoder = absoluteEncoder;
-        this.driveInverted = driveInverted;
-        this.driveEncoder = driveController.getEncoder();
-        this.turnEncoder = turnController.getEncoder();
-        this.absoluteEncoderOffset = absoluteEncoderOffset;
+        this.cancoderInverted = cancoderInverted;
+        this.offset = offset;
+        this.driveFeedForwardSettings = driveFeedForwardSettings;
         this.drivePIDSettings = drivePIDSettings;
         this.turnPIDSettings = turnPIDSettings;
-        this.driveFeedForwardSettings = driveFeedForwardSettings;
         this.driveFeedForwardController = new FeedForwardController(driveFeedForwardSettings,
                 FeedForwardController.DEFAULT_PERIOD);
-        this.cancoderInverted = cancoderInverted;
+        driveEncoder = driveController.getEncoder();
+        turnEncoder = turnController.getEncoder();
+        this.driveInverted = driveInverted;
         configureDriveController();
         configureTurnController();
         configureAbsoluteEncoder();
+        configureRelativeTurnEncoder();
+        lastAngle = getAbsoluteAngle();
         configureDashboard();
     }
 
+    public double getAbsoluteAngle() {
+        return Rotation2d.fromRotations(absoluteEncoder.getAbsolutePosition().getValue()).getDegrees();
+    }
+
+    private double getRelativeAngle() {
+        return turnEncoder.getPosition();
+    }
+
+    public SwerveModulePosition getModulePosition() {
+        return new SwerveModulePosition(driveEncoder.getPosition(),
+                Rotation2d.fromDegrees(getAbsoluteAngle()));
+    }
+
     public void set(SwerveModuleState state, boolean usePID) {
-        if (state.speedMetersPerSecond < Drivetrain.MIN_SPEED_METERS_PER_SECONDS) {
+        if (Math.abs(state.speedMetersPerSecond) < 0.25) {
             stop();
             return;
         }
         state = optimize(state, Rotation2d.fromDegrees(getRelativeAngle()));
+//        double angle = (Math.abs(state.speedMetersPerSecond) <= (DrivetrainImpl.MAX_SPEED_METERS_PER_SECONDS * 0.01))
+//                ? lastAngle : state.angle.getDegrees();
         double angle = state.angle.getDegrees();
-        setAngle(new Rotation2d(angle));
+//        logger.log("speed: " + state.speedMetersPerSecond);
+        logger.log("angle: " + state.angle.getDegrees());
+        setAngle(angle);
         setSpeed(state.speedMetersPerSecond, usePID);
     }
 
-    public SwerveModulePosition getModulePosition() {
-        return new SwerveModulePosition(getPosition(),
-                Rotation2d.fromRotations(absoluteEncoder.getAbsolutePosition().getValue()));
-    }
-
-    public double getRelativeAngle() {
-        return turnEncoder.getPosition();
-    }
-
-    public Rotation2d getAbsoluteAngle() {
-        return Rotation2d.fromRotations(absoluteEncoder.getAbsolutePosition().getValue());
-    }
-
-    public double getPosition() {
-        return driveEncoder.getPosition();
-    }
-
     private void configureDriveController() {
-        driveController.restoreFactoryDefaults();
-        driveController.getPIDController().setP(turnPIDSettings.getkP());
-        driveController.getPIDController().setI(turnPIDSettings.getkI());
-        driveController.getPIDController().setD(turnPIDSettings.getkD());
+        driveController.getPIDController().setP(drivePIDSettings.getkP());
+        driveController.getPIDController().setI(drivePIDSettings.getkI());
+        driveController.getPIDController().setD(drivePIDSettings.getkD());
         driveController.setInverted(driveInverted);
+        driveController.setIdleMode(CANSparkMax.IdleMode.kCoast);
         driveEncoder.setPositionConversionFactor((1 / DRIVING_GEAR_RATIO) * WHEEL_CIRCUMFERENCE_METERS);
         driveEncoder.setVelocityConversionFactor(
-                ((1 / DRIVING_GEAR_RATIO) * WHEEL_CIRCUMFERENCE_METERS) / SECONDS_IN_MINUTE);
+                ((1 / DRIVING_GEAR_RATIO) * WHEEL_CIRCUMFERENCE_METERS) / 60);
     }
 
     private void configureTurnController() {
-        turnController.restoreFactoryDefaults();
-        turnController.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus2, TURN_CONTROLLER_FRAME_PERIOD_MS);
+        turnController.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus2, 40);
+        turnController.setIdleMode(CANSparkMax.IdleMode.kCoast);
         turnController.getPIDController().setP(turnPIDSettings.getkP());
         turnController.getPIDController().setI(turnPIDSettings.getkI());
         turnController.getPIDController().setD(turnPIDSettings.getkD());
-        turnEncoder.setPositionConversionFactor((1 / TURN_GEAR_RATIO) * 360);
+        turnController.setIdleMode(CANSparkMax.IdleMode.kCoast);
     }
 
     private void configureAbsoluteEncoder() {
-        //restore the encoder to factory defaults
-        absoluteEncoder.getConfigurator().apply(new MagnetSensorConfigs());
         MagnetSensorConfigs config = new MagnetSensorConfigs();
+        config.withMagnetOffset(offset / 360);
         config.withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1);
-        config.withMagnetOffset(absoluteEncoderOffset / DEGREES_IN_ROTATION);
-        config.withSensorDirection(cancoderInverted ? SensorDirectionValue.Clockwise_Positive :
-                SensorDirectionValue.CounterClockwise_Positive);
+        config.withSensorDirection(cancoderInverted ? SensorDirectionValue.Clockwise_Positive : SensorDirectionValue.CounterClockwise_Positive);
     }
 
     public void configureRelativeTurnEncoder() {
-        turnEncoder.setPosition(getAbsoluteAngle().getDegrees());
+        turnEncoder.setPositionConversionFactor((1 / STEERING_GEAR_RATIO) * 360);
+        turnEncoder.setPosition(getAbsoluteAngle());
     }
 
     public void stop() {
@@ -143,22 +150,22 @@ public class SwerveModule extends DashboardedSubsystem {
         turnController.stopMotor();
     }
 
-    /**
-     * In degrees.
-     */
-    private void setAngle(Rotation2d angle) {
+    //angle between 0 and 360
+    public void setAngle(double angle) {
         configureTurnController();
-        turnController.getPIDController().setReference(angle.getDegrees(), CANSparkBase.ControlType.kPosition);
+        turnController.getPIDController().setReference(angle, CANSparkMax.ControlType.kPosition, PID_SLOT);
     }
 
-    private void setSpeed(double speedMetersPerSecond, boolean usePID) {
-        configureDriveController();
+    //speed - m/s
+    private void setSpeed(double speed, boolean usePID) {
         if (usePID) {
-            driveFeedForwardController.setGains(driveFeedForwardSettings);
-            double feedForward = driveFeedForwardController.calculate(speedMetersPerSecond);
-            driveController.getPIDController().setReference(speedMetersPerSecond, CANSparkBase.ControlType.kVelocity,
-                    PID_SLOT, feedForward);
-        } else driveController.set(speedMetersPerSecond / Drivetrain.MAX_SPEED_METERS_PER_SECONDS);
+            configureDriveController();
+            driveFeedForwardController.setGains(driveFeedForwardSettings.getkS(), driveFeedForwardSettings.getkV(),
+                    driveFeedForwardSettings.getkA(), driveFeedForwardSettings.getkG());
+            double feedForward = driveFeedForwardController.calculate(speed);
+            driveController.getPIDController().setReference(speed, CANSparkMax.ControlType.kVelocity, PID_SLOT,
+                    feedForward);
+        } else driveController.set(speed / Drivetrain.MAX_SPEED_METERS_PER_SECONDS);
     }
 
     /**
@@ -179,6 +186,10 @@ public class SwerveModule extends DashboardedSubsystem {
             targetAngle = delta > 90 ? targetAngle - 180 : targetAngle + 180;
         }
         return new SwerveModuleState(targetSpeed, Rotation2d.fromDegrees(targetAngle));
+    }
+
+    public double getSpeed() {
+        return driveEncoder.getVelocity();
     }
 
     /**
@@ -216,5 +227,20 @@ public class SwerveModule extends DashboardedSubsystem {
 
     @Override
     public void configureDashboard() {
+        namespace.putNumber("velocity", driveEncoder::getVelocity);
+        namespace.putNumber("distance", driveEncoder::getPosition);
+        namespace.putNumber("absolute angle", this::getAbsoluteAngle);
+        namespace.putNumber("relative angle", this::getRelativeAngle);
+        namespace.putData("reset angle", new InstantCommand(this::configureRelativeTurnEncoder).ignoringDisable(true));
+        namespace.putData("set angle to 0",
+                new FunctionalCommand(() -> set(new SwerveModuleState(0, Rotation2d.fromDegrees(0)), false), () -> {
+                },
+                        b -> turnController.stopMotor(), () -> false));
+        namespace.putData("move",
+                new FunctionalCommand(() -> set(new SwerveModuleState(1.5, Rotation2d.fromDegrees(0)), false), () -> {
+                },
+                        b -> turnController.stopMotor(), () -> false));
+        namespace.putRunnable("stop", turnController::stopMotor);
+        namespace.putNumber("applied output", driveController::getAppliedOutput);
     }
 }
