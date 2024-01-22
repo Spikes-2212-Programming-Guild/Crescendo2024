@@ -20,6 +20,6 @@ public class OpenIntake extends MoveSmartMotorControllerGenericSubsystem {
 
     @Override
     public boolean isFinished() {
-        return intakePlacer.intakeDown();
+        return intakePlacer.intakeDown() || super.isFinished();
     }
 }
