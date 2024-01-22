@@ -93,9 +93,9 @@ public class SwerveModule extends DashboardedSubsystem {
         driveController.getPIDController().setD(drivePIDSettings.getkD());
         driveController.setInverted(driveInverted);
         driveController.setIdleMode(CANSparkMax.IdleMode.kCoast);
-        driveEncoder.setPositionConversionFactor((1 / DRIVING_GEAR_RATIO) * WHEEL_CIRCUMFERENCE_METERS);
         driveEncoder.setVelocityConversionFactor(
                 ((1 / DRIVING_GEAR_RATIO) * WHEEL_CIRCUMFERENCE_METERS) / 60);
+        driveEncoder.setPositionConversionFactor((1 / DRIVING_GEAR_RATIO) * WHEEL_CIRCUMFERENCE_METERS);
     }
 
     private void configureTurnController() {
