@@ -11,7 +11,7 @@ import frc.robot.RobotMap;
 // https://www.youtube.com/watch?v=jxcMRkqaQdw
 public class SwerveModuleHolder {
 
-    private static final RootNamespace namespace = new RootNamespace("swerve module holder 2");
+    private static final RootNamespace namespace = new RootNamespace("swerve module holder");
 
     private static final String FRONT_LEFT_NAMESPACE_NAME = "front left";
     private static final String FRONT_RIGHT_NAMESPACE_NAME = "front right";
