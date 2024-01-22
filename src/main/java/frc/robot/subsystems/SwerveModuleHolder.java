@@ -33,7 +33,7 @@ public class SwerveModuleHolder {
     private static final PIDSettings turnPIDSettings = namespace.addPIDNamespace("turn",
             new PIDSettings(0.007, 0, 0, 0, 0));
     private static final FeedForwardSettings driveFeedForwardSettings = namespace.addFeedForwardNamespace("drive",
-            new FeedForwardSettings(0, 0, 0, 0));
+            new FeedForwardSettings(-1, -1, -1, -1));
 
     private static SwerveModule frontLeft;
     private static SwerveModule frontRight;
