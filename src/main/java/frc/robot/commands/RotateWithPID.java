@@ -31,7 +31,6 @@ public class RotateWithPID extends Command {
         this.setpoint = setpoint;
         this.source = source;
         this.pidSettings = pidSettings;
-        lastTimeNotOnTarget = Timer.getFPGATimestamp();
         this.feedForwardSettings = feedForwardSettings;
         this.feedForwardController = new FeedForwardController(feedForwardSettings,
                 FeedForwardController.DEFAULT_PERIOD);
@@ -45,6 +44,9 @@ public class RotateWithPID extends Command {
 
     @Override
     public void execute() {
+        pidController.setPID(pidSettings.getkP(), pidSettings.getkI(), pidSettings.getkD());
+        pidController.setTolerance(pidSettings.getTolerance());
+        feedForwardController.setGains(feedForwardSettings);
         drivetrain.drive(0, 0, pidController.calculate(setpoint.get(),
                 source.get()) + feedForwardController.calculate(setpoint.get()), false, false);
     }
