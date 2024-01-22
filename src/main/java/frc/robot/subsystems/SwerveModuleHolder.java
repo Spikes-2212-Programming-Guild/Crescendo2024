@@ -29,7 +29,7 @@ public class SwerveModuleHolder {
     private static final boolean BACK_RIGHT_CANCODER_INVERTED = true;
 
     private static final PIDSettings drivePIDSettings = namespace.addPIDNamespace("drive",
-            new PIDSettings(0, 0, 0, 0, 0));
+            new PIDSettings(-1, -1, -1, -1, -1));
     private static final PIDSettings turnPIDSettings = namespace.addPIDNamespace("turn",
             new PIDSettings(0.007, 0, 0, 0, 0));
     private static final FeedForwardSettings driveFeedForwardSettings = namespace.addFeedForwardNamespace("drive",
