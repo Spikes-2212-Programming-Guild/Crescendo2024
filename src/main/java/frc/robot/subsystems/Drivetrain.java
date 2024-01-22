@@ -30,7 +30,7 @@ public class Drivetrain extends DashboardedSubsystem {
             (FRONT_LEFT_WHEEL_POSITION.getX() + BACK_RIGHT_WHEEL_POSITION.getX()) / 2,
             (FRONT_LEFT_WHEEL_POSITION.getY() + BACK_RIGHT_WHEEL_POSITION.getY()) / 2);
 
-    public static final double MAX_SPEED_METERS_PER_SECONDS = 4;
+    public static final double MAX_SPEED_METERS_PER_SECONDS = 4.7;
     public static final double MIN_SPEED_METERS_PER_SECONDS = 0.2;
 
     private static final String NAMESPACE_NAME = "drivetrain";
