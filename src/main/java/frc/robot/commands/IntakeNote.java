@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import com.spikes2212.command.genericsubsystem.commands.MoveGenericSubsystem;
 import com.spikes2212.command.genericsubsystem.commands.smartmotorcontrollergenericsubsystem.MoveSmartMotorControllerGenericSubsystem;
 import com.spikes2212.util.UnifiedControlMode;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
@@ -18,10 +19,8 @@ public class IntakeNote extends ParallelRaceGroup {
     public IntakeNote(IntakeRoller intakeRoller, Storage storage) {
         this.storage = storage;
         addCommands(
-                new MoveSmartMotorControllerGenericSubsystem(intakeRoller, null, null,
-                        UnifiedControlMode.PERCENT_OUTPUT, ROLLER_SPEED),
-                new MoveSmartMotorControllerGenericSubsystem(storage, null, null,
-                        UnifiedControlMode.PERCENT_OUTPUT, STORAGE_SPEED).until(storage::noteInStorage)
+                new MoveGenericSubsystem(intakeRoller, ROLLER_SPEED),
+                new MoveGenericSubsystem(storage, STORAGE_SPEED)
         );
     }
 }
