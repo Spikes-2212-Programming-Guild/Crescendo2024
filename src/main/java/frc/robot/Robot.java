@@ -4,14 +4,24 @@
 
 package frc.robot;
 
+import com.spikes2212.control.FeedForwardSettings;
+import com.spikes2212.control.PIDSettings;
+import com.spikes2212.dashboard.RootNamespace;
 import com.spikes2212.util.PlaystationControllerWrapper;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.commands.DriveSwerve;
+import frc.robot.commands.RotateWithPID;
 import frc.robot.subsystems.Drivetrain;
+
+import java.util.function.Supplier;
 
 public class Robot extends TimedRobot {
 
+    private static final RootNamespace namespace = new RootNamespace("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+    private static final Supplier<Double> angle = namespace.addConstantDouble("angle", 0);
     private Drivetrain drivetrain = Drivetrain.getInstance();
     private PlaystationControllerWrapper ps = new PlaystationControllerWrapper(0);
 
@@ -27,7 +37,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledInit() {
-
+        CommandScheduler.getInstance().cancelAll();
     }
 
     @Override
@@ -38,12 +48,16 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         drivetrain.resetRelativeEncoders();
-        DriveSwerve driveSwerve = new DriveSwerve(drivetrain,
-                () -> 0.28,
-                () -> 0.28,
-                () -> 0.0,
-                false, false);
-        driveSwerve.schedule();
+        RotateWithPID rotateWithPID = new RotateWithPID(drivetrain, () -> 100.0, () -> (drivetrain.getAngle() % 360),
+                new PIDSettings(0.05, 0, 0.0005, 0.2, 0.2), new FeedForwardSettings(0.015, 0.21277, 0));
+        rotateWithPID.schedule();
+//        RunCommand command = new RunCommand(drivetrain::iAmDeathDestroyerOfWorlds) {
+//            @Override
+//            public boolean isFinished() {
+//                return false;
+//            }
+//        };
+//        command.schedule();
     }
 
     @Override
@@ -54,12 +68,14 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         drivetrain.resetRelativeEncoders();
+//        drivetrain.resetGyro();
         DriveSwerve driveSwerve = new DriveSwerve(drivetrain,
-                () -> ps.getLeftX() * Drivetrain.MAX_SPEED_METERS_PER_SECONDS,
                 () -> ps.getLeftY() * Drivetrain.MAX_SPEED_METERS_PER_SECONDS,
-                () -> ps.getRightX() * Drivetrain.MAX_SPEED_METERS_PER_SECONDS,
-                false, false);
-        driveSwerve.schedule();
+                () -> ps.getLeftX() * Drivetrain.MAX_SPEED_METERS_PER_SECONDS,
+                () -> ps.getRightX() * 10,
+                true, false);
+        ps.getR1Button().onTrue(new InstantCommand(drivetrain::resetGyro));
+        drivetrain.setDefaultCommand(driveSwerve);
     }
 
     @Override

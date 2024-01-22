@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.spikes2212.command.DashboardedSubsystem;
-import com.spikes2212.dashboard.SpikesLogger;
 import com.spikes2212.util.Limelight;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -30,7 +29,7 @@ public class Drivetrain extends DashboardedSubsystem {
             (FRONT_LEFT_WHEEL_POSITION.getX() + BACK_RIGHT_WHEEL_POSITION.getX()) / 2,
             (FRONT_LEFT_WHEEL_POSITION.getY() + BACK_RIGHT_WHEEL_POSITION.getY()) / 2);
 
-    public static final double MAX_SPEED_METERS_PER_SECONDS = 4;
+    public static final double MAX_SPEED_METERS_PER_SECONDS = 4.7;
     public static final double MIN_SPEED_METERS_PER_SECONDS = 0.2;
 
     private static final String NAMESPACE_NAME = "drivetrain";
@@ -180,8 +179,24 @@ public class Drivetrain extends DashboardedSubsystem {
         return -gyro.getAngle();
     }
 
+    public double getNormalizedAngle() {
+        return getRotation2d().getDegrees() % 180;
+    }
+
     public Rotation2d getRotation2d() {
         return Rotation2d.fromDegrees(getAngle());
+    }
+
+    public void iAmDeathDestroyerOfWorlds() {
+        double velocity = 0.015;
+        frontRight.setAngle(45);
+        frontLeft.setAngle(135);
+        backLeft.setAngle(225);
+        backRight.setAngle(315);
+        frontLeft.driveController.set(velocity);
+        frontRight.driveController.set(velocity);
+        backLeft.driveController.set(velocity);
+        backRight.driveController.set(velocity);
     }
 
     @Override
@@ -195,6 +210,6 @@ public class Drivetrain extends DashboardedSubsystem {
         namespace.putNumber("x odom", () -> odometry.getPoseMeters().getX());
         namespace.putNumber("y odom", () -> odometry.getPoseMeters().getY());
         namespace.putNumber("rotation odom", () -> odometry.getPoseMeters().getRotation().getDegrees());
-
+        namespace.putNumber("normalized yaw",  this::getNormalizedAngle);
     }
 }
