@@ -136,8 +136,7 @@ public class SwerveModule extends DashboardedSubsystem {
     private void setSpeed(double speed, boolean usePID) {
         if (usePID) {
             configureDriveController();
-            driveFeedForwardController.setGains(driveFeedForwardSettings.getkS(), driveFeedForwardSettings.getkV(),
-                    driveFeedForwardSettings.getkA(), driveFeedForwardSettings.getkG());
+            configFF();
             double feedForward = driveFeedForwardController.calculate(speed);
             driveController.getPIDController().setReference(speed, CANSparkMax.ControlType.kVelocity, PID_SLOT,
                     feedForward);
@@ -199,6 +198,11 @@ public class SwerveModule extends DashboardedSubsystem {
             newAngle += 360;
         }
         return newAngle;
+    }
+
+    public void configFF() {
+        driveFeedForwardController.setGains(driveFeedForwardSettings.getkS(), driveFeedForwardSettings.getkV(),
+                driveFeedForwardSettings.getkA(), driveFeedForwardSettings.getkG();
     }
 
     @Override
