@@ -168,7 +168,8 @@ public class SwerveModule extends DashboardedSubsystem {
     }
 
     /**
-     * Takes the module's angle and the desired angle, and returns it in within the range of 0 to 360.
+     * Takes the module's angle and the desired angle, and returns it in within the scope reference and 360 degrees
+     * above it.
      * Credit to team #364.
      *
      * @param scopeReference current angle
