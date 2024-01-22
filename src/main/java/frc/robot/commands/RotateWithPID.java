@@ -1,5 +1,7 @@
 package frc.robot.commands;
 
+import com.spikes2212.control.FeedForwardController;
+import com.spikes2212.control.FeedForwardSettings;
 import com.spikes2212.control.PIDSettings;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Timer;
@@ -12,22 +14,27 @@ public class RotateWithPID extends Command {
 
     private final Drivetrain drivetrain;
     private final Supplier<Double> setpoint;
-    private final Supplier<Double> sourceAngle;
+    private final Supplier<Double> source;
     private final PIDSettings pidSettings;
     private final PIDController pidController;
+    private final FeedForwardSettings feedForwardSettings;
+    private final FeedForwardController feedForwardController;
 
     private double lastTimeNotOnTarget;
 
-    public RotateWithPID(Drivetrain drivetrain, Supplier<Double> setpoint, Supplier<Double> sourceAngle,
-                         PIDSettings pidSettings) {
+    public RotateWithPID(Drivetrain drivetrain, Supplier<Double> setpoint, Supplier<Double> source,
+                         PIDSettings pidSettings, FeedForwardSettings feedForwardSettings) {
         addRequirements(drivetrain);
         this.drivetrain = drivetrain;
         this.pidController = new PIDController(pidSettings.getkP(), pidSettings.getkI(), pidSettings.getkD());
         pidController.setTolerance(pidSettings.getTolerance());
         this.setpoint = setpoint;
-        this.sourceAngle = sourceAngle;
+        this.source = source;
         this.pidSettings = pidSettings;
         lastTimeNotOnTarget = Timer.getFPGATimestamp();
+        this.feedForwardSettings = feedForwardSettings;
+        this.feedForwardController = new FeedForwardController(feedForwardSettings,
+                FeedForwardController.DEFAULT_PERIOD);
     }
 
     @Override
@@ -38,7 +45,8 @@ public class RotateWithPID extends Command {
 
     @Override
     public void execute() {
-        drivetrain.drive(0, 0, pidController.calculate(setpoint.get(), sourceAngle.get()), false, false);
+        drivetrain.drive(0, 0, pidController.calculate(setpoint.get(),
+                source.get()) + feedForwardController.calculate(setpoint.get()), false, false);
     }
 
     @Override
