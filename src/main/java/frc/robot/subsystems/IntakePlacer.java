@@ -7,13 +7,6 @@ import com.spikes2212.control.PIDSettings;
 
 public class IntakePlacer extends SparkGenericSubsystem {
 
-    /**
-     * Constructs a new instance of {@link SparkGenericSubsystem}.
-     *
-     * @param namespaceName the name of the subsystem's namespace
-     * @param master        the motor controller which runs the loops
-     * @param slaves        additional motor controllers that follow the master
-     */
     public IntakePlacer(String namespaceName, CANSparkBase master, CANSparkBase... slaves) {
         super(namespaceName, master, slaves);
     }
@@ -24,5 +17,13 @@ public class IntakePlacer extends SparkGenericSubsystem {
 
     public FeedForwardSettings getFeedForwardSettings() {
         return null;
+    }
+
+    public boolean intakeUp() {
+        return true;
+    }
+
+    public boolean intakeDown() {
+        return true;
     }
 }
