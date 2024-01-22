@@ -202,7 +202,7 @@ public class SwerveModule extends DashboardedSubsystem {
 
     public void configFF() {
         driveFeedForwardController.setGains(driveFeedForwardSettings.getkS(), driveFeedForwardSettings.getkV(),
-                driveFeedForwardSettings.getkA(), driveFeedForwardSettings.getkG();
+                driveFeedForwardSettings.getkA(), driveFeedForwardSettings.getkG());
     }
 
     @Override
