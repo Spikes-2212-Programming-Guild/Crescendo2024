@@ -22,4 +22,10 @@ public class IntakeRoller extends MotoredGenericSubsystem {
     private IntakeRoller(CANSparkMax rollMotor) {
         super(NAMESPACE_NAME, rollMotor);
     }
+
+    @Override
+    public boolean canMove(double speed) {
+        if (Storage.getInstance().hasNote()) return false;
+        return true;
+    }
 }
