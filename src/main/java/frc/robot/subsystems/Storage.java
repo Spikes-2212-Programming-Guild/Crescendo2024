@@ -13,5 +13,6 @@ public class Storage extends SparkGenericSubsystem {
      */
     public Storage(String namespaceName, CANSparkBase master, CANSparkBase... slaves) {
         super(namespaceName, master, slaves);
+
     }
 }

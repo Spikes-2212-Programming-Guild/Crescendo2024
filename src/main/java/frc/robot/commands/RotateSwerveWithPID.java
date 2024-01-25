@@ -1,4 +1,4 @@
-package frc.robot.command;
+package frc.robot.commands;
 
 import com.spikes2212.control.FeedForwardSettings;
 import com.spikes2212.control.PIDSettings;
