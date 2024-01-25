@@ -42,4 +42,12 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
     public double getAngle() {
         return absoluteEncoder.get() * 360 + ENCODER_OFFSET;
     }
+
+    public boolean topLimit() {
+        return !topLimit.get();
+    }
+
+    public boolean bottomLimit() {
+        return !bottomLimit.get();
+    }
 }
