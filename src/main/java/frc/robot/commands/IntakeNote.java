@@ -14,10 +14,7 @@ public class IntakeNote extends ParallelRaceGroup {
     private static final Supplier<Double> ROLLER_SPEED = () -> 0.0;
     private static final Supplier<Double> STORAGE_SPEED = () -> 0.0;
 
-    private final Storage storage;
-
     public IntakeNote(IntakeRoller intakeRoller, Storage storage) {
-        this.storage = storage;
         addCommands(
                 new MoveGenericSubsystem(intakeRoller, ROLLER_SPEED),
                 new MoveGenericSubsystem(storage, STORAGE_SPEED)
