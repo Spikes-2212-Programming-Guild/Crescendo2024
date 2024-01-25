@@ -2,9 +2,7 @@ package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.spikes2212.command.DashboardedSubsystem;
-import com.spikes2212.dashboard.SpikesLogger;
 import com.spikes2212.util.Limelight;
-import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.*;
@@ -45,12 +43,6 @@ public class Drivetrain extends DashboardedSubsystem {
     private final SwerveDriveKinematics kinematics;
     private final SwerveDriveOdometry odometry;
 
-    private final Limelight limelight;
-    private final PhotonCamera photonCamera;
-
-    private final PhotonPoseEstimator poseEstimator;
-    private Pose2d robotPose = new Pose2d();
-
     private SwerveModulePosition[] modulePositions;
 
     private static Drivetrain instance;
@@ -74,22 +66,10 @@ public class Drivetrain extends DashboardedSubsystem {
         this.kinematics = new SwerveDriveKinematics(FRONT_LEFT_WHEEL_POSITION, FRONT_RIGHT_WHEEL_POSITION,
                 BACK_LEFT_WHEEL_POSITION, BACK_RIGHT_WHEEL_POSITION);
         this.gyro = gyro;
-        limelight = new Limelight("limelight-back");
-        photonCamera = new PhotonCamera("photonvision");
         modulePositions = new SwerveModulePosition[]
                 {frontLeft.getModulePosition(), frontRight.getModulePosition(), backLeft.getModulePosition(),
                         backRight.getModulePosition()};
         odometry = new SwerveDriveOdometry(kinematics, getRotation2d(), modulePositions, new Pose2d());
-        PhotonPoseEstimator poseEstimator1;
-        try {
-            poseEstimator1 = new PhotonPoseEstimator(
-                    AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile),
-                    PhotonPoseEstimator.PoseStrategy.CLOSEST_TO_LAST_POSE, photonCamera,
-                    new Transform3d(new Translation3d(0, 0.36, 0), new Rotation3d()));
-        } catch (Exception e) {
-            poseEstimator1 = null;
-        }
-        poseEstimator = poseEstimator1;
         configureDashboard();
     }
 
@@ -100,17 +80,6 @@ public class Drivetrain extends DashboardedSubsystem {
                 {frontLeft.getModulePosition(), frontRight.getModulePosition(), backLeft.getModulePosition(),
                         backRight.getModulePosition()};
         odometry.update(getRotation2d(), modulePositions);
-        poseEstimator.setReferencePose(odometry.getPoseMeters());
-        if (photonCamera.getLatestResult().hasTargets()) {
-            robotPose = odometry.getPoseMeters();
-            poseEstimator.setLastPose(robotPose);
-        } else {
-            try {
-                robotPose = poseEstimator.update().get().estimatedPose.toPose2d();
-                poseEstimator.setLastPose(robotPose);
-            } catch (Exception ignored) {
-            }
-        }
     }
 
     public void drive(double xSpeed, double ySpeed, double rotationSpeed,
@@ -132,27 +101,6 @@ public class Drivetrain extends DashboardedSubsystem {
 
     public void resetGyro() {
         gyro.reset();
-    }
-
-    /**
-     * Resets the position to the position obtained from the vision source, or the given position if there is no
-     * {@link AprilTag} target.
-     *
-     * @param noTargetPosition the position to reset the estimator to if there is no information from the vision source.
-     * @TODO add to {@link frc.robot.Robot}
-     */
-    public void resetPoseEstimator(Pose2d noTargetPosition) {
-//        poseEstimator.resetPosition(
-//                gyro.getRotation2d(),
-//                new SwerveModulePosition[]{
-//                        frontLeft.getPosition(),
-//                        frontRight.getPosition(),
-//                        backLeft.getPosition(),
-//                        backRight.getPosition()
-//                },
-//                limelight.hasTarget() ? limelight.getRobotPose().toPose2d() : noTargetPosition
-//        );
-
     }
 
     public void stop() {
@@ -189,9 +137,6 @@ public class Drivetrain extends DashboardedSubsystem {
         namespace.putNumber("gyro yaw", this::getAngle);
         namespace.putRunnable("stop drivetrain", () -> stop());
         namespace.putRunnable("move PLEWA,SP;RKW.OIA", this::pain);
-        namespace.putNumber("x pos", () -> robotPose.getX());
-        namespace.putNumber("y pos", () -> robotPose.getY());
-        namespace.putNumber("angle", () -> robotPose.getRotation().getDegrees());
         namespace.putNumber("x odom", () -> odometry.getPoseMeters().getX());
         namespace.putNumber("y odom", () -> odometry.getPoseMeters().getY());
         namespace.putNumber("rotation odom", () -> odometry.getPoseMeters().getRotation().getDegrees());
