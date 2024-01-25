@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import com.spikes2212.command.DoubleSolenoidSubsystem;
-import com.spikes2212.dashboard.Namespace;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import frc.robot.RobotMap;
