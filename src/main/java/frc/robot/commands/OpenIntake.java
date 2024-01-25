@@ -10,16 +10,13 @@ public class OpenIntake extends MoveSmartMotorControllerGenericSubsystem {
 
     private static final Supplier<Double> SETPOINT = () -> 0.0;
 
-    private final IntakePlacer intakePlacer;
-
     public OpenIntake(IntakePlacer intakePlacer) {
         super(intakePlacer, intakePlacer.getPIDSettings(), intakePlacer.getFeedForwardSettings(),
                 UnifiedControlMode.POSITION, SETPOINT);
-        this.intakePlacer = intakePlacer;
     }
 
     @Override
     public boolean isFinished() {
-        return intakePlacer.intakeDown() || super.isFinished();
+        return ((IntakePlacer) subsystem).intakeDown() || super.isFinished();
     }
 }
