@@ -28,9 +28,9 @@ public class RotateWithPID extends Command {
         this.drivetrain = drivetrain;
         this.setpoint = setpoint;
         this.source = source;
+        this.pidSettings = pidSettings;
         this.pidController = new PIDController(pidSettings.getkP(), pidSettings.getkI(), pidSettings.getkD());
         pidController.setTolerance(pidSettings.getTolerance());
-        this.pidSettings = pidSettings;
         this.feedForwardSettings = feedForwardSettings;
         this.feedForwardController = new FeedForwardController(feedForwardSettings,
                 FeedForwardController.DEFAULT_PERIOD);
