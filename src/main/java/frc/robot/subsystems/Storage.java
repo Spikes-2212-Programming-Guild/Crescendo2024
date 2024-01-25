@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.spikes2212.command.genericsubsystem.MotoredGenericSubsystem;
-import com.spikes2212.command.genericsubsystem.smartmotorcontrollersubsystem.SparkGenericSubsystem;
 
 public class Storage extends MotoredGenericSubsystem {
 
@@ -10,7 +9,7 @@ public class Storage extends MotoredGenericSubsystem {
         super(name, master);
     }
 
-    public boolean noteInStorage() {
+    public boolean hasNote() {
         return false;
     }
 }
