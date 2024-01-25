@@ -51,11 +51,6 @@ public class DriveSwerve extends Command {
     }
 
     @Override
-    public boolean isFinished() {
-        return false;
-    }
-
-    @Override
     public void end(boolean interrupted) {
         drivetrain.stop();
     }
