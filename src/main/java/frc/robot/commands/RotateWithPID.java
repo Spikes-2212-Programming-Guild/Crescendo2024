@@ -13,25 +13,27 @@ import java.util.function.Supplier;
 public class RotateWithPID extends Command {
 
     private final Drivetrain drivetrain;
+    private final Supplier<Double> setpoint;
+    private final Supplier<Double> source;
     private final PIDSettings pidSettings;
     private final PIDController pidController;
+    private final FeedForwardSettings feedForwardSettings;
     private final FeedForwardController feedForwardController;
-    private final Supplier<Double> targetAngle;
-    private final Supplier<Double> sourceAngle;
 
     private double lastTimeNotOnTarget;
 
-    public RotateWithPID(Drivetrain drivetrain, Supplier<Double> targetAngle, Supplier<Double> sourceAngle,
+    public RotateWithPID(Drivetrain drivetrain, Supplier<Double> setpoint, Supplier<Double> source,
                          PIDSettings pidSettings, FeedForwardSettings feedForwardSettings) {
         addRequirements(drivetrain);
         this.drivetrain = drivetrain;
         this.pidController = new PIDController(pidSettings.getkP(), pidSettings.getkI(), pidSettings.getkD());
         pidController.setTolerance(pidSettings.getTolerance());
-        this.feedForwardController = new FeedForwardController(feedForwardSettings, FeedForwardController.DEFAULT_PERIOD);
-        this.targetAngle = targetAngle;
-        this.sourceAngle = sourceAngle;
+        this.setpoint = setpoint;
+        this.source = source;
         this.pidSettings = pidSettings;
-        lastTimeNotOnTarget = Timer.getFPGATimestamp();
+        this.feedForwardSettings = feedForwardSettings;
+        this.feedForwardController = new FeedForwardController(feedForwardSettings,
+                FeedForwardController.DEFAULT_PERIOD);
     }
 
     @Override
@@ -42,8 +44,11 @@ public class RotateWithPID extends Command {
 
     @Override
     public void execute() {
-        drivetrain.drive(0, 0, pidController.calculate(targetAngle.get(), sourceAngle.get() +
-                feedForwardController.calculate(targetAngle.get())), false, false);
+        pidController.setPID(pidSettings.getkP(), pidSettings.getkI(), pidSettings.getkD());
+        pidController.setTolerance(pidSettings.getTolerance());
+        feedForwardController.setGains(feedForwardSettings);
+        drivetrain.drive(0, 0, pidController.calculate(setpoint.get(),
+                source.get()) + feedForwardController.calculate(setpoint.get()), false, false);
     }
 
     @Override
