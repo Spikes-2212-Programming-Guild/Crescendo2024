@@ -22,9 +22,7 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
     public static ShooterAdjuster getInstance() {
         if (instance == null) {
             instance = new ShooterAdjuster(
-                    new CANSparkMax(RobotMap.CAN.SHOOTER_ADJUSTER_LEFT_SPARKMAX,
-                            CANSparkBase.MotorType.kBrushless),
-                    new CANSparkMax(RobotMap.CAN.SHOOTER_ADJUSTER_RIGHT_SPARKMAX,
+                    new CANSparkMax(RobotMap.CAN.SHOOTER_ADJUSTER_SPARKMAX,
                             CANSparkBase.MotorType.kBrushless),
                     new DutyCycleEncoder(RobotMap.DIO.SHOOTER_ADJUSTER_ABSOLUTE_ENCODER),
                     new DigitalInput(RobotMap.DIO.SHOOTER_ADJUSTER_TOP_LIMIT),
@@ -33,9 +31,9 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
         return instance;
     }
 
-    private ShooterAdjuster(CANSparkMax left, CANSparkMax right, DutyCycleEncoder absoluteEncoder,
+    private ShooterAdjuster(CANSparkMax motorController, DutyCycleEncoder absoluteEncoder,
                             DigitalInput topLimit, DigitalInput bottomLimit) {
-        super(NAMESPACE_NAME, left, right);
+        super(NAMESPACE_NAME, motorController);
         this.absoluteEncoder = absoluteEncoder;
         this.topLimit = topLimit;
         this.bottomLimit = bottomLimit;
