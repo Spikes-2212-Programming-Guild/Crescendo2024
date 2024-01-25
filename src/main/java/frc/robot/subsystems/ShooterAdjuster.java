@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 
 public class ShooterAdjuster extends SparkGenericSubsystem {
 
-    private static String NAMESPACE_NAME;
+    private static String NAMESPACE_NAME = "shooter adjuster";
     private static final double ENCODER_OFFSET = 0;
 
     private final DutyCycleEncoder absoluteEncoder;
