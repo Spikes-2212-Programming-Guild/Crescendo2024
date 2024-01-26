@@ -11,9 +11,8 @@ public class Storage extends MotoredGenericSubsystem {
 
     private static final String NAMESPACE_NAME = "storage";
 
-    private static Storage instance;
-
     private final DigitalInput limit;
+    private static Storage instance;
 
     public static Storage getInstance() {
         if (instance == null) {
