@@ -1,6 +1,5 @@
 package frc.robot.commands;
 
-import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Drivetrain;
@@ -9,7 +8,7 @@ import java.util.function.Supplier;
 
 public class DriveSwerve extends Command {
 
-    private static final double DRIVE_ACCELERATION_LIMIT_PERCENTAGE = 2;
+    private static final double DRIVE_ACCELERATION_LIMIT = 2;
     private static final double TURN_ACCELERATION_LIMIT_PERCENTAGE = 4;
 
     private final Drivetrain drivetrain;
@@ -32,8 +31,8 @@ public class DriveSwerve extends Command {
         this.rotationSpeed = rotationSpeed;
         this.fieldRelative = fieldRelative;
         this.usePID = usePID;
-        this.xLimiter = new SlewRateLimiter(DRIVE_ACCELERATION_LIMIT_PERCENTAGE);
-        this.yLimiter = new SlewRateLimiter(DRIVE_ACCELERATION_LIMIT_PERCENTAGE);
+        this.xLimiter = new SlewRateLimiter(DRIVE_ACCELERATION_LIMIT);
+        this.yLimiter = new SlewRateLimiter(DRIVE_ACCELERATION_LIMIT);
         this.rotationLimiter = new SlewRateLimiter(TURN_ACCELERATION_LIMIT_PERCENTAGE);
     }
 
