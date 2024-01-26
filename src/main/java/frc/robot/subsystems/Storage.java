@@ -19,7 +19,7 @@ public class Storage extends MotoredGenericSubsystem {
             instance = new Storage(
                     NAMESPACE_NAME,
                     new CANSparkMax(RobotMap.CAN.STORAGE_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
-                    new DigitalInput(RobotMap.CAN.STORAGE_SPARK_MAX)
+                    new DigitalInput(RobotMap.DIO.STORAGE_LIMIT)
             );
         }
         return instance;
