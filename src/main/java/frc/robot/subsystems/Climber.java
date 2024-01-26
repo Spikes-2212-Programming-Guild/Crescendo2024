@@ -13,7 +13,8 @@ public class Climber extends DoubleSolenoidSubsystem {
     private static final boolean LEFT_INVERTED = false;
     private static final boolean RIGHT_INVERTED = false;
 
-    private static Climber leftInstance, rightInstance;
+    private static Climber leftInstance;
+    private static Climber rightInstance;
 
     public static Climber getLeftInstance() {
         if (leftInstance == null) {
