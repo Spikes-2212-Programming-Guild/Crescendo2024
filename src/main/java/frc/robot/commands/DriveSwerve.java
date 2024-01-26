@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 public class DriveSwerve extends Command {
 
     private static final double DRIVE_ACCELERATION_LIMIT = 2;
-    private static final double TURN_ACCELERATION_LIMIT_PERCENTAGE = 4;
+    private static final double TURN_ACCELERATION_LIMIT = 4;
 
     private final Drivetrain drivetrain;
     private final Supplier<Double> xSpeed;
@@ -33,7 +33,7 @@ public class DriveSwerve extends Command {
         this.usePID = usePID;
         this.xLimiter = new SlewRateLimiter(DRIVE_ACCELERATION_LIMIT);
         this.yLimiter = new SlewRateLimiter(DRIVE_ACCELERATION_LIMIT);
-        this.rotationLimiter = new SlewRateLimiter(TURN_ACCELERATION_LIMIT_PERCENTAGE);
+        this.rotationLimiter = new SlewRateLimiter(TURN_ACCELERATION_LIMIT);
     }
 
     @Override
