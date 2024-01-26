@@ -162,13 +162,6 @@ public class Drivetrain extends DashboardedSubsystem {
         backRight.stop();
     }
 
-    public void pain() {
-        frontLeft.set(new SwerveModuleState(0.7, new Rotation2d(0)), false);
-        frontRight.set(new SwerveModuleState(0.7, new Rotation2d(0)), false);
-        backLeft.set(new SwerveModuleState(0.7, new Rotation2d(0)), false);
-        backRight.set(new SwerveModuleState(0.7, new Rotation2d(0)), false);
-    }
-
     public void resetRelativeEncoders() {
         frontLeft.configureRelativeTurnEncoder();
         frontRight.configureRelativeTurnEncoder();
@@ -188,7 +181,6 @@ public class Drivetrain extends DashboardedSubsystem {
     public void configureDashboard() {
         namespace.putNumber("gyro yaw", this::getAngle);
         namespace.putRunnable("stop drivetrain", () -> stop());
-        namespace.putRunnable("move PLEWA,SP;RKW.OIA", this::pain);
         namespace.putNumber("x pos", () -> robotPose.getX());
         namespace.putNumber("y pos", () -> robotPose.getY());
         namespace.putNumber("angle", () -> robotPose.getRotation().getDegrees());
