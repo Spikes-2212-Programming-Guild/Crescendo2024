@@ -45,7 +45,7 @@ public class IntakePlacer extends SparkGenericSubsystem {
         return bottomLimitSwitch.get();
     }
 
-    public PIDSettings getPidSettings() {
+    public PIDSettings getPIDSettings() {
         return pidSettings;
     }
 
