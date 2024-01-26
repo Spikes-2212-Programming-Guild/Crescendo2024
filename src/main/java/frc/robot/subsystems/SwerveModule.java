@@ -7,6 +7,7 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkPIDController;
 import com.spikes2212.command.DashboardedSubsystem;
 import com.spikes2212.control.FeedForwardController;
 import com.spikes2212.control.FeedForwardSettings;
@@ -139,7 +140,7 @@ public class SwerveModule extends DashboardedSubsystem {
             configFF();
             double feedForward = driveFeedForwardController.calculate(speed);
             driveController.getPIDController().setReference(speed, CANSparkMax.ControlType.kVelocity, PID_SLOT,
-                    feedForward);
+                    feedForward, SparkPIDController.ArbFFUnits.kVoltage);
         } else driveController.set(speed / Drivetrain.MAX_SPEED_METERS_PER_SECONDS);
     }
 
