@@ -25,7 +25,7 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
      *
      * @param namespaceName the name of the subsystem's namespace
      * @param master        the motor controller which runs the loops
-     * @param slaves        additional motor controllers that follow the master
+     * @param slaves        additional motor controllers that follow the leftMotor
      */
     public ShooterAdjuster(String namespaceName, CANSparkBase master, CANSparkBase... slaves) {
 

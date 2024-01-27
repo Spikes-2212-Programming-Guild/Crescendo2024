@@ -9,7 +9,7 @@ public class Storage extends SparkGenericSubsystem {
      *
      * @param namespaceName the name of the subsystem's namespace
      * @param master        the motor controller which runs the loops
-     * @param slaves        additional motor controllers that follow the master
+     * @param slaves        additional motor controllers that follow the leftMotor
      */
     public Storage(String namespaceName, CANSparkBase master, CANSparkBase... slaves) {
         super(namespaceName, master, slaves);

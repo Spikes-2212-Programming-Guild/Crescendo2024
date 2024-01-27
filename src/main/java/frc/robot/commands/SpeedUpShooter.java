@@ -16,8 +16,8 @@ public class SpeedUpShooter extends Command {
      * Constructs a new instance of {@link SparkGenericSubsystem}.
      *
      * @param namespaceName the name of the subsystem's namespace
-     * @param master        the motor controller which runs the loops
-     * @param slaves        additional motor controllers that follow the master
+     * @param leftMotor        the motor controller which runs the loops
+     * @param slaves        additional motor controllers that follow the leftMotor
      */
     protected final PIDSettings leftPIDSettings;
 
@@ -46,15 +46,6 @@ public class SpeedUpShooter extends Command {
     protected Supplier<Double> rightSetpoint;
 
     /**
-     * How far the left side of the drivetrain drove.
-     */
-    protected Supplier<Double> leftSource;
-
-    /**
-     * How far the right side of the drivetrain drove.
-     */
-    protected Supplier<Double> rightSource;
-
     /**
      * The FeedForwards Controller of the FeedForward loop operating on the left side of the drivetrain.
      */
@@ -68,14 +59,12 @@ public class SpeedUpShooter extends Command {
     public SpeedUpShooter(String namespaceName, PIDSettings leftPIDSettings, PIDSettings rightPIDSettings,
                           FeedForwardSettings leftFeedForwardSettings,
                           FeedForwardSettings rightFeedForwardSettings, Supplier<Double> leftSetpoint,
-                          Supplier<Double> rightSetpoint, Supplier<Double> leftSource,
-                          Supplier<Double> rightSource, CANSparkBase lMotor, CANSparkBase rMotor) {
+                          Supplier<Double> rightSetpoint,
+                          CANSparkBase lMotor, CANSparkBase rMotor) {
         this.leftPIDSettings = leftPIDSettings;
         this.rightPIDSettings = rightPIDSettings;
         this.leftSetpoint = leftSetpoint;
         this.rightSetpoint = rightSetpoint;
-        this.leftSource = leftSource;
-        this.rightSource = rightSource;
         this.leftFeedForwardSettings = leftFeedForwardSettings;
         this.rightFeedForwardSettings = rightFeedForwardSettings;
         this.leftFeedForwardController = new FeedForwardController(leftFeedForwardSettings.getkS(),

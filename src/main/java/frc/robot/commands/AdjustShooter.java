@@ -15,8 +15,8 @@ public class AdjustShooter extends Command {
      * Constructs a new instance of {@link SparkGenericSubsystem}.
      *
      * @param namespaceName the name of the subsystem's namespace
-     * @param master        the motor controller which runs the loops
-     * @param slaves        additional motor controllers that follow the master
+     * @param leftMotor        the motor controller which runs the loops
+     * @param slaves        additional motor controllers that follow the leftMotor
      */
     protected final PIDSettings leftPIDSettings;
 
@@ -34,7 +34,6 @@ public class AdjustShooter extends Command {
      * The FeedForwards Settings of the FeedForward loop operating on the right side of the drivetrain.
      */
     protected final FeedForwardSettings rightFeedForwardSettings;
-    private final CANSparkBase slave;
     private final CANSparkBase master;
 
     /**
@@ -81,8 +80,7 @@ public class AdjustShooter extends Command {
                          FeedForwardSettings leftFeedForwardSettings,
                          FeedForwardSettings rightFeedForwardSettings, Supplier<Double> leftSetpoint,
                          Supplier<Double> rightSetpoint, Supplier<Double> leftSource,
-                         Supplier<Double> rightSource, CANSparkBase master, CANSparkBase slave) {
-        this.slave = slave;
+                         Supplier<Double> rightSource, CANSparkBase master) {
         this.leftPIDSettings = leftPIDSettings;
         this.leftPIDController = new PIDController(leftPIDSettings.getkP(), leftPIDSettings.getkI(),
                 leftPIDSettings.getkD());
@@ -118,8 +116,6 @@ public class AdjustShooter extends Command {
                 rightFeedForwardSettings.getkA(), rightFeedForwardSettings.getkG());
         master.set(leftPIDController.calculate(leftSource.get()) +
                         leftFeedForwardController.calculate(leftSetpoint.get()));
-        slave.set(rightPIDController.calculate(rightSource.get()) +
-                rightFeedForwardController.calculate(rightSetpoint.get()));
     }
 
 
