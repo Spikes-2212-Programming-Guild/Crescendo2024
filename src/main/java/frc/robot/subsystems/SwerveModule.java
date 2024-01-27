@@ -148,7 +148,7 @@ public class SwerveModule extends DashboardedSubsystem {
      * Minimize the change in heading the desired swerve module state would require by potentially
      * reversing the direction the wheel spins. Customized from WPILib's version to include placing
      * in appropriate scope for REV onboard control.
-     * Credit to team #364
+     * Credit to team #364.
      *
      * @param desiredState the desired state
      * @param currentAngle the current module angle
