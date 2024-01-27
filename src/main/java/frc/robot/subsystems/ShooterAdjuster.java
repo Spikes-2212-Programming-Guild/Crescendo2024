@@ -5,18 +5,18 @@ import com.spikes2212.command.genericsubsystem.smartmotorcontrollersubsystem.Spa
 import com.spikes2212.control.FeedForwardSettings;
 import com.spikes2212.control.PIDSettings;
 import com.spikes2212.control.TrapezoidProfileSettings;
-import edu.wpi.first.wpilibj2.command.Command;
 
 public class ShooterAdjuster extends SparkGenericSubsystem {
 
-    public PIDSettings pidSettings(){
-        return null;
-    }
-    public FeedForwardSettings feedForwardSettings(){
+    public PIDSettings getPIDSettings() {
         return null;
     }
 
-    public TrapezoidProfileSettings trapezoidProfileSettings(){
+    public FeedForwardSettings getFeedForwardSettings() {
+        return null;
+    }
+
+    public TrapezoidProfileSettings getTrapezoidProfileSettings() {
         return null;
     }
 

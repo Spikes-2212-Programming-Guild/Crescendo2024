@@ -6,25 +6,24 @@ import com.spikes2212.control.FeedForwardSettings;
 import com.spikes2212.control.PIDSettings;
 import com.spikes2212.dashboard.Namespace;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj2.command.Command;
 
 public class Drivetrain extends DashboardedSubsystem {
     public Drivetrain(Namespace namespace) {
         super(namespace);
     }
-    public PIDSettings pidSettings(){
+
+    public PIDSettings getPIDSettings(){
         return null;
     }
-    public FeedForwardSettings feedForwardSettings(){
+    public FeedForwardSettings getFeedForwardSettings(){
         return null;
     }
 
     public Pose2d getPose(){
-        Pose2d pose = new Pose2d();
-        return pose;
+        return null;
     }
-    public double rotation(){
-        return getPose().getRotation().getDegrees();
+    public double getAngle() {
+        return 0;
     }
     // using mcs
     @Override

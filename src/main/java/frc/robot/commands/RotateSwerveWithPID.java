@@ -8,11 +8,9 @@ import frc.robot.subsystems.Drivetrain;
 import java.util.function.Supplier;
 
 public class RotateSwerveWithPID extends Command {
-    public RotateSwerveWithPID(Drivetrain drivetrain, Supplier<Double> sours, Supplier<Double> setpoint, PIDSettings pidSettings, FeedForwardSettings feedForwardSettings){
+
+    public RotateSwerveWithPID(Drivetrain drivetrain, Supplier<Double> setpoint, Supplier<Double> source,
+                               PIDSettings pidSettings, FeedForwardSettings feedForwardSettings) {
 
     }
-    public RotateSwerveWithPID(Supplier<Double> source ,Supplier<Double> setPoint ){
-
-    }
-
 }
