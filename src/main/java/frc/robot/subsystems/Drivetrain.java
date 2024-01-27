@@ -129,6 +129,5 @@ public class Drivetrain extends DashboardedSubsystem {
         namespace.putNumber("x odom", () -> odometry.getPoseMeters().getX());
         namespace.putNumber("y odom", () -> odometry.getPoseMeters().getY());
         namespace.putNumber("rotation odom", () -> odometry.getPoseMeters().getRotation().getDegrees());
-
     }
 }
