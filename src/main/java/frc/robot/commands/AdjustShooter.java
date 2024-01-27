@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 import java.util.function.Supplier;
 
-public class MoveShooter extends Command {
+public class AdjustShooter extends Command {
     /**
      * Constructs a new instance of {@link SparkGenericSubsystem}.
      *
@@ -77,11 +77,11 @@ public class MoveShooter extends Command {
      */
     protected FeedForwardController rightFeedForwardController;
 
-    public MoveShooter(String namespaceName, PIDSettings leftPIDSettings, PIDSettings rightPIDSettings,
-                       FeedForwardSettings leftFeedForwardSettings,
-                       FeedForwardSettings rightFeedForwardSettings, Supplier<Double> leftSetpoint,
-                       Supplier<Double> rightSetpoint, Supplier<Double> leftSource,
-                       Supplier<Double> rightSource, CANSparkBase master, CANSparkBase slave) {
+    public AdjustShooter(String namespaceName, PIDSettings leftPIDSettings, PIDSettings rightPIDSettings,
+                         FeedForwardSettings leftFeedForwardSettings,
+                         FeedForwardSettings rightFeedForwardSettings, Supplier<Double> leftSetpoint,
+                         Supplier<Double> rightSetpoint, Supplier<Double> leftSource,
+                         Supplier<Double> rightSource, CANSparkBase master, CANSparkBase slave) {
         this.slave = slave;
         this.leftPIDSettings = leftPIDSettings;
         this.leftPIDController = new PIDController(leftPIDSettings.getkP(), leftPIDSettings.getkI(),

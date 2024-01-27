@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class moveStorage extends Command {
 
 
-    public void stop{
-        MoveS
-    }
+    //public void stop{
+        //MoveS
+   // }
 }
