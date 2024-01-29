@@ -11,7 +11,7 @@ import frc.robot.RobotMap;
 // https://www.youtube.com/watch?v=jxcMRkqaQdw
 public class SwerveModuleHolder {
 
-    private static final RootNamespace namespace = new RootNamespace("swerve module holder 2");
+    private static final RootNamespace namespace = new RootNamespace("swerve module holder");
 
     private static final String FRONT_LEFT_NAMESPACE_NAME = "front left";
     private static final String FRONT_RIGHT_NAMESPACE_NAME = "front right";
@@ -29,11 +29,11 @@ public class SwerveModuleHolder {
     private static final boolean BACK_RIGHT_CANCODER_INVERTED = true;
 
     private static final PIDSettings drivePIDSettings = namespace.addPIDNamespace("drive",
-            new PIDSettings(0, 0, 0, 0, 0));
+            new PIDSettings(-1, -1, -1, -1, -1));
     private static final PIDSettings turnPIDSettings = namespace.addPIDNamespace("turn",
             new PIDSettings(0.007, 0, 0, 0, 0));
     private static final FeedForwardSettings driveFeedForwardSettings = namespace.addFeedForwardNamespace("drive",
-            new FeedForwardSettings(0, 0, 0, 0));
+            new FeedForwardSettings(-1, -1, -1, -1));
 
     private static SwerveModule frontLeft;
     private static SwerveModule frontRight;

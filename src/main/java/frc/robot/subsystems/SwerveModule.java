@@ -7,6 +7,7 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkPIDController;
 import com.spikes2212.command.DashboardedSubsystem;
 import com.spikes2212.control.FeedForwardController;
 import com.spikes2212.control.FeedForwardSettings;
@@ -25,6 +26,8 @@ public class SwerveModule extends DashboardedSubsystem {
     private static final double WHEEL_DIAMETER_IN_INCHES = 4;
     private static final double INCHES_TO_METERS = 0.0254;
     private static final double WHEEL_CIRCUMFERENCE_METERS = WHEEL_DIAMETER_IN_INCHES * INCHES_TO_METERS * Math.PI;
+    private static final double SECONDS_IN_MINUTE = 60;
+    private static final double DEGREES_IN_ROTATION = 360;
 
     public final CANSparkMax driveController;
     public final CANSparkMax turnController;
@@ -93,9 +96,9 @@ public class SwerveModule extends DashboardedSubsystem {
         driveController.getPIDController().setD(drivePIDSettings.getkD());
         driveController.setInverted(driveInverted);
         driveController.setIdleMode(CANSparkMax.IdleMode.kCoast);
-        driveEncoder.setPositionConversionFactor((1 / DRIVING_GEAR_RATIO) * WHEEL_CIRCUMFERENCE_METERS);
         driveEncoder.setVelocityConversionFactor(
-                ((1 / DRIVING_GEAR_RATIO) * WHEEL_CIRCUMFERENCE_METERS) / 60);
+                ((1 / DRIVING_GEAR_RATIO) * WHEEL_CIRCUMFERENCE_METERS) / SECONDS_IN_MINUTE);
+        driveEncoder.setPositionConversionFactor((1 / DRIVING_GEAR_RATIO) * WHEEL_CIRCUMFERENCE_METERS);
     }
 
     private void configureTurnController() {
@@ -110,11 +113,12 @@ public class SwerveModule extends DashboardedSubsystem {
     private void configureAbsoluteEncoder() {
         MagnetSensorConfigs config = new MagnetSensorConfigs();
         config.withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1);
-        config.withSensorDirection(cancoderInverted ? SensorDirectionValue.Clockwise_Positive : SensorDirectionValue.CounterClockwise_Positive);
+        config.withSensorDirection(cancoderInverted ? SensorDirectionValue.Clockwise_Positive :
+                SensorDirectionValue.CounterClockwise_Positive);
     }
 
     public void configureRelativeTurnEncoder() {
-        turnEncoder.setPositionConversionFactor((1 / STEERING_GEAR_RATIO) * 360);
+        turnEncoder.setPositionConversionFactor((1 / STEERING_GEAR_RATIO) * DEGREES_IN_ROTATION);
         turnEncoder.setPosition(getAbsoluteAngle());
     }
 
@@ -133,19 +137,18 @@ public class SwerveModule extends DashboardedSubsystem {
     private void setSpeed(double speed, boolean usePID) {
         if (usePID) {
             configureDriveController();
-            driveFeedForwardController.setGains(driveFeedForwardSettings.getkS(), driveFeedForwardSettings.getkV(),
-                    driveFeedForwardSettings.getkA(), driveFeedForwardSettings.getkG());
+            configFF();
             double feedForward = driveFeedForwardController.calculate(speed);
             driveController.getPIDController().setReference(speed, CANSparkMax.ControlType.kVelocity, PID_SLOT,
-                    feedForward);
+                    feedForward, SparkPIDController.ArbFFUnits.kVoltage);
         } else driveController.set(speed / Drivetrain.MAX_SPEED_METERS_PER_SECONDS);
     }
 
     /**
      * Minimize the change in heading the desired swerve module state would require by potentially
      * reversing the direction the wheel spins. Customized from WPILib's version to include placing
-     * in appropriate scope for CTRE onboard control.
-     * Credit to team #364
+     * in appropriate scope for REV onboard control.
+     * Credit to team #364.
      *
      * @param desiredState the desired state
      * @param currentAngle the current module angle
@@ -166,7 +169,8 @@ public class SwerveModule extends DashboardedSubsystem {
     }
 
     /**
-     * Takes the module's angle and the desired angle, and returns it in within the range of 0 to 360.
+     * Takes the module's angle and the desired angle, and returns it in within the scope reference and 360 degrees
+     * above it.
      * Credit to team #364.
      *
      * @param scopeReference current angle
@@ -196,6 +200,11 @@ public class SwerveModule extends DashboardedSubsystem {
             newAngle += 360;
         }
         return newAngle;
+    }
+
+    public void configFF() {
+        driveFeedForwardController.setGains(driveFeedForwardSettings.getkS(), driveFeedForwardSettings.getkV(),
+                driveFeedForwardSettings.getkA(), driveFeedForwardSettings.getkG());
     }
 
     @Override
