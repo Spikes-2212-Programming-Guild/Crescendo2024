@@ -5,6 +5,7 @@ import com.spikes2212.command.genericsubsystem.smartmotorcontrollersubsystem.Spa
 import com.spikes2212.control.FeedForwardSettings;
 import com.spikes2212.control.PIDSettings;
 import edu.wpi.first.wpilibj.DigitalInput;
+import com.revrobotics.CANSparkMax;
 import frc.robot.RobotMap;
 
 public class IntakePlacer extends SparkGenericSubsystem {
