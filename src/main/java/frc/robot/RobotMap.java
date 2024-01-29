@@ -4,6 +4,7 @@ public class RobotMap {
 
     public interface CAN {
 
+        int INTAKE_ROLLER_SPARKMAX = -1;
         int INTAKE_PLACER_SPARKMAX = -1;
         int SHOOTER_ADJUSTER_SPARKMAX = -1;
         int STORAGE_SPARK_MAX = -1;
