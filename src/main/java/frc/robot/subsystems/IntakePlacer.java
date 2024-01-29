@@ -33,4 +33,12 @@ public class IntakePlacer extends SparkGenericSubsystem {
     public boolean intakeDown() {
         return bottomLimitSwitch.get();
     }
+
+    public PIDSettings getPIDSettings() {
+        return null;
+    }
+
+    public FeedForwardSettings getFeedForwardSettings() {
+        return null;
+    }
 }
