@@ -4,16 +4,10 @@
 
 package frc.robot;
 
-import com.spikes2212.util.PlaystationControllerWrapper;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.DriveSwerve;
-import frc.robot.subsystems.Drivetrain;
 
 public class Robot extends TimedRobot {
-
-    private Drivetrain drivetrain = Drivetrain.getInstance();
-    private PlaystationControllerWrapper ps = new PlaystationControllerWrapper(0);
 
     @Override
     public void robotInit() {
@@ -27,7 +21,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledInit() {
-
+        CommandScheduler.getInstance().cancelAll();
     }
 
     @Override
@@ -37,13 +31,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        drivetrain.resetRelativeEncoders();
-        DriveSwerve driveSwerve = new DriveSwerve(drivetrain,
-                () -> 0.28,
-                () -> 0.28,
-                () -> 0.0,
-                false, false);
-        driveSwerve.schedule();
     }
 
     @Override
@@ -53,13 +40,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        drivetrain.resetRelativeEncoders();
-        DriveSwerve driveSwerve = new DriveSwerve(drivetrain,
-                () -> ps.getLeftX() * Drivetrain.MAX_SPEED_METERS_PER_SECONDS,
-                () -> ps.getLeftY() * Drivetrain.MAX_SPEED_METERS_PER_SECONDS,
-                () -> ps.getRightX() * Drivetrain.MAX_SPEED_METERS_PER_SECONDS,
-                false, false);
-        driveSwerve.schedule();
     }
 
     @Override

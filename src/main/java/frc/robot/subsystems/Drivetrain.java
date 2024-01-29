@@ -2,9 +2,11 @@ package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.spikes2212.command.DashboardedSubsystem;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
+import com.spikes2212.util.Limelight;
+import edu.wpi.first.apriltag.AprilTag;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.wpilibj.SerialPort;
 
@@ -118,6 +120,10 @@ public class Drivetrain extends DashboardedSubsystem {
         return -gyro.getAngle();
     }
 
+    public double getNormalizedAngle() {
+        return getRotation2d().getDegrees() % 180;
+    }
+
     public Rotation2d getRotation2d() {
         return Rotation2d.fromDegrees(getAngle());
     }
@@ -129,5 +135,6 @@ public class Drivetrain extends DashboardedSubsystem {
         namespace.putNumber("x odom", () -> odometry.getPoseMeters().getX());
         namespace.putNumber("y odom", () -> odometry.getPoseMeters().getY());
         namespace.putNumber("rotation odom", () -> odometry.getPoseMeters().getRotation().getDegrees());
+        namespace.putNumber("normalized yaw",  this::getNormalizedAngle);
     }
 }
