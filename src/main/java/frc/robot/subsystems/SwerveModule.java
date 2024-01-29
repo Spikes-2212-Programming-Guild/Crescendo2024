@@ -111,10 +111,11 @@ public class SwerveModule extends DashboardedSubsystem {
     }
 
     private void configureAbsoluteEncoder() {
-        MagnetSensorConfigs config = new MagnetSensorConfigs();
-        config.withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1);
-        config.withSensorDirection(cancoderInverted ? SensorDirectionValue.Clockwise_Positive :
-                SensorDirectionValue.CounterClockwise_Positive);
+        MagnetSensorConfigs config = new MagnetSensorConfigs()
+                .withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1)
+                .withSensorDirection(cancoderInverted ? SensorDirectionValue.Clockwise_Positive :
+                        SensorDirectionValue.CounterClockwise_Positive);
+        absoluteEncoder.getConfigurator().apply(config);
     }
 
     public void configureRelativeTurnEncoder() {
