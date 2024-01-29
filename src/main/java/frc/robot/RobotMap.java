@@ -4,12 +4,15 @@ public class RobotMap {
 
     public interface CAN {
 
+        int INTAKE_PLACER_SPARKMAX = -1;
         int SHOOTER_ADJUSTER_SPARKMAX = -1;
         int STORAGE_SPARK_MAX = -1;
     }
     
     public interface DIO {
 
+        int INTAKE_PLACER_TOP_LIMIT_SWITCH = -1;
+        int INTAKE_PLACER_BOTTOM_LIMIT_SWITCH = -1;
         int SHOOTER_ADJUSTER_ABSOLUTE_ENCODER = -1;
         int SHOOTER_ADJUSTER_TOP_LIMIT = -1;
         int SHOOTER_ADJUSTER_BOTTOM_LIMIT = -1;
