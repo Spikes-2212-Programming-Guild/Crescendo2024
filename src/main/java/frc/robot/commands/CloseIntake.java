@@ -1,10 +1,22 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.Command;
+import com.spikes2212.command.genericsubsystem.commands.smartmotorcontrollergenericsubsystem.MoveSmartMotorControllerGenericSubsystem;
+import com.spikes2212.util.UnifiedControlMode;
 import frc.robot.subsystems.IntakePlacer;
 
-public class CloseIntake extends Command {
+import java.util.function.Supplier;
+
+public class CloseIntake extends MoveSmartMotorControllerGenericSubsystem {
+
+    private static final Supplier<Double> SETPOINT = () -> 0.0;
 
     public CloseIntake(IntakePlacer intakePlacer) {
+        super(intakePlacer, intakePlacer.getPIDSettings(), intakePlacer.getFeedForwardSettings(),
+                UnifiedControlMode.POSITION, SETPOINT);
+    }
+
+    @Override
+    public boolean isFinished() {
+       return ((IntakePlacer) subsystem).intakeUp() || super.isFinished();
     }
 }

@@ -1,9 +1,11 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkBase;
-import com.revrobotics.CANSparkMax;
 import com.spikes2212.command.genericsubsystem.smartmotorcontrollersubsystem.SparkGenericSubsystem;
+import com.spikes2212.control.FeedForwardSettings;
+import com.spikes2212.control.PIDSettings;
 import edu.wpi.first.wpilibj.DigitalInput;
+import com.revrobotics.CANSparkMax;
 import frc.robot.RobotMap;
 
 public class IntakePlacer extends SparkGenericSubsystem {
@@ -23,5 +25,21 @@ public class IntakePlacer extends SparkGenericSubsystem {
         super(NAMESPACE_NAME, motor);
         this.topLimitSwitch = topLimitSwitch;
         this.bottomLimitSwitch = bottomLimitSwitch;
+    }
+  
+     public boolean intakeUp() {
+        return topLimitSwitch.get();
+    }
+
+    public boolean intakeDown() {
+        return bottomLimitSwitch.get();
+    }
+
+    public PIDSettings getPIDSettings() {
+        return null;
+    }
+
+    public FeedForwardSettings getFeedForwardSettings() {
+        return null;
     }
 }
