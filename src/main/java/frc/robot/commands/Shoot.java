@@ -17,7 +17,7 @@ public class Shoot extends ParallelDeadlineGroup {
     private static final double WAIT_TIME = 0;
 
     //@TODO CHANGE!
-    private static final Pose2d SPEAKER_POSE = new Pose2d(0, 0, new Rotation2d());
+    private static final Pose2d SPEAKER_POSE  = new Pose2d(0, 0, new Rotation2d());
 
     public Shoot(Shooter shooter, Drivetrain drivetrain, ShooterAdjuster adjuster, Storage storage) {
         super(new InstantCommand());
@@ -53,8 +53,8 @@ public class Shoot extends ParallelDeadlineGroup {
         return 0.0;
     }
 
-    public double getRequiredRobotAngle(Pose2d pose) {
-        return Math.atan2(SPEAKER_POSE.minus(pose).getX(), SPEAKER_POSE.minus(pose).getY());
+    public double getRequiredRobotAngle(Pose2d robotPose) {
+        return Math.atan2(SPEAKER_POSE.minus(robotPose).getX(), SPEAKER_POSE.minus(robotPose).getY());
     }
 
     public double getRequiredLeftSpeed(Pose2d pose) {
