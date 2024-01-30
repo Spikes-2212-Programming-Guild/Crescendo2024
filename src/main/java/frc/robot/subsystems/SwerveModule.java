@@ -70,10 +70,6 @@ public class SwerveModule extends DashboardedSubsystem {
         return Rotation2d.fromRotations(absoluteEncoder.getAbsolutePosition().getValue()).getDegrees();
     }
 
-    private double getRelativeAngle() {
-        return turnEncoder.getPosition();
-    }
-
     public SwerveModulePosition getModulePosition() {
         return new SwerveModulePosition(driveEncoder.getPosition(),
                 Rotation2d.fromDegrees(getAbsoluteAngle()));
@@ -88,6 +84,46 @@ public class SwerveModule extends DashboardedSubsystem {
         double angle = state.angle.getDegrees();
         setAngle(angle);
         setSpeed(state.speedMetersPerSecond, usePID);
+    }
+
+    public void configureRelativeTurnEncoder() {
+        turnEncoder.setPositionConversionFactor((1 / STEERING_GEAR_RATIO) * DEGREES_IN_ROTATION);
+        turnEncoder.setPosition(getAbsoluteAngle());
+    }
+
+    public void stop() {
+        driveController.stopMotor();
+        turnController.stopMotor();
+    }
+
+    //angle between 0 and 360
+    public void setAngle(double angle) {
+        configureTurnController();
+        turnController.getPIDController().setReference(angle, CANSparkMax.ControlType.kPosition, PID_SLOT);
+    }
+
+    public void configFF() {
+        driveFeedForwardController.setGains(driveFeedForwardSettings.getkS(), driveFeedForwardSettings.getkV(),
+                driveFeedForwardSettings.getkA(), driveFeedForwardSettings.getkG());
+    }
+
+    public double getSpeed() {
+        return driveEncoder.getVelocity();
+    }
+
+    private double getRelativeAngle() {
+        return turnEncoder.getPosition();
+    }
+
+    //speed - m/s
+    private void setSpeed(double speed, boolean usePID) {
+        if (usePID) {
+            configureDriveController();
+            configFF();
+            double feedForward = driveFeedForwardController.calculate(speed);
+            driveController.getPIDController().setReference(speed, CANSparkMax.ControlType.kVelocity, PID_SLOT,
+                    feedForward, SparkPIDController.ArbFFUnits.kVoltage);
+        } else driveController.set(speed / Drivetrain.MAX_SPEED_METERS_PER_SECONDS);
     }
 
     private void configureDriveController() {
@@ -118,32 +154,6 @@ public class SwerveModule extends DashboardedSubsystem {
         absoluteEncoder.getConfigurator().apply(config);
     }
 
-    public void configureRelativeTurnEncoder() {
-        turnEncoder.setPositionConversionFactor((1 / STEERING_GEAR_RATIO) * DEGREES_IN_ROTATION);
-        turnEncoder.setPosition(getAbsoluteAngle());
-    }
-
-    public void stop() {
-        driveController.stopMotor();
-        turnController.stopMotor();
-    }
-
-    //angle between 0 and 360
-    public void setAngle(double angle) {
-        configureTurnController();
-        turnController.getPIDController().setReference(angle, CANSparkMax.ControlType.kPosition, PID_SLOT);
-    }
-
-    //speed - m/s
-    private void setSpeed(double speed, boolean usePID) {
-        if (usePID) {
-            configureDriveController();
-            configFF();
-            double feedForward = driveFeedForwardController.calculate(speed);
-            driveController.getPIDController().setReference(speed, CANSparkMax.ControlType.kVelocity, PID_SLOT,
-                    feedForward, SparkPIDController.ArbFFUnits.kVoltage);
-        } else driveController.set(speed / Drivetrain.MAX_SPEED_METERS_PER_SECONDS);
-    }
 
     /**
      * Minimize the change in heading the desired swerve module state would require by potentially
@@ -163,10 +173,6 @@ public class SwerveModule extends DashboardedSubsystem {
             targetAngle = delta > 90 ? targetAngle - 180 : targetAngle + 180;
         }
         return new SwerveModuleState(targetSpeed, Rotation2d.fromDegrees(targetAngle));
-    }
-
-    public double getSpeed() {
-        return driveEncoder.getVelocity();
     }
 
     /**
@@ -201,11 +207,6 @@ public class SwerveModule extends DashboardedSubsystem {
             newAngle += 360;
         }
         return newAngle;
-    }
-
-    public void configFF() {
-        driveFeedForwardController.setGains(driveFeedForwardSettings.getkS(), driveFeedForwardSettings.getkV(),
-                driveFeedForwardSettings.getkA(), driveFeedForwardSettings.getkG());
     }
 
     @Override
