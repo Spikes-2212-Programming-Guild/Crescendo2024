@@ -29,6 +29,8 @@ public class SwerveModule extends DashboardedSubsystem {
     private static final double SECONDS_IN_MINUTE = 60;
     private static final double DEGREES_IN_ROTATION = 360;
 
+    private static final int SPARK_MAX_PERIODIC_FRAME_MS = 40;
+
     private final CANSparkMax driveController;
     private final CANSparkMax turnController;
     private final CANcoder absoluteEncoder;
@@ -138,7 +140,7 @@ public class SwerveModule extends DashboardedSubsystem {
     }
 
     private void configureTurnController() {
-        turnController.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus2, 40);
+        turnController.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus2, SPARK_MAX_PERIODIC_FRAME_MS);
         turnController.setIdleMode(CANSparkMax.IdleMode.kCoast);
         turnController.getPIDController().setP(turnPIDSettings.getkP());
         turnController.getPIDController().setI(turnPIDSettings.getkI());
