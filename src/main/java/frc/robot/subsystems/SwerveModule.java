@@ -29,8 +29,8 @@ public class SwerveModule extends DashboardedSubsystem {
     private static final double SECONDS_IN_MINUTE = 60;
     private static final double DEGREES_IN_ROTATION = 360;
 
-    public final CANSparkMax driveController;
-    public final CANSparkMax turnController;
+    private final CANSparkMax driveController;
+    private final CANSparkMax turnController;
     private final CANcoder absoluteEncoder;
     private final FeedForwardController driveFeedForwardController;
     private final FeedForwardSettings driveFeedForwardSettings;
