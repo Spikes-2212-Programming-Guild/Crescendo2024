@@ -30,10 +30,10 @@ public class Drivetrain extends DashboardedSubsystem {
 
     private static final String NAMESPACE_NAME = "drivetrain";
 
-    public final SwerveModule frontLeft;
-    public final SwerveModule frontRight;
-    public final SwerveModule backLeft;
-    public final SwerveModule backRight;
+    private final SwerveModule frontLeft;
+    private final SwerveModule frontRight;
+    private final SwerveModule backLeft;
+    private final SwerveModule backRight;
 
     private final AHRS gyro;
 
