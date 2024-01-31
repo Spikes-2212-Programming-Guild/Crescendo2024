@@ -24,7 +24,6 @@ public class Shooter extends DashboardedSubsystem {
     private final SparkGenericSubsystem leftFlywheel;
     private final SparkGenericSubsystem rightFlywheel;
 
-
     private static Shooter instance;
 
     public static Shooter getInstance() {
@@ -35,11 +34,11 @@ public class Shooter extends DashboardedSubsystem {
         }
         return instance;
     }
+
     public Shooter(CANSparkMax leftMotor, CANSparkMax rightMotor) {
         super(NAMESPACE_NAME);
         this.leftFlywheel = new SparkGenericSubsystem(LEFT_FLYWHEEL_NAMESPACE_NAME, leftMotor);
         this.rightFlywheel = new SparkGenericSubsystem(RIGHT_FLYWHEEL_NAMESPACE_NAME, rightMotor);
-
     }
 
     public SparkGenericSubsystem getLeftFlywheel() {
