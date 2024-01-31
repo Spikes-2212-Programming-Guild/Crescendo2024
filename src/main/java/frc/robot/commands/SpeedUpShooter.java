@@ -16,6 +16,4 @@ public class SpeedUpShooter extends ParallelCommandGroup {
                 new MoveSmartMotorControllerGenericSubsystem(shooter.getRightFlywheel(), shooter.rightPIDSettings,
                         shooter.rightFeedForwardSettings, UnifiedControlMode.VELOCITY, rightSetpoint));
     }
-
 }
-
