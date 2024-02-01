@@ -2,6 +2,9 @@ package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.spikes2212.command.DashboardedSubsystem;
+import com.spikes2212.control.FeedForwardSettings;
+import com.spikes2212.control.PIDSettings;
+import com.spikes2212.dashboard.Namespace;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -68,8 +71,20 @@ public class Drivetrain extends DashboardedSubsystem {
                         backRight.getModulePosition()};
         odometry = new SwerveDriveOdometry(kinematics, getRotation2d(), modulePositions, new Pose2d());
         configureDashboard();
+    public PIDSettings getPIDSettings(){
+        return null;
+    }
+    public FeedForwardSettings getFeedForwardSettings(){
+        return null;
     }
 
+    public Pose2d getPose(){
+        return null;
+    }
+    public double getAngle() {
+        return 0;
+    }
+    // using mcs
     @Override
     public void periodic() {
         super.periodic();

@@ -86,4 +86,5 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
     public TrapezoidProfileSettings getTrapezoidProfileSettings() {
         return trapezoidProfileSettings;
     }
+
 }

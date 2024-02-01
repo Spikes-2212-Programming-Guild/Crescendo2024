@@ -3,6 +3,8 @@ package frc.robot;
 public class RobotMap {
 
     public interface CAN {
+        int LEFT_SHOOTER_SPARK_MAX = -1;
+        int RIGHT_SHOOTER_SPARK_MAX = -1;
 
         int FRONT_LEFT_DRIVE_SPARKMAX = 1;
         int FRONT_LEFT_TURN_SPARKMAX = 2;
