@@ -71,20 +71,20 @@ public class Drivetrain extends DashboardedSubsystem {
                         backRight.getModulePosition()};
         odometry = new SwerveDriveOdometry(kinematics, getRotation2d(), modulePositions, new Pose2d());
         configureDashboard();
-    public PIDSettings getPIDSettings(){
-        return null;
     }
-    public FeedForwardSettings getFeedForwardSettings(){
+
+    public PIDSettings getPIDSettings() {
         return null;
     }
 
-    public Pose2d getPose(){
+    public FeedForwardSettings getFeedForwardSettings() {
         return null;
     }
-    public double getAngle() {
-        return 0;
+
+    public Pose2d getPose() {
+        return null;
     }
-    // using mcs
+
     @Override
     public void periodic() {
         super.periodic();
