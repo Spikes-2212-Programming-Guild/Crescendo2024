@@ -22,17 +22,15 @@ public class Shoot extends ParallelDeadlineGroup {
     public Shoot(Shooter shooter, Drivetrain drivetrain, ShooterAdjuster adjuster, Storage storage) {
         super(new InstantCommand());
 
-        Pose2d pose = drivetrain.getPose();
-
-        RotateSwerveWithPID rotateCommand = new RotateSwerveWithPID(drivetrain, () -> getRequiredRobotAngle(pose),
+        RotateSwerveWithPID rotateCommand = new RotateSwerveWithPID(drivetrain, () -> getRequiredRobotAngle(drivetrain.getPose()),
                 drivetrain::getAngle, drivetrain.getPIDSettings(), drivetrain.getFeedForwardSettings());
 
-        SpeedUpShooter speedUpCommand = new SpeedUpShooter(shooter, () -> getRequiredLeftSpeed(pose),
-                () -> getRequiredRightSpeed(pose));
+        SpeedUpShooter speedUpCommand = new SpeedUpShooter(shooter, () -> getRequiredLeftSpeed(drivetrain.getPose()),
+                () -> getRequiredRightSpeed(drivetrain.getPose()));
 
         MoveSmartMotorControllerSubsystemTrapezically adjustCommand =
                 new MoveSmartMotorControllerSubsystemTrapezically(adjuster, adjuster.getPIDSettings(),
-                        adjuster.getFeedForwardSettings(), () -> getRequiredShooterAngle(pose),
+                        adjuster.getFeedForwardSettings(), () -> getRequiredShooterAngle(drivetrain.getPose()),
                         adjuster.getTrapezoidProfileSettings());
 
         addCommands(rotateCommand, speedUpCommand, adjustCommand);
@@ -41,9 +39,9 @@ public class Shoot extends ParallelDeadlineGroup {
                         new WaitUntilCommand(() ->
                                 rotateCommand.isFinished() && adjustCommand.isFinished() &&
                                         shooter.getLeftFlywheel().onTarget(UnifiedControlMode.TRAPEZOID_PROFILE,
-                                                shooter.leftPIDSettings.getTolerance(), getRequiredLeftSpeed(pose)) &&
+                                                shooter.leftPIDSettings.getTolerance(), getRequiredLeftSpeed(drivetrain.getPose())) &&
                                         shooter.getRightFlywheel().onTarget(UnifiedControlMode.TRAPEZOID_PROFILE,
-                                                shooter.rightPIDSettings.getTolerance(), getRequiredRightSpeed(pose))),
+                                                shooter.rightPIDSettings.getTolerance(), getRequiredRightSpeed(drivetrain.getPose()))),
                         new MoveGenericSubsystem(storage, STORAGE_SPEED),
                         new WaitCommand(WAIT_TIME)
                 ));

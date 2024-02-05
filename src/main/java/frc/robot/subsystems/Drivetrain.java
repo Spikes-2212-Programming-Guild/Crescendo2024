@@ -1,6 +1,10 @@
 package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
 import com.spikes2212.command.DashboardedSubsystem;
 import com.spikes2212.control.FeedForwardSettings;
 import com.spikes2212.control.PIDSettings;
@@ -31,6 +35,8 @@ public class Drivetrain extends DashboardedSubsystem {
     public static final double MAX_SPEED_METERS_PER_SECONDS = 4.7;
     public static final double MIN_SPEED_METERS_PER_SECONDS = 0.2;
 
+    private static final double ROBOT_RADIUS = CENTER_OF_ROBOT.getDistance(FRONT_LEFT_WHEEL_POSITION);
+
     private static final String NAMESPACE_NAME = "drivetrain";
 
     private final SwerveModule frontLeft;
@@ -44,6 +50,8 @@ public class Drivetrain extends DashboardedSubsystem {
     private final SwerveDriveOdometry odometry;
 
     private SwerveModulePosition[] modulePositions;
+
+    private Pose2d robotPose;
 
     private static Drivetrain instance;
 
@@ -70,6 +78,21 @@ public class Drivetrain extends DashboardedSubsystem {
                 {frontLeft.getModulePosition(), frontRight.getModulePosition(), backLeft.getModulePosition(),
                         backRight.getModulePosition()};
         odometry = new SwerveDriveOdometry(kinematics, getRotation2d(), modulePositions, new Pose2d());
+        AutoBuilder.configureHolonomic(
+                this::getPose,
+                this::resetPose,
+                this::getRelativeChassisSpeeds,
+                this::driveRobotRelative,
+                new HolonomicPathFollowerConfig(
+                        new PIDConstants(0, 0, 0),
+                        new PIDConstants(0, 0, 0),
+                        MAX_SPEED_METERS_PER_SECONDS,
+                        ROBOT_RADIUS,
+                        new ReplanningConfig()
+                ),
+                () -> false,
+                this
+        );
         configureDashboard();
     }
 
@@ -82,7 +105,21 @@ public class Drivetrain extends DashboardedSubsystem {
     }
 
     public Pose2d getPose() {
-        return null;
+        return robotPose;
+    }
+
+    public void resetPose(Pose2d newPose) {
+        this.robotPose = newPose;
+    }
+
+    public void driveRobotRelative(ChassisSpeeds chassisSpeeds) {
+        drive(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond, chassisSpeeds.omegaRadiansPerSecond,
+                false, true);
+    }
+
+    public ChassisSpeeds getRelativeChassisSpeeds() {
+        return kinematics.toChassisSpeeds(frontLeft.getModuleState(), frontRight.getModuleState(),
+                backLeft.getModuleState(), backRight.getModuleState());
     }
 
     @Override

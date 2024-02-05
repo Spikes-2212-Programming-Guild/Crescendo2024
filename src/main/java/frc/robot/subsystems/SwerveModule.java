@@ -109,6 +109,10 @@ public class SwerveModule extends DashboardedSubsystem {
                 driveFeedForwardSettings.getkA(), driveFeedForwardSettings.getkG());
     }
 
+    public SwerveModuleState getModuleState() {
+        return new SwerveModuleState(getSpeed(), Rotation2d.fromDegrees(getRelativeAngle()));
+    }
+
     public double getSpeed() {
         return driveEncoder.getVelocity();
     }
@@ -116,6 +120,7 @@ public class SwerveModule extends DashboardedSubsystem {
     private double getRelativeAngle() {
         return turnEncoder.getPosition();
     }
+
 
     //speed - m/s
     private void setSpeed(double speed, boolean usePID) {
