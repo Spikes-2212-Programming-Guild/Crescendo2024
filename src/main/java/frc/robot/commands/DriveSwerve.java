@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import com.spikes2212.dashboard.RootNamespace;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Drivetrain;
@@ -8,8 +9,10 @@ import java.util.function.Supplier;
 
 public class DriveSwerve extends Command {
 
-    private static final double DRIVE_ACCELERATION_LIMIT = 2;
-    private static final double TURN_ACCELERATION_LIMIT = 4;
+    public static final RootNamespace ROOT = new RootNamespace("drive swerve");
+
+    private static final Supplier<Double> DRIVE_ACCELERATION_LIMIT = ROOT.addConstantDouble("drive accel limit", 2);
+    private static final Supplier<Double> TURN_ACCELERATION_LIMIT = ROOT.addConstantDouble("turn accel limit", 4);
 
     private final Drivetrain drivetrain;
     private final Supplier<Double> xSpeed;
@@ -31,9 +34,9 @@ public class DriveSwerve extends Command {
         this.rotationSpeed = rotationSpeed;
         this.fieldRelative = fieldRelative;
         this.usePID = usePID;
-        this.xLimiter = new SlewRateLimiter(DRIVE_ACCELERATION_LIMIT);
-        this.yLimiter = new SlewRateLimiter(DRIVE_ACCELERATION_LIMIT);
-        this.rotationLimiter = new SlewRateLimiter(TURN_ACCELERATION_LIMIT);
+        this.xLimiter = new SlewRateLimiter(DRIVE_ACCELERATION_LIMIT.get());
+        this.yLimiter = new SlewRateLimiter(DRIVE_ACCELERATION_LIMIT.get());
+        this.rotationLimiter = new SlewRateLimiter(TURN_ACCELERATION_LIMIT.get());
     }
 
     @Override
@@ -41,6 +44,10 @@ public class DriveSwerve extends Command {
         double xSpeed = xLimiter.calculate(this.xSpeed.get());
         double ySpeed = yLimiter.calculate(this.ySpeed.get());
         double rotationSpeed = rotationLimiter.calculate(this.rotationSpeed.get());
+
+//        double xSpeed = this.xSpeed.get();
+//        double ySpeed = this.ySpeed.get();
+//        double rotationSpeed = this.rotationSpeed.get();
 
         if (Math.abs(xSpeed) < Drivetrain.MIN_SPEED_METERS_PER_SECONDS) xSpeed = 0;
         if (Math.abs(ySpeed) < Drivetrain.MIN_SPEED_METERS_PER_SECONDS) ySpeed = 0;

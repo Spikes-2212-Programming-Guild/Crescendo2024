@@ -128,6 +128,14 @@ public class Drivetrain extends DashboardedSubsystem {
         return Rotation2d.fromDegrees(getAngle());
     }
 
+    private double max(double a, double b, double c, double d) {
+        return Math.max(Math.max(a, b), Math.max(c, d));
+    }
+
+    private double min(double a, double b, double c, double d) {
+        return Math.min(Math.min(a, b), Math.min(c, d));
+    }
+
     @Override
     public void configureDashboard() {
         namespace.putNumber("gyro yaw", this::getAngle);
@@ -135,6 +143,10 @@ public class Drivetrain extends DashboardedSubsystem {
         namespace.putNumber("x odom", () -> odometry.getPoseMeters().getX());
         namespace.putNumber("y odom", () -> odometry.getPoseMeters().getY());
         namespace.putNumber("rotation odom", () -> odometry.getPoseMeters().getRotation().getDegrees());
-        namespace.putNumber("normalized yaw",  this::getNormalizedAngle);
+        namespace.putNumber("normalized yaw", this::getNormalizedAngle);
+        namespace.putNumber("max velocity difference",
+                () -> max(Math.abs(frontLeft.getSpeed()), Math.abs(frontRight.getSpeed()), Math.abs(backLeft.getSpeed()),
+                        Math.abs(backRight.getSpeed())) - min(Math.abs(frontLeft.getSpeed()), Math.abs(frontRight.getSpeed()), Math.abs(backLeft.getSpeed()),
+                        Math.abs(backRight.getSpeed())));
     }
 }

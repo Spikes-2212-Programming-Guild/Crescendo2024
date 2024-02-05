@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
@@ -42,10 +43,12 @@ public class SwerveModule extends DashboardedSubsystem {
 
     private final boolean cancoderInverted;
     private final boolean driveInverted;
+    private final double cancoderOffset; //rotations
 
     public SwerveModule(String namespaceName, CANSparkMax driveController, CANSparkMax turnController,
                         CANcoder absoluteEncoder, boolean cancoderInverted, FeedForwardSettings driveFeedForwardSettings,
-                        PIDSettings drivePIDSettings, PIDSettings turnPIDSettings, boolean driveInverted) {
+                        PIDSettings drivePIDSettings, PIDSettings turnPIDSettings,
+                        boolean driveInverted, double cancoderOffset) {
         super(namespaceName);
         this.driveController = driveController;
         this.turnController = turnController;
@@ -56,9 +59,10 @@ public class SwerveModule extends DashboardedSubsystem {
         this.turnPIDSettings = turnPIDSettings;
         this.driveFeedForwardController = new FeedForwardController(driveFeedForwardSettings,
                 FeedForwardController.DEFAULT_PERIOD);
-        driveEncoder = driveController.getEncoder();
-        turnEncoder = turnController.getEncoder();
+        this.driveEncoder = driveController.getEncoder();
+        this.turnEncoder = turnController.getEncoder();
         this.driveInverted = driveInverted;
+        this.cancoderOffset = cancoderOffset;
         configureDriveController();
         configureTurnController();
         configureAbsoluteEncoder();
@@ -111,10 +115,12 @@ public class SwerveModule extends DashboardedSubsystem {
     }
 
     private void configureAbsoluteEncoder() {
-        MagnetSensorConfigs config = new MagnetSensorConfigs();
-        config.withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1);
-        config.withSensorDirection(cancoderInverted ? SensorDirectionValue.Clockwise_Positive :
-                SensorDirectionValue.CounterClockwise_Positive);
+        MagnetSensorConfigs config = new MagnetSensorConfigs()
+        .withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1)
+        .withSensorDirection(cancoderInverted ? SensorDirectionValue.Clockwise_Positive :
+                SensorDirectionValue.CounterClockwise_Positive)
+                .withMagnetOffset(cancoderOffset);
+        absoluteEncoder.getConfigurator().apply(config);
     }
 
     public void configureRelativeTurnEncoder() {
