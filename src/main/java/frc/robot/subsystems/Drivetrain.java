@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.*;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SerialPort;
 
 // https://cdn.discordapp.com/attachments/927272978356510721/1167115100117807264/uwuyd99s0cub1.png?ex=654cf3a3&is=653a7ea3&hm=4fd387e2c5dbac2377e7a6c69bceb3218edb077aaeb6685f592d95a89ef7923c&
@@ -90,7 +91,7 @@ public class Drivetrain extends DashboardedSubsystem {
                         ROBOT_RADIUS,
                         new ReplanningConfig()
                 ),
-                () -> false,
+                () -> (DriverStation.getAlliance().get() == DriverStation.Alliance.Red),
                 this
         );
         configureDashboard();
