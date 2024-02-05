@@ -3,8 +3,10 @@ package frc.robot.commands;
 import com.spikes2212.command.genericsubsystem.commands.MoveGenericSubsystem;
 import com.spikes2212.command.genericsubsystem.commands.smartmotorcontrollergenericsubsystem.MoveSmartMotorControllerSubsystemTrapezically;
 import com.spikes2212.util.UnifiedControlMode;
+import edu.wpi.first.hal.AllianceStationID;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Shooter;
@@ -17,7 +19,8 @@ public class Shoot extends ParallelDeadlineGroup {
     private static final double WAIT_TIME = 0;
 
     //@TODO CHANGE!
-    private static final Pose2d SPEAKER_POSE  = new Pose2d(0, 0, new Rotation2d());
+    private static final Pose2d SPEAKER_POSE = (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) ?
+            new Pose2d(15.61, 5.57, new Rotation2d()) : new Pose2d(0.9, 5.57, new Rotation2d());
 
     public Shoot(Shooter shooter, Drivetrain drivetrain, ShooterAdjuster adjuster, Storage storage) {
         super(new InstantCommand());
