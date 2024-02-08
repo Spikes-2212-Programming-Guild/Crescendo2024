@@ -4,14 +4,24 @@
 
 package frc.robot;
 
+import com.revrobotics.CANSparkLowLevel;
+import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends TimedRobot {
 
+    CANSparkMax left;
+    CANSparkMax right;
+    CANSparkMax adjuster;
+    CANSparkMax storage;
+
     @Override
     public void robotInit() {
-
+        left = new CANSparkMax(RobotMap.CAN.LEFT_SHOOTER_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless);
+        right = new CANSparkMax(RobotMap.CAN.RIGHT_SHOOTER_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless);
+        adjuster = new CANSparkMax(RobotMap.CAN.SHOOTER_ADJUSTER_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless);
+        storage = new CANSparkMax(RobotMap.CAN.STORAGE_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless);
     }
 
     @Override
@@ -31,6 +41,9 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        left.set(1);
+        right.set(1);
+
     }
 
     @Override

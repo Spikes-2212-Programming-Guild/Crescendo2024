@@ -6,6 +6,7 @@ import com.spikes2212.command.DashboardedSubsystem;
 import com.spikes2212.command.genericsubsystem.smartmotorcontrollersubsystem.SparkGenericSubsystem;
 import com.spikes2212.control.FeedForwardSettings;
 import com.spikes2212.control.PIDSettings;
+import com.spikes2212.control.TrapezoidProfileSettings;
 import frc.robot.RobotMap;
 
 public class Shooter extends DashboardedSubsystem {
@@ -37,8 +38,16 @@ public class Shooter extends DashboardedSubsystem {
 
     public Shooter(CANSparkMax leftMotor, CANSparkMax rightMotor) {
         super(NAMESPACE_NAME);
+        rightMotor.setInverted(true);
         this.leftFlywheel = new SparkGenericSubsystem(LEFT_FLYWHEEL_NAMESPACE_NAME, leftMotor);
-        this.rightFlywheel = new SparkGenericSubsystem(RIGHT_FLYWHEEL_NAMESPACE_NAME, rightMotor);
+        this.rightFlywheel = new SparkGenericSubsystem(RIGHT_FLYWHEEL_NAMESPACE_NAME, rightMotor) {
+            @Override
+            public void configureLoop(PIDSettings pidSettings, FeedForwardSettings feedForwardSettings,
+                                      TrapezoidProfileSettings trapezoidProfileSettings) {
+                super.configureLoop(pidSettings, feedForwardSettings, trapezoidProfileSettings);
+                master.setInverted(true);
+            }
+        };
     }
 
     public SparkGenericSubsystem getLeftFlywheel() {

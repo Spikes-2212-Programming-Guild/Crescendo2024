@@ -14,7 +14,7 @@ public class IntakeRoller extends MotoredGenericSubsystem {
     public static IntakeRoller getInstance() {
         if (instance == null) {
             instance = new IntakeRoller(
-                    new CANSparkMax(RobotMap.CAN.INTAKE_ROLLER_SPARKMAX, CANSparkLowLevel.MotorType.kBrushless));
+                    new CANSparkMax(RobotMap.CAN.INTAKE_ROLLER_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless));
         }
         return instance;
     }

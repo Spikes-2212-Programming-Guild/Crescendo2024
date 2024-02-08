@@ -39,7 +39,7 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
     public static ShooterAdjuster getInstance() {
         if (instance == null) {
             instance = new ShooterAdjuster(
-                    new CANSparkMax(RobotMap.CAN.SHOOTER_ADJUSTER_SPARKMAX,
+                    new CANSparkMax(RobotMap.CAN.SHOOTER_ADJUSTER_SPARK_MAX,
                             CANSparkBase.MotorType.kBrushless),
                     new DutyCycleEncoder(RobotMap.DIO.SHOOTER_ADJUSTER_ABSOLUTE_ENCODER),
                     new DigitalInput(RobotMap.DIO.SHOOTER_ADJUSTER_TOP_LIMIT),
