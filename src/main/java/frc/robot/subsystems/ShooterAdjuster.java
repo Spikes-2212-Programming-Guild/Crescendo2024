@@ -31,7 +31,7 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
 
     private final DutyCycleEncoder absoluteEncoder;
 
-    private final DigitalInput topLimit;
+    private final DigitalInput topHallEffect;
     private final DigitalInput bottomLimit;
 
     private static ShooterAdjuster instance;
@@ -42,17 +42,17 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
                     new CANSparkMax(RobotMap.CAN.SHOOTER_ADJUSTER_SPARK_MAX,
                             CANSparkBase.MotorType.kBrushless),
                     new DutyCycleEncoder(RobotMap.DIO.SHOOTER_ADJUSTER_ABSOLUTE_ENCODER),
-                    new DigitalInput(RobotMap.DIO.SHOOTER_ADJUSTER_TOP_LIMIT),
+                    new DigitalInput(RobotMap.DIO.SHOOTER_ADJUSTER_TOP_HALL_EFFECT),
                     new DigitalInput(RobotMap.DIO.SHOOTER_ADJUSTER_BOTTOM_LIMIT));
         }
         return instance;
     }
 
     private ShooterAdjuster(CANSparkMax motorController, DutyCycleEncoder absoluteEncoder,
-                            DigitalInput topLimit, DigitalInput bottomLimit) {
+                            DigitalInput topHallEffect, DigitalInput bottomLimit) {
         super(NAMESPACE_NAME, motorController);
         this.absoluteEncoder = absoluteEncoder;
-        this.topLimit = topLimit;
+        this.topHallEffect = topHallEffect;
         this.bottomLimit = bottomLimit;
     }
 
@@ -67,11 +67,11 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
         return absoluteEncoder.get() * 360 + ENCODER_OFFSET;
     }
 
-    public boolean topLimitHit() {
-        return topLimit.get();
+    public boolean isFullyUp() {
+        return !topHallEffect.get();
     }
 
-    public boolean bottomLimitHit() {
+    public boolean isFullyDown() {
         return bottomLimit.get();
     }
 
