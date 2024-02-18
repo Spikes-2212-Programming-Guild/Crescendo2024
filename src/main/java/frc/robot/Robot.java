@@ -31,17 +31,14 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-
+        CommandScheduler.getInstance().cancelAll();
     }
 
     @Override
     public void autonomousPeriodic() {
-
     }
 
-    @Override
     public void teleopInit() {
-
     }
 
     @Override
@@ -56,16 +53,13 @@ public class Robot extends TimedRobot {
 
     @Override
     public void testPeriodic() {
-
     }
 
-    @Override
     public void simulationInit() {
 
     }
 
     @Override
     public void simulationPeriodic() {
-
     }
 }
