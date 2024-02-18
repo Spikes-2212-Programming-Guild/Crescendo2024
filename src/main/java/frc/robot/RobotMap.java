@@ -38,10 +38,10 @@ public class RobotMap {
         int INTAKE_PLACER_BOTTOM_LIMIT_SWITCH = -1;
 
         int SHOOTER_ADJUSTER_ABSOLUTE_ENCODER = 0;
-        int SHOOTER_ADJUSTER_TOP_HALL_EFFECT = -1;
-        int SHOOTER_ADJUSTER_BOTTOM_LIMIT = -1;
+        int SHOOTER_ADJUSTER_TOP_HALL_EFFECT = 3;
+        int SHOOTER_ADJUSTER_BOTTOM_LIMIT = 2;
 
-        int STORAGE_LIMIT = -1;
+        int STORAGE_LIMIT = 4;
     }
     
     public interface PWM {

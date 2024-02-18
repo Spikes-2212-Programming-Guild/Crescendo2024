@@ -106,5 +106,20 @@
       <option name="name" value="WPILocal" />
       <option name="url" value="file:/$PROJECT_DIR$/../../../../../Public/wpilib/2024/maven" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="maven4" />
+      <option name="name" value="maven4" />
+      <option name="url" value="https://maven.pkg.github.com/Mechanical-Advantage/AdvantageKit" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="MavenLocal" />
+      <option name="name" value="MavenLocal" />
+      <option name="url" value="file:/$PROJECT_DIR$/../../../Programming%20Guild/.m2/repository/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="WPI84246d17-a797-4d1e-bd9f-c59cd8d2477c_0Release" />
+      <option name="name" value="WPI84246d17-a797-4d1e-bd9f-c59cd8d2477c_0Release" />
+      <option name="url" value="https://raw.githubusercontent.com/Mechanical-Advantage/URCL/2024.0.1" />
+    </remote-repository>
   </component>
 </project>

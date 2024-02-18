@@ -25,14 +25,15 @@ public class IntakePlacer extends SparkGenericSubsystem {
         if (instance == null) {
             instance = new IntakePlacer(
                     new CANSparkMax(RobotMap.CAN.INTAKE_PLACER_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
+                    new CANSparkMax(RobotMap.CAN.INTAKE_PLACER_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
                     new DigitalInput(RobotMap.DIO.INTAKE_PLACER_TOP_LIMIT_SWITCH),
                     new DigitalInput(RobotMap.DIO.INTAKE_PLACER_BOTTOM_LIMIT_SWITCH));
         }
         return instance;
     }
 
-    private IntakePlacer(CANSparkMax motor, DigitalInput topLimitSwitch, DigitalInput bottomLimitSwitch) {
-        super(NAMESPACE_NAME, motor);
+    private IntakePlacer(CANSparkMax master, CANSparkMax slave, DigitalInput topLimitSwitch, DigitalInput bottomLimitSwitch) {
+        super(NAMESPACE_NAME, master, slave);
         this.topLimitSwitch = topLimitSwitch;
         this.bottomLimitSwitch = bottomLimitSwitch;
     }

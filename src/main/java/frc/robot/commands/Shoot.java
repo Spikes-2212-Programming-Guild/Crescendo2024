@@ -1,7 +1,7 @@
 package frc.robot.commands;
 
 import com.spikes2212.command.genericsubsystem.commands.MoveGenericSubsystem;
-import com.spikes2212.command.genericsubsystem.commands.smartmotorcontrollergenericsubsystem.MoveSmartMotorControllerSubsystemTrapezically;
+import com.spikes2212.command.genericsubsystem.commands.smartmotorcontrollergenericsubsystem.MoveSmartMotorControllerGenericSubsystem;
 import com.spikes2212.util.UnifiedControlMode;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,7 +14,7 @@ import frc.robot.subsystems.Storage;
 public class Shoot extends ParallelDeadlineGroup {
 
     private static final double STORAGE_SPEED = 0;
-    private static final double WAIT_TIME = 0;
+    private static final double WAIT_TIME = 10;
 
     //@TODO CHANGE!
     private static final Pose2d SPEAKER_POSE  = new Pose2d(0, 0, new Rotation2d());
@@ -25,32 +25,38 @@ public class Shoot extends ParallelDeadlineGroup {
         Pose2d pose = drivetrain.getPose();
 
         RotateSwerveWithPID rotateCommand = new RotateSwerveWithPID(drivetrain, () -> getRequiredRobotAngle(pose),
-                drivetrain::getAngle, drivetrain.getPIDSettings(), drivetrain.getFeedForwardSettings());
+                drivetrain::getAngle, drivetrain.getPIDSettings(), drivetrain.getFeedForwardSettings()) {
+            @Override
+            public boolean isFinished() {
+                return true;
+            }
+        };
 
         SpeedUpShooter speedUpCommand = new SpeedUpShooter(shooter, () -> getRequiredLeftSpeed(pose),
                 () -> getRequiredRightSpeed(pose));
 
-        MoveSmartMotorControllerSubsystemTrapezically adjustCommand =
-                new MoveSmartMotorControllerSubsystemTrapezically(adjuster, adjuster.getPIDSettings(),
-                        adjuster.getFeedForwardSettings(), () -> getRequiredShooterAngle(pose),
-                        adjuster.getTrapezoidProfileSettings());
+        MoveSmartMotorControllerGenericSubsystem adjustCommand =
+                new MoveSmartMotorControllerGenericSubsystem(adjuster, adjuster.getPIDSettings(),
+                        adjuster.getFeedForwardSettings(), UnifiedControlMode.POSITION,
+                        () -> getRequiredShooterAngle(pose));
 
-        addCommands(rotateCommand, speedUpCommand, adjustCommand);
+//        addCommands(rotateCommand, speedUpCommand, adjustCommand);
+        addCommands(speedUpCommand, adjustCommand);
         setDeadline(
                 new SequentialCommandGroup(
                         new WaitUntilCommand(() ->
                                 rotateCommand.isFinished() && adjustCommand.isFinished() &&
-                                        shooter.getLeftFlywheel().onTarget(UnifiedControlMode.TRAPEZOID_PROFILE,
-                                                shooter.leftPIDSettings.getTolerance(), getRequiredLeftSpeed(pose)) &&
-                                        shooter.getRightFlywheel().onTarget(UnifiedControlMode.TRAPEZOID_PROFILE,
-                                                shooter.rightPIDSettings.getTolerance(), getRequiredRightSpeed(pose))),
+                                        shooter.getLeftFlywheel().onTarget(UnifiedControlMode.VELOCITY,
+                                                shooter.getLeftFlywheel().pidSettings.getTolerance(), getRequiredLeftSpeed(pose)) &&
+                                        shooter.getRightFlywheel().onTarget(UnifiedControlMode.VELOCITY,
+                                                shooter.getRightFlywheel().pidSettings.getTolerance(), getRequiredRightSpeed(pose))),
                         new MoveGenericSubsystem(storage, STORAGE_SPEED),
                         new WaitCommand(WAIT_TIME)
                 ));
     }
 
     public double getRequiredShooterAngle(Pose2d pose) {
-        return 0.0;
+        return 15;
     }
 
     public double getRequiredRobotAngle(Pose2d robotPose) {
@@ -58,10 +64,10 @@ public class Shoot extends ParallelDeadlineGroup {
     }
 
     public double getRequiredLeftSpeed(Pose2d pose) {
-        return 0.0;
+        return 2000;
     }
 
     public double getRequiredRightSpeed(Pose2d pose) {
-        return 0.0;
+        return 2000;
     }
 }

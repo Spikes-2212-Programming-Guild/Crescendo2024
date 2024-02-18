@@ -2,22 +2,33 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkPIDController;
+import com.spikes2212.command.genericsubsystem.commands.smartmotorcontrollergenericsubsystem.MoveSmartMotorControllerGenericSubsystem;
 import com.spikes2212.command.genericsubsystem.smartmotorcontrollersubsystem.SparkGenericSubsystem;
 import com.spikes2212.control.FeedForwardSettings;
 import com.spikes2212.control.PIDSettings;
 import com.spikes2212.control.TrapezoidProfileSettings;
 import com.spikes2212.dashboard.ChildNamespace;
+import com.spikes2212.dashboard.SpikesLogger;
+import com.spikes2212.util.UnifiedControlMode;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.RobotMap;
 
 import java.util.function.Supplier;
 
 public class ShooterAdjuster extends SparkGenericSubsystem {
 
-    private static String NAMESPACE_NAME = "shooter adjuster";
+    private static final double CURRENT_LIMIT = 30;
+    private static final double RESET_SPEED = 0.2;
+    private static final double MAX_POSITION = 25;
+
+    private static final String NAMESPACE_NAME = "shooter adjuster";
     private static final double ENCODER_OFFSET = 0;
-    private static final double MOTOR_ROTATIONS_TO_ANGLE_RATIO = 0;
+    //screw height in cm
+    private static final double MOTOR_ROTATIONS_TO_SCREW_HEIGHT = 1 / 6.0;
 
     private final ChildNamespace trapezoidProfileNamespace = namespace.addChild("trapezoid profile");
     private final Supplier<Double> acceleration = trapezoidProfileNamespace.addConstantDouble("acceleration", 0);
@@ -54,17 +65,37 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
         this.absoluteEncoder = absoluteEncoder;
         this.topHallEffect = topHallEffect;
         this.bottomLimit = bottomLimit;
+//        master.setSoftLimit(CANSparkBase.SoftLimitDirection.kReverse, 24);
+//        master.setSoftLimit(CANSparkBase.SoftLimitDirection.kForward, 10);
+        master.setInverted(true);
     }
 
     @Override
     public void configureLoop(PIDSettings pidSettings, FeedForwardSettings feedForwardSettings,
                               TrapezoidProfileSettings trapezoidProfileSettings) {
         super.configureLoop(pidSettings, feedForwardSettings, trapezoidProfileSettings);
-        master.getEncoder().setPositionConversionFactor(MOTOR_ROTATIONS_TO_ANGLE_RATIO);
+        master.getEncoder().setPositionConversionFactor(MOTOR_ROTATIONS_TO_SCREW_HEIGHT);
+        master.getEncoder().setVelocityConversionFactor(MOTOR_ROTATIONS_TO_SCREW_HEIGHT / 60);
+        master.setInverted(true);
+//        master.setSoftLimit(CANSparkBase.SoftLimitDirection.kForward, 24);
+//        master.setSoftLimit(CANSparkBase.SoftLimitDirection.kReverse, 10);
+        master.enableSoftLimit(CANSparkBase.SoftLimitDirection.kForward, false);
+        master.enableSoftLimit(CANSparkBase.SoftLimitDirection.kReverse, false);
+        master.setSmartCurrentLimit(50);
     }
 
-    public double getAngle() {
-        return absoluteEncoder.get() * 360 + ENCODER_OFFSET;
+    @Override
+    public void pidSet(UnifiedControlMode controlMode, double setpoint, PIDSettings pidSettings,
+                       FeedForwardSettings feedForwardSettings, TrapezoidProfileSettings trapezoidProfileSettings) {
+        configPIDF(pidSettings, feedForwardSettings);
+        configureTrapezoid(trapezoidProfileSettings);
+        master.getPIDController().setReference(setpoint, controlMode.getSparkMaxControlType(), 0,
+                feedForwardSettings.getkS() * Math.signum(setpoint - getPosition()), SparkPIDController.ArbFFUnits.kVoltage);
+    }
+
+    //in cm
+    public double getScrewHeight() {
+        return absoluteEncoder.get() * MOTOR_ROTATIONS_TO_SCREW_HEIGHT + ENCODER_OFFSET;
     }
 
     public boolean isFullyUp() {
@@ -87,4 +118,56 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
         return trapezoidProfileSettings;
     }
 
+    public CANSparkMax getMotor() {
+        return (CANSparkMax) master;
+    }
+
+    public Command getResetCommand() {
+        return new MoveSmartMotorControllerGenericSubsystem(this, new PIDSettings(0, 0, 10000), feedForwardSettings,
+                UnifiedControlMode.PERCENT_OUTPUT, () -> RESET_SPEED).until(
+                        () -> Math.abs(master.getOutputCurrent()) >= CURRENT_LIMIT)
+                .andThen(new InstantCommand(() -> master.getEncoder().setPosition(MAX_POSITION)));
+    }
+
+    public double getPosition() {
+        return master.getEncoder().getPosition();
+    }
+
+    public double getVelocity() {
+        return master.getEncoder().getVelocity();
+    }
+
+    public void move() {
+        master.setVoltage(-2);
+    }
+
+    public void unmove() {
+        master.setVoltage(2);
+    }
+
+    @Override
+    public void configureDashboard() {
+        namespace.putNumber("absolute encoder reading", absoluteEncoder::getAbsolutePosition);
+        namespace.putNumber("position", this::getPosition);
+        namespace.putNumber("current", master::getOutputCurrent);
+        Supplier<Double> setpoint = namespace.addConstantDouble("setpoint", 0);
+        namespace.putCommand("move",
+                new MoveSmartMotorControllerGenericSubsystem(this, pidSettings, feedForwardSettings,
+                        UnifiedControlMode.VELOCITY, setpoint));
+        namespace.putRunnable("unmove", this::unmove);
+        namespace.putCommand("reset", this.getResetCommand());
+        namespace.putNumber("velocity", this::getVelocity);
+        namespace.putRunnable("set position", () -> master.getEncoder().setPosition(MAX_POSITION));
+        namespace.putNumber("soft limit forward", () -> master.getSoftLimit(CANSparkBase.SoftLimitDirection.kForward));
+        namespace.putNumber("soft limit reverse", () -> master.getSoftLimit(CANSparkBase.SoftLimitDirection.kReverse));
+        namespace.putNumber("current", master::getOutputCurrent);
+        namespace.putCommand("move :sparkles:", new MoveSmartMotorControllerGenericSubsystem(this, pidSettings,
+                feedForwardSettings, UnifiedControlMode.POSITION, setpoint));
+    }
+
+    @Override
+    public void periodic() {
+        super.periodic();
+        new SpikesLogger().log(getVelocity());
+    }
 }
