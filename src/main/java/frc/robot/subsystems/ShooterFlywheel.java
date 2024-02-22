@@ -76,6 +76,9 @@ public class ShooterFlywheel extends SparkGenericSubsystem {
     @Override
     public void configureDashboard() {
         namespace.putNumber("speed", () -> master.getEncoder().getVelocity());
+        Supplier<Double> setpoint = namespace.addConstantDouble("setpoint", 0);
+        namespace.putCommand("move", new MoveSmartMotorControllerGenericSubsystem(this, pidSettings, feedForwardSettings,
+                UnifiedControlMode.VELOCITY, setpoint));
     }
 
     public void setVoltage(double voltage) {

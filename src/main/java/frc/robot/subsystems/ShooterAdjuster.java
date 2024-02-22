@@ -16,12 +16,13 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.RobotMap;
+import frc.robot.commands.Adjust;
 
 import java.util.function.Supplier;
 
 public class ShooterAdjuster extends SparkGenericSubsystem {
 
-    private static final double CURRENT_LIMIT = 30;
+    private static final double CURRENT_LIMIT = 40;
     private static final double RESET_SPEED = 0.2;
     private static final double MAX_POSITION = 25;
 
@@ -81,7 +82,7 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
 //        master.setSoftLimit(CANSparkBase.SoftLimitDirection.kReverse, 10);
         master.enableSoftLimit(CANSparkBase.SoftLimitDirection.kForward, false);
         master.enableSoftLimit(CANSparkBase.SoftLimitDirection.kReverse, false);
-        master.setSmartCurrentLimit(50);
+//        master.setSmartCurrentLimit(50);
     }
 
     @Override
@@ -145,6 +146,14 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
         master.setVoltage(2);
     }
 
+    public void set(double speed) {
+        master.set(speed);
+    }
+
+    public void stop() {
+        master.stopMotor();
+    }
+
     @Override
     public void configureDashboard() {
         namespace.putNumber("absolute encoder reading", absoluteEncoder::getAbsolutePosition);
@@ -157,12 +166,13 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
         namespace.putRunnable("unmove", this::unmove);
         namespace.putCommand("reset", this.getResetCommand());
         namespace.putNumber("velocity", this::getVelocity);
-        namespace.putRunnable("set position", () -> master.getEncoder().setPosition(MAX_POSITION));
+        namespace.putRunnable("set position", () -> master.getEncoder().setPosition(setpoint.get()));
         namespace.putNumber("soft limit forward", () -> master.getSoftLimit(CANSparkBase.SoftLimitDirection.kForward));
         namespace.putNumber("soft limit reverse", () -> master.getSoftLimit(CANSparkBase.SoftLimitDirection.kReverse));
         namespace.putNumber("current", master::getOutputCurrent);
         namespace.putCommand("move :sparkles:", new MoveSmartMotorControllerGenericSubsystem(this, pidSettings,
                 feedForwardSettings, UnifiedControlMode.POSITION, setpoint));
+        namespace.putCommand("new adjust", new Adjust(this, setpoint));
     }
 
     @Override

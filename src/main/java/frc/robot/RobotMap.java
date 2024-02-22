@@ -25,23 +25,24 @@ public class RobotMap {
 
         int SHOOTER_ADJUSTER_SPARK_MAX = 15;
 
-        int INTAKE_ROLLER_SPARK_MAX = 17;
+        int INTAKE_ROLLER_SPARK_MAX = 19;
 
-        int INTAKE_PLACER_SPARK_MAX = 18;
+        int INTAKE_PLACER_LEFT_SPARK_MAX = 17;
+        int INTAKE_PLACER_RIGHT_SPARK_MAX = 18;
 
         int STORAGE_SPARK_MAX = 16;
     }
     
     public interface DIO {
 
-        int INTAKE_PLACER_TOP_LIMIT_SWITCH = -1;
-        int INTAKE_PLACER_BOTTOM_LIMIT_SWITCH = -1;
+        int INTAKE_PLACER_TOP_LIMIT_SWITCH = 5;
+        int INTAKE_PLACER_BOTTOM_LIMIT_SWITCH = 6;
 
         int SHOOTER_ADJUSTER_ABSOLUTE_ENCODER = 0;
         int SHOOTER_ADJUSTER_TOP_HALL_EFFECT = 3;
-        int SHOOTER_ADJUSTER_BOTTOM_LIMIT = 2;
+        int SHOOTER_ADJUSTER_BOTTOM_LIMIT = 8;
 
-        int STORAGE_LIMIT = 4;
+        int STORAGE_LIMIT = 7;
     }
     
     public interface PWM {

@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 import com.spikes2212.command.genericsubsystem.MotoredGenericSubsystem;
+import com.spikes2212.command.genericsubsystem.commands.MoveGenericSubsystem;
 import frc.robot.RobotMap;
 
 public class IntakeRoller extends MotoredGenericSubsystem {
@@ -21,10 +22,21 @@ public class IntakeRoller extends MotoredGenericSubsystem {
 
     private IntakeRoller(CANSparkMax rollMotor) {
         super(NAMESPACE_NAME, rollMotor);
+        rollMotor.restoreFactoryDefaults();
+        rollMotor.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus0, 100);
+        rollMotor.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus1, 500);
+        rollMotor.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus2, 500);
+        configureDashboard();
     }
 
     @Override
     public boolean canMove(double speed) {
-        return !Storage.getInstance().hasNote();
+//        return !Storage.getInstance().hasNote();
+        return true;
+    }
+
+    @Override
+    public void configureDashboard() {
+        namespace.putCommand("move", new MoveGenericSubsystem(this, 0.65));
     }
 }

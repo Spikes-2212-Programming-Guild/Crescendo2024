@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
@@ -29,10 +30,8 @@ public class SwerveModule extends DashboardedSubsystem {
     private static final double SECONDS_IN_MINUTE = 60;
     private static final double DEGREES_IN_ROTATION = 360;
 
-    private static final int SPARK_MAX_PERIODIC_FRAME_MS = 40;
-
-    private final CANSparkMax driveController;
-    private final CANSparkMax turnController;
+    public final CANSparkMax driveController;
+    public final CANSparkMax turnController;
     private final CANcoder absoluteEncoder;
     private final FeedForwardController driveFeedForwardController;
     private final FeedForwardSettings driveFeedForwardSettings;
@@ -44,10 +43,12 @@ public class SwerveModule extends DashboardedSubsystem {
 
     private final boolean cancoderInverted;
     private final boolean driveInverted;
+    private final double cancoderOffset; //rotations
 
     public SwerveModule(String namespaceName, CANSparkMax driveController, CANSparkMax turnController,
                         CANcoder absoluteEncoder, boolean cancoderInverted, FeedForwardSettings driveFeedForwardSettings,
-                        PIDSettings drivePIDSettings, PIDSettings turnPIDSettings, boolean driveInverted) {
+                        PIDSettings drivePIDSettings, PIDSettings turnPIDSettings,
+                        boolean driveInverted, double cancoderOffset) {
         super(namespaceName);
         this.driveController = driveController;
         this.turnController = turnController;
@@ -58,9 +59,10 @@ public class SwerveModule extends DashboardedSubsystem {
         this.turnPIDSettings = turnPIDSettings;
         this.driveFeedForwardController = new FeedForwardController(driveFeedForwardSettings,
                 FeedForwardController.DEFAULT_PERIOD);
-        driveEncoder = driveController.getEncoder();
-        turnEncoder = turnController.getEncoder();
+        this.driveEncoder = driveController.getEncoder();
+        this.turnEncoder = turnController.getEncoder();
         this.driveInverted = driveInverted;
+        this.cancoderOffset = cancoderOffset;
         configureDriveController();
         configureTurnController();
         configureAbsoluteEncoder();
@@ -70,6 +72,10 @@ public class SwerveModule extends DashboardedSubsystem {
 
     public double getAbsoluteAngle() {
         return Rotation2d.fromRotations(absoluteEncoder.getAbsolutePosition().getValue()).getDegrees();
+    }
+
+    private double getRelativeAngle() {
+        return turnEncoder.getPosition();
     }
 
     public SwerveModulePosition getModulePosition() {
@@ -88,6 +94,38 @@ public class SwerveModule extends DashboardedSubsystem {
         setSpeed(state.speedMetersPerSecond, usePID);
     }
 
+    private void configureDriveController() {
+        driveController.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus2, 40);
+        driveController.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus1, 40);
+        driveController.getPIDController().setP(drivePIDSettings.getkP());
+        driveController.getPIDController().setI(drivePIDSettings.getkI());
+        driveController.getPIDController().setD(drivePIDSettings.getkD());
+        driveController.setInverted(driveInverted);
+        driveController.setIdleMode(CANSparkMax.IdleMode.kCoast);
+        driveEncoder.setVelocityConversionFactor(
+                ((1 / DRIVING_GEAR_RATIO) * WHEEL_CIRCUMFERENCE_METERS) / SECONDS_IN_MINUTE);
+        driveEncoder.setPositionConversionFactor((1 / DRIVING_GEAR_RATIO) * WHEEL_CIRCUMFERENCE_METERS);
+    }
+
+    private void configureTurnController() {
+        turnController.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus2, 40);
+        turnController.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus1, 40);
+        turnController.setIdleMode(CANSparkMax.IdleMode.kCoast);
+        turnController.getPIDController().setP(turnPIDSettings.getkP());
+        turnController.getPIDController().setI(turnPIDSettings.getkI());
+        turnController.getPIDController().setD(turnPIDSettings.getkD());
+        turnController.setIdleMode(CANSparkMax.IdleMode.kCoast);
+    }
+
+    private void configureAbsoluteEncoder() {
+        MagnetSensorConfigs config = new MagnetSensorConfigs()
+                .withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1)
+                .withSensorDirection(cancoderInverted ? SensorDirectionValue.Clockwise_Positive :
+                        SensorDirectionValue.CounterClockwise_Positive)
+                .withMagnetOffset(cancoderOffset);
+        absoluteEncoder.getConfigurator().apply(config);
+    }
+
     public void configureRelativeTurnEncoder() {
         turnEncoder.setPositionConversionFactor((1 / STEERING_GEAR_RATIO) * DEGREES_IN_ROTATION);
         turnEncoder.setPosition(getAbsoluteAngle());
@@ -104,19 +142,6 @@ public class SwerveModule extends DashboardedSubsystem {
         turnController.getPIDController().setReference(angle, CANSparkMax.ControlType.kPosition, PID_SLOT);
     }
 
-    public void configFF() {
-        driveFeedForwardController.setGains(driveFeedForwardSettings.getkS(), driveFeedForwardSettings.getkV(),
-                driveFeedForwardSettings.getkA(), driveFeedForwardSettings.getkG());
-    }
-
-    public double getSpeed() {
-        return driveEncoder.getVelocity();
-    }
-
-    private double getRelativeAngle() {
-        return turnEncoder.getPosition();
-    }
-
     //speed - m/s
     private void setSpeed(double speed, boolean usePID) {
         if (usePID) {
@@ -127,34 +152,6 @@ public class SwerveModule extends DashboardedSubsystem {
                     feedForward, SparkPIDController.ArbFFUnits.kVoltage);
         } else driveController.set(speed / Drivetrain.MAX_SPEED_METERS_PER_SECONDS);
     }
-
-    private void configureDriveController() {
-        driveController.getPIDController().setP(drivePIDSettings.getkP());
-        driveController.getPIDController().setI(drivePIDSettings.getkI());
-        driveController.getPIDController().setD(drivePIDSettings.getkD());
-        driveController.setInverted(driveInverted);
-        driveController.setIdleMode(CANSparkMax.IdleMode.kCoast);
-        driveEncoder.setVelocityConversionFactor(
-                ((1 / DRIVING_GEAR_RATIO) * WHEEL_CIRCUMFERENCE_METERS) / SECONDS_IN_MINUTE);
-        driveEncoder.setPositionConversionFactor((1 / DRIVING_GEAR_RATIO) * WHEEL_CIRCUMFERENCE_METERS);
-    }
-
-    private void configureTurnController() {
-        turnController.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus2, SPARK_MAX_PERIODIC_FRAME_MS);
-        turnController.getPIDController().setP(turnPIDSettings.getkP());
-        turnController.getPIDController().setI(turnPIDSettings.getkI());
-        turnController.getPIDController().setD(turnPIDSettings.getkD());
-        turnController.setIdleMode(CANSparkMax.IdleMode.kCoast);
-    }
-
-    private void configureAbsoluteEncoder() {
-        MagnetSensorConfigs config = new MagnetSensorConfigs()
-                .withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1)
-                .withSensorDirection(cancoderInverted ? SensorDirectionValue.Clockwise_Positive :
-                        SensorDirectionValue.CounterClockwise_Positive);
-        absoluteEncoder.getConfigurator().apply(config);
-    }
-
 
     /**
      * Minimize the change in heading the desired swerve module state would require by potentially
@@ -174,6 +171,10 @@ public class SwerveModule extends DashboardedSubsystem {
             targetAngle = delta > 90 ? targetAngle - 180 : targetAngle + 180;
         }
         return new SwerveModuleState(targetSpeed, Rotation2d.fromDegrees(targetAngle));
+    }
+
+    public double getSpeed() {
+        return driveEncoder.getVelocity();
     }
 
     /**
@@ -208,6 +209,11 @@ public class SwerveModule extends DashboardedSubsystem {
             newAngle += 360;
         }
         return newAngle;
+    }
+
+    public void configFF() {
+        driveFeedForwardController.setGains(driveFeedForwardSettings.getkS(), driveFeedForwardSettings.getkV(),
+                driveFeedForwardSettings.getkA(), driveFeedForwardSettings.getkG());
     }
 
     @Override
