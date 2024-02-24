@@ -11,6 +11,7 @@ import com.spikes2212.control.PIDSettings;
 import com.spikes2212.control.TrapezoidProfileSettings;
 import com.spikes2212.util.UnifiedControlMode;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.RobotMap;
 
 import java.util.function.Supplier;
@@ -65,6 +66,7 @@ public class IntakePlacer extends DashboardedSubsystem implements SmartMotorCont
         rightSparkMax.setInverted(false);
         left.setIdleMode(CANSparkBase.IdleMode.kCoast);
         right.setIdleMode(CANSparkBase.IdleMode.kCoast);
+        configureDashboard();
     }
 
     public boolean intakeUp() {
@@ -93,10 +95,23 @@ public class IntakePlacer extends DashboardedSubsystem implements SmartMotorCont
         rightSparkMax.stopMotor();
     }
 
+    public void reset() {
+        leftSparkMax.getEncoder().setPosition(0);
+        rightSparkMax.getEncoder().setPosition(0);
+    }
+
     @Override
     public void configureDashboard() {
-        namespace.putRunnable("nyoom", this::move);
+        namespace.putCommand("nyoom", new InstantCommand(this::move) {
+            @Override
+            public void end(boolean interrupted) {
+                stop();
+            }
+        });
         namespace.putRunnable("stop", this::stop);
+        namespace.putRunnable("reset", this::reset);
+        namespace.putNumber("left pos", () -> leftSparkMax.getEncoder().getPosition());
+        namespace.putNumber("right pos", () -> rightSparkMax.getEncoder().getPosition());
     }
 
     @Override

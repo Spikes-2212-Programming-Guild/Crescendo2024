@@ -1,15 +1,12 @@
 package frc.robot.commands;
 
-import com.spikes2212.command.genericsubsystem.commands.MoveGenericSubsystem;
 import com.spikes2212.command.genericsubsystem.commands.smartmotorcontrollergenericsubsystem.MoveSmartMotorControllerGenericSubsystem;
 import com.spikes2212.dashboard.RootNamespace;
 import com.spikes2212.util.UnifiedControlMode;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.ShooterAdjuster;
-import org.opencv.core.Mat;
 
-import javax.xml.stream.events.Namespace;
 import java.util.function.Supplier;
 
 public class Adjust extends SequentialCommandGroup {
@@ -32,8 +29,8 @@ public class Adjust extends SequentialCommandGroup {
                             }
                         },
                     new MoveSmartMotorControllerGenericSubsystem(adjuster, adjuster.getPIDSettings(),
-                            adjuster.getFeedForwardSettings(), UnifiedControlMode.POSITION, setpoint).withTimeout(0.8));
+                            adjuster.getFeedForwardSettings(), UnifiedControlMode.POSITION, setpoint));
         } else addCommands(new MoveSmartMotorControllerGenericSubsystem(adjuster, adjuster.getPIDSettings(),
-                adjuster.getFeedForwardSettings(), UnifiedControlMode.POSITION, setpoint).withTimeout(0.8));
+                adjuster.getFeedForwardSettings(), UnifiedControlMode.POSITION, setpoint));
     }
 }

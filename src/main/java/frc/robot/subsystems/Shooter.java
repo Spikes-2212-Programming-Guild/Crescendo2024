@@ -34,6 +34,7 @@ public class Shooter extends DashboardedSubsystem {
         super(NAMESPACE_NAME);
         this.leftFlywheel = ShooterFlywheel.getLeftInstance();
         this.rightFlywheel = ShooterFlywheel.getRightInstance();
+        configureDashboard();
     }
 
     public ShooterFlywheel getLeftFlywheel() {
@@ -44,7 +45,13 @@ public class Shooter extends DashboardedSubsystem {
         return rightFlywheel;
     }
 
+    public void stop() {
+        leftFlywheel.stop();
+        rightFlywheel.stop();
+    }
+
     @Override
     public void configureDashboard() {
+        namespace.putRunnable("stop", this::stop);
     }
 }

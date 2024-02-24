@@ -25,6 +25,8 @@ public class ShooterFlywheel extends SparkGenericSubsystem {
 
     private final boolean inverted;
 
+    private final CANSparkMax sparkMax;
+
     private static ShooterFlywheel leftInstance;
     private static ShooterFlywheel rightInstance;
 
@@ -44,11 +46,13 @@ public class ShooterFlywheel extends SparkGenericSubsystem {
         return rightInstance;
     }
 
-    public ShooterFlywheel(String namespaceName, CANSparkBase master, boolean inverted) {
+    public ShooterFlywheel(String namespaceName, CANSparkMax master, boolean inverted) {
         super(namespaceName, master);
         feedForwardController = new FeedForwardController(feedForwardSettings, FeedForwardController.DEFAULT_PERIOD);
         this.inverted = inverted;
+        this.sparkMax = master;
         master.setInverted(inverted);
+        configureDashboard();
     }
 
     @Override
@@ -83,5 +87,9 @@ public class ShooterFlywheel extends SparkGenericSubsystem {
 
     public void setVoltage(double voltage) {
         master.setVoltage(voltage);
+    }
+
+    public void stop() {
+        sparkMax.stopMotor();
     }
 }

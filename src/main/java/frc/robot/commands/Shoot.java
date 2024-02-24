@@ -3,6 +3,7 @@ package frc.robot.commands;
 import com.spikes2212.command.genericsubsystem.commands.MoveGenericSubsystem;
 import com.spikes2212.command.genericsubsystem.commands.smartmotorcontrollergenericsubsystem.MoveSmartMotorControllerGenericSubsystem;
 import com.spikes2212.dashboard.RootNamespace;
+import com.spikes2212.dashboard.SpikesLogger;
 import com.spikes2212.util.UnifiedControlMode;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -12,11 +13,13 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterAdjuster;
 import frc.robot.subsystems.Storage;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 
 public class Shoot extends ParallelDeadlineGroup {
 
+    private static final Function<Double, Double> DISTANCE_TO_HEIGHT = x -> -3.8 * x + 28.8;
 
     private static final double STORAGE_SPEED = -0.5;
     private static final double WAIT_TIME = 3;
@@ -25,9 +28,12 @@ public class Shoot extends ParallelDeadlineGroup {
     private static final Supplier<Double> LEFT_SPEED = ROOT.addConstantDouble("shoot left speed", 0);
     private static final Supplier<Double> RIGHT_SPEED = ROOT.addConstantDouble("shoot right speed", 0);
     private static final Supplier<Double> HEIGHT = ROOT.addConstantDouble("shoot height", 0);
+    private static final Supplier<Double> DISTANCE = ROOT.addConstantDouble("distance", 0);
 
     //@TODO CHANGE!
     private static final Pose2d SPEAKER_POSE = new Pose2d(0, 0, new Rotation2d());
+
+    private static final SpikesLogger LOGGER = new SpikesLogger();
 
     public Shoot(Shooter shooter, Drivetrain drivetrain, ShooterAdjuster adjuster, Storage storage) {
 
@@ -51,6 +57,11 @@ public class Shoot extends ParallelDeadlineGroup {
                 new MoveSmartMotorControllerGenericSubsystem(adjuster, adjuster.getPIDSettings(),
                         adjuster.getFeedForwardSettings(), UnifiedControlMode.POSITION,
                         () -> getRequiredShooterAngle(pose)) {
+
+                    @Override
+                    public boolean isFinished() {
+                        return super.isFinished() || !adjuster.wasReset();
+                    }
                 };
 
         ROOT.putBoolean("rotate finished", rotateCommand::isFinished);
@@ -69,14 +80,17 @@ public class Shoot extends ParallelDeadlineGroup {
                                                 shooter.getLeftFlywheel().pidSettings.getTolerance(), getRequiredLeftSpeed(pose)) &&
                                         shooter.getRightFlywheel().onTarget(UnifiedControlMode.VELOCITY,
                                                 shooter.getRightFlywheel().pidSettings.getTolerance(), getRequiredRightSpeed(pose))),
-                        new MoveGenericSubsystem(storage, STORAGE_SPEED),
-                        new WaitCommand(WAIT_TIME)
+                        LOGGER.logCommand("got here"),
+                        new MoveGenericSubsystem(storage, STORAGE_SPEED).withTimeout(WAIT_TIME),
+                        new InstantCommand(shooter::stop)
                 ));
     }
 
     public double getRequiredShooterAngle(Pose2d pose) {
-//        return HEIGHT.get();
-        return 24.8;
+//        if (DISTANCE.get() <= 2.285) return DISTANCE_TO_HEIGHT.apply(DISTANCE.get());
+//        return 17;
+        return HEIGHT.get();
+//        return 24.8;
     }
 
     public double getRequiredRobotAngle(Pose2d robotPose) {
@@ -84,12 +98,12 @@ public class Shoot extends ParallelDeadlineGroup {
     }
 
     public double getRequiredLeftSpeed(Pose2d pose) {
-//        return LEFT_SPEED.get();
-        return 4000;
+        return LEFT_SPEED.get();
+//        return 2000;
     }
 
     public double getRequiredRightSpeed(Pose2d pose) {
-//        return RIGHT_SPEED.get();
-        return 4000;
+        return RIGHT_SPEED.get();
+//        return 2000;
     }
 }

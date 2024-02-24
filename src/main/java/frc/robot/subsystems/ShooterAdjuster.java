@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 
 public class ShooterAdjuster extends SparkGenericSubsystem {
 
-    private static final double CURRENT_LIMIT = 40;
+    public static final double CURRENT_LIMIT = 40;
     private static final double RESET_SPEED = 0.2;
     private static final double MAX_POSITION = 25;
 
@@ -45,6 +45,8 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
 
     private final DigitalInput topHallEffect;
     private final DigitalInput bottomLimit;
+
+    private boolean reset = false;
 
     private static ShooterAdjuster instance;
 
@@ -69,6 +71,7 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
 //        master.setSoftLimit(CANSparkBase.SoftLimitDirection.kReverse, 24);
 //        master.setSoftLimit(CANSparkBase.SoftLimitDirection.kForward, 10);
         master.setInverted(true);
+        configureDashboard();
     }
 
     @Override
@@ -78,10 +81,11 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
         master.getEncoder().setPositionConversionFactor(MOTOR_ROTATIONS_TO_SCREW_HEIGHT);
         master.getEncoder().setVelocityConversionFactor(MOTOR_ROTATIONS_TO_SCREW_HEIGHT / 60);
         master.setInverted(true);
-//        master.setSoftLimit(CANSparkBase.SoftLimitDirection.kForward, 24);
+//        master.setSoftLimit(CANSparkBase.SoftLimitDirection.kForward, 22);
 //        master.setSoftLimit(CANSparkBase.SoftLimitDirection.kReverse, 10);
         master.enableSoftLimit(CANSparkBase.SoftLimitDirection.kForward, false);
         master.enableSoftLimit(CANSparkBase.SoftLimitDirection.kReverse, false);
+        configureDashboard();
 //        master.setSmartCurrentLimit(50);
     }
 
@@ -138,12 +142,21 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
         return master.getEncoder().getVelocity();
     }
 
+    public double getCurrent() {
+        return master.getOutputCurrent();
+    }
+
     public void move() {
-        master.setVoltage(-2);
+        master.setVoltage(-4);
     }
 
     public void unmove() {
-        master.setVoltage(2);
+        if (getPosition() < 22.2) master.setVoltage(4);
+        else master.stopMotor();
+    }
+
+    public boolean wasReset() {
+        return reset;
     }
 
     public void set(double speed) {
@@ -164,7 +177,7 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
                 new MoveSmartMotorControllerGenericSubsystem(this, pidSettings, feedForwardSettings,
                         UnifiedControlMode.VELOCITY, setpoint));
         namespace.putRunnable("unmove", this::unmove);
-        namespace.putCommand("reset", this.getResetCommand());
+        namespace.putCommand("reset", this.getResetCommand().andThen(new InstantCommand(() -> reset = true)));
         namespace.putNumber("velocity", this::getVelocity);
         namespace.putRunnable("set position", () -> master.getEncoder().setPosition(setpoint.get()));
         namespace.putNumber("soft limit forward", () -> master.getSoftLimit(CANSparkBase.SoftLimitDirection.kForward));

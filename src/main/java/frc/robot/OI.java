@@ -3,15 +3,13 @@ package frc.robot;
 import com.spikes2212.command.genericsubsystem.commands.MoveGenericSubsystem;
 import com.spikes2212.util.PlaystationControllerWrapper;
 import com.spikes2212.util.XboxControllerWrapper;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.commands.IntakeNote;
-import frc.robot.commands.Shoot;
+import frc.robot.commands.ShootWithParameters;
+import frc.robot.commands.SpeedUpShooter;
 import frc.robot.subsystems.*;
 
-public class OI /*GEVALD*/{
+public class OI /*GEVALD*/ {
 
     private final PlaystationControllerWrapper ps = new PlaystationControllerWrapper(0);
     private final XboxControllerWrapper xbox = new XboxControllerWrapper(1);
@@ -28,14 +26,30 @@ public class OI /*GEVALD*/{
         ps.getR1Button().onTrue(new InstantCommand(drivetrain::resetGyro));
         // Intakes a note - A
         xbox.getGreenButton().onTrue(new IntakeNote(intakeRoller, storage, intakePlacer, shooterAdjuster, false));
-        // Stops Intake - Left
-        xbox.getLeftButton().onTrue(new InstantCommand(() -> {}, intakeRoller, storage, intakeRoller, shooterAdjuster));
         // Shoots the note - B
-        xbox.getRedButton().onTrue(new Shoot(shooter, drivetrain, shooterAdjuster, storage));
+        ShootWithParameters shoot = new ShootWithParameters(shooter, drivetrain, shooterAdjuster, storage, () -> 0.0, () -> 3500.0,
+                () -> 3500.0, () -> 24.6);
+        xbox.getRedButton().onTrue(shoot);
         // Moves the storage backwards - Y
         xbox.getYellowButton().whileTrue(new MoveGenericSubsystem(storage, 0.2));
         // Resets the adjuster - X
-        xbox.getBlueButton().onTrue(shooterAdjuster.getResetCommand());
+        xbox.getBlueButton().onTrue(new SpeedUpShooter(shooter, () -> -2000.0, () -> -2000.0));
+        // Stops all running commands - Left
+        xbox.getLeftButton().onTrue(new InstantCommand(() -> {
+        }, storage, intakeRoller, shooterAdjuster, shooter) {
+            @Override
+            public void end(boolean interrupted) {
+                storage.stop();
+                intakeRoller.stop();
+                shooterAdjuster.stop();
+                shooter.stop();
+            }
+
+            @Override
+            public boolean isFinished() {
+                return true;
+            }
+        });
         // Moves the adjuster up - RB
         xbox.getRBButton().whileTrue(new InstantCommand(shooterAdjuster::move)).onFalse(
                 new InstantCommand(shooterAdjuster::stop));

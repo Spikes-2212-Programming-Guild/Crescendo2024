@@ -42,7 +42,8 @@ public class RobotMap {
         int SHOOTER_ADJUSTER_TOP_HALL_EFFECT = 3;
         int SHOOTER_ADJUSTER_BOTTOM_LIMIT = 8;
 
-        int STORAGE_LIMIT = 7;
+        int STORAGE_ULTRASONIC_OUTPUT = 2;
+        int STORAGE_ULTRASONIC_INPUT = 1;
     }
     
     public interface PWM {
