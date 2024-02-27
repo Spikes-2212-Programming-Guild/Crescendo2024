@@ -4,6 +4,7 @@ import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 import com.spikes2212.command.DashboardedSubsystem;
+import com.spikes2212.command.genericsubsystem.commands.smartmotorcontrollergenericsubsystem.MoveSmartMotorControllerGenericSubsystem;
 import com.spikes2212.command.genericsubsystem.smartmotorcontrollersubsystem.SmartMotorControllerGenericSubsystem;
 import com.spikes2212.command.genericsubsystem.smartmotorcontrollersubsystem.SparkGenericSubsystem;
 import com.spikes2212.control.FeedForwardSettings;
@@ -12,30 +13,20 @@ import com.spikes2212.control.TrapezoidProfileSettings;
 import com.spikes2212.util.UnifiedControlMode;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.RobotMap;
+import frc.robot.commands.CloseIntake;
+import frc.robot.commands.OpenIntake;
 
 import java.util.function.Supplier;
 
-public class IntakePlacer extends DashboardedSubsystem implements SmartMotorControllerGenericSubsystem {
+public class IntakePlacer extends SparkGenericSubsystem {
 
     private static final String NAMESPACE_NAME = "intake placer";
-    private static final String LEFT_NAMESPACE_NAME = "left";
-    private static final String RIGHT_NAMESPACE_NAME = "right";
-
-    private final Supplier<Double> VAL = namespace.addConstantDouble("speed", 0);
 
     private final PIDSettings pidSettings = namespace.addPIDNamespace("", PIDSettings.EMPTY_PID_SETTINGS);
     private final FeedForwardSettings feedForwardSettings = namespace.addFeedForwardNamespace("",
             FeedForwardSettings.EMPTY_FFSETTINGS);
-
-    private final SparkGenericSubsystem left;
-    private final SparkGenericSubsystem right;
-
-    private final CANSparkMax leftSparkMax;
-    private final CANSparkMax rightSparkMax;
-
-    private final DigitalInput topLimitSwitch;
-    private final DigitalInput bottomLimitSwitch;
 
     private static IntakePlacer instance;
 
@@ -43,38 +34,19 @@ public class IntakePlacer extends DashboardedSubsystem implements SmartMotorCont
         if (instance == null) {
             instance = new IntakePlacer(
                     new CANSparkMax(RobotMap.CAN.INTAKE_PLACER_LEFT_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
-                    new CANSparkMax(RobotMap.CAN.INTAKE_PLACER_RIGHT_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
-                    new DigitalInput(RobotMap.DIO.INTAKE_PLACER_TOP_LIMIT_SWITCH),
-                    new DigitalInput(RobotMap.DIO.INTAKE_PLACER_BOTTOM_LIMIT_SWITCH));
+                    new CANSparkMax(RobotMap.CAN.INTAKE_PLACER_RIGHT_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless));
         }
         return instance;
     }
 
-    private IntakePlacer(CANSparkMax left, CANSparkMax right, DigitalInput topLimitSwitch, DigitalInput bottomLimitSwitch) {
-        super(NAMESPACE_NAME);
-        this.left = new SparkGenericSubsystem(LEFT_NAMESPACE_NAME, left);
-        this.right = new SparkGenericSubsystem(RIGHT_NAMESPACE_NAME, right);
-        this.leftSparkMax = left;
-        this.rightSparkMax = right;
-        this.topLimitSwitch = topLimitSwitch;
-        this.bottomLimitSwitch = bottomLimitSwitch;
-        leftSparkMax.restoreFactoryDefaults();
-        rightSparkMax.restoreFactoryDefaults();
-        left.setInverted(false);
-        leftSparkMax.setInverted(false);
-        right.setInverted(false);
-        rightSparkMax.setInverted(false);
-        left.setIdleMode(CANSparkBase.IdleMode.kCoast);
-        right.setIdleMode(CANSparkBase.IdleMode.kCoast);
+    private IntakePlacer(CANSparkMax left, CANSparkMax right) {
+        super(NAMESPACE_NAME, left, right);
+        left.setIdleMode(CANSparkBase.IdleMode.kBrake);
+        right.setIdleMode(CANSparkBase.IdleMode.kBrake);
+        slaves.get(0).follow(master, true);
+        master.getEncoder().setPosition(0);
+        slaves.get(0).getEncoder().setPosition(0);
         configureDashboard();
-    }
-
-    public boolean intakeUp() {
-        return topLimitSwitch.get();
-    }
-
-    public boolean intakeDown() {
-        return bottomLimitSwitch.get();
     }
 
     public PIDSettings getPIDSettings() {
@@ -85,50 +57,26 @@ public class IntakePlacer extends DashboardedSubsystem implements SmartMotorCont
         return feedForwardSettings;
     }
 
-    public void move() {
-        leftSparkMax.set(VAL.get());
-        rightSparkMax.set(-VAL.get());
+    @Override
+    public void configureLoop(PIDSettings pidSettings, FeedForwardSettings feedForwardSettings, TrapezoidProfileSettings trapezoidProfileSettings) {
+        super.configureLoop(pidSettings, feedForwardSettings, trapezoidProfileSettings);
+        master.setIdleMode(CANSparkBase.IdleMode.kBrake);
+        slaves.get(0).setIdleMode(CANSparkBase.IdleMode.kBrake);
+        slaves.get(0).follow(master, true);
     }
 
-    public void stop() {
-        leftSparkMax.stopMotor();
-        rightSparkMax.stopMotor();
-    }
-
-    public void reset() {
-        leftSparkMax.getEncoder().setPosition(0);
-        rightSparkMax.getEncoder().setPosition(0);
+    public double getPosition() {
+        return master.getEncoder().getPosition();
     }
 
     @Override
     public void configureDashboard() {
-        namespace.putCommand("nyoom", new InstantCommand(this::move) {
-            @Override
-            public void end(boolean interrupted) {
-                stop();
-            }
-        });
-        namespace.putRunnable("stop", this::stop);
-        namespace.putRunnable("reset", this::reset);
-        namespace.putNumber("left pos", () -> leftSparkMax.getEncoder().getPosition());
-        namespace.putNumber("right pos", () -> rightSparkMax.getEncoder().getPosition());
-    }
-
-    @Override
-    public void pidSet(UnifiedControlMode controlMode, double setpoint, PIDSettings pidSettings,
-                       FeedForwardSettings feedForwardSettings, TrapezoidProfileSettings trapezoidProfileSettings) {
-        pidSet(controlMode, setpoint, pidSettings, feedForwardSettings, trapezoidProfileSettings);
-    }
-
-    @Override
-    public void pidSet(UnifiedControlMode controlMode, double setpoint, PIDSettings pidSettings,
-                       FeedForwardSettings feedForwardSettings) {
-        left.pidSet(controlMode, setpoint, pidSettings, feedForwardSettings);
-        right.pidSet(controlMode, setpoint, pidSettings, feedForwardSettings);
-    }
-
-    @Override
-    public boolean onTarget(UnifiedControlMode controlMode, double tolerance, double setpoint) {
-        return left.onTarget(controlMode, tolerance, setpoint) && right.onTarget(controlMode, tolerance, setpoint);
+        namespace.putCommand("open", new OpenIntake(this));
+        namespace.putCommand("close", new CloseIntake(this));
+        namespace.putRunnable("reset position", () -> master.getEncoder().setPosition(0));
+        namespace.putNumber("position", this::getPosition);
+        namespace.putBoolean("master break", () -> master.getIdleMode() == CANSparkBase.IdleMode.kBrake);
+        namespace.putBoolean("slave break", () -> slaves.get(0).getIdleMode() == CANSparkBase.IdleMode.kBrake);
+        namespace.putRunnable("set position 0", () -> master.getEncoder().setPosition(0));
     }
 }

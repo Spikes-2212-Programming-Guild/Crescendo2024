@@ -52,6 +52,8 @@ public class ShooterFlywheel extends SparkGenericSubsystem {
         this.inverted = inverted;
         this.sparkMax = master;
         master.setInverted(inverted);
+        namespace.putCommand("test", new MoveSmartMotorControllerGenericSubsystem(this, pidSettings, feedForwardSettings,
+                UnifiedControlMode.VELOCITY, () -> 800.0));
         configureDashboard();
     }
 

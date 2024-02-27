@@ -131,7 +131,8 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
         return new MoveSmartMotorControllerGenericSubsystem(this, new PIDSettings(0, 0, 10000), feedForwardSettings,
                 UnifiedControlMode.PERCENT_OUTPUT, () -> RESET_SPEED).until(
                         () -> Math.abs(master.getOutputCurrent()) >= CURRENT_LIMIT)
-                .andThen(new InstantCommand(() -> master.getEncoder().setPosition(MAX_POSITION)));
+                .andThen(new InstantCommand(() -> master.getEncoder().setPosition(MAX_POSITION))
+                        .andThen(() -> reset = true));
     }
 
     public double getPosition() {
@@ -191,6 +192,6 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
     @Override
     public void periodic() {
         super.periodic();
-        new SpikesLogger().log(getVelocity());
+//        new SpikesLogger().log(getVelocity());
     }
 }

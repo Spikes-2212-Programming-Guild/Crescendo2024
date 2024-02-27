@@ -14,9 +14,4 @@ public class CloseIntake extends MoveSmartMotorControllerGenericSubsystem {
         super(intakePlacer, intakePlacer.getPIDSettings(), intakePlacer.getFeedForwardSettings(),
                 UnifiedControlMode.POSITION, SETPOINT);
     }
-
-    @Override
-    public boolean isFinished() {
-       return ((IntakePlacer) subsystem).intakeUp() || super.isFinished();
-    }
 }

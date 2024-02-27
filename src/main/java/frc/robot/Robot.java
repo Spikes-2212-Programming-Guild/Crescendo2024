@@ -5,21 +5,22 @@
 package frc.robot;
 
 import com.spikes2212.dashboard.RootNamespace;
-import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.DriveSwerve;
 import frc.robot.commands.IntakeNote;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.ShootWithParameters;
+import frc.robot.commands.auto.YeetAndRetreat;
+import frc.robot.commands.auto.YeetAndRetreatAndYeet;
 import frc.robot.subsystems.*;
-
-import java.util.function.Supplier;
 
 public class Robot extends TimedRobot {
 
-    RootNamespace root = new RootNamespace("shooter sysid");
-    Supplier<Double> voltage = root.addConstantDouble("ks calib", 0.0);
-    Supplier<Double> setPoint = root.addConstantDouble("set point", 0.0);
+    private final RootNamespace root = new RootNamespace("robot");
+    private SendableChooser<Command> autoChooser = new SendableChooser<>();
 
     private Drivetrain drivetrain;
     private Shooter shooter;
@@ -39,13 +40,16 @@ public class Robot extends TimedRobot {
         leftShooter = ShooterFlywheel.getLeftInstance();
         rightShooter = ShooterFlywheel.getRightInstance();
         intakeRoller = IntakeRoller.getInstance();
+        intakePlacer = IntakePlacer.getInstance();
 
         root.putCommand("shoot test", new Shoot(Shooter.getInstance(), Drivetrain.getInstance(), ShooterAdjuster.getInstance(),
                 Storage.getInstance()));
         root.putCommand("intake note", new IntakeNote(IntakeRoller.getInstance(), Storage.getInstance(),
                 IntakePlacer.getInstance(), ShooterAdjuster.getInstance(), false));
-        root.putCommand("shoot2 test", new ShootWithParameters(Shooter.getInstance(), Drivetrain.getInstance(), ShooterAdjuster.getInstance(),
-                Storage.getInstance(), () -> 0.0, () -> 3000.0, () -> 400.0, () -> 24.8));
+
+        autoChooser.addOption("YeetAndRetreat", new YeetAndRetreat(drivetrain, shooter, shooterAdjuster, storage));
+        autoChooser.addOption("YeetAndRetreatAndYeet",
+                new YeetAndRetreatAndYeet(drivetrain, shooter, shooterAdjuster, intakePlacer, intakeRoller, storage));
     }
 
     @Override
@@ -68,6 +72,9 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        Command autoCommand = autoChooser.getSelected() == null ?
+                new YeetAndRetreat(drivetrain, shooter, shooterAdjuster, storage) : autoChooser.getSelected();
+        autoCommand.schedule();
     }
 
     @Override
@@ -77,9 +84,8 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        CommandScheduler.getInstance().cancelAll();
         OI oi = new OI();
-//        ParallelRaceGroup openIntake = new RunCommand(intakePlacer::move).withTimeout(0.6);
-//        openIntake.schedule();
         drivetrain.resetRelativeEncoders();
         drivetrain.setDefaultCommand(new DriveSwerve(drivetrain,
                 () -> oi.getLeftY() * DriveSwerve.MAX_DRIVE_SPEED,

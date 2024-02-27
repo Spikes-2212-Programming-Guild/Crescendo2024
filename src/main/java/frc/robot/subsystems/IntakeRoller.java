@@ -31,7 +31,7 @@ public class IntakeRoller extends MotoredGenericSubsystem {
 
     @Override
     public boolean canMove(double speed) {
-        return !Storage.getInstance().hasNote();
+        return !Storage.getInstance().seesNote();
 //        return true;
     }
 

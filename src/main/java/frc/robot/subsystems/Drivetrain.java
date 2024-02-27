@@ -4,6 +4,7 @@ import com.kauailabs.navx.frc.AHRS;
 import com.spikes2212.command.DashboardedSubsystem;
 import com.spikes2212.control.FeedForwardSettings;
 import com.spikes2212.control.PIDSettings;
+import com.spikes2212.dashboard.SpikesLogger;
 import com.spikes2212.util.Limelight;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -16,7 +17,6 @@ import frc.robot.Robot;
 import frc.robot.commands.RotateSwerveWithPID;
 import frc.robot.services.poseestimation.PoseEstimationCameras;
 import frc.robot.services.poseestimation.PoseEstimatorTarget;
-import org.photonvision.PhotonPoseEstimator;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -60,8 +60,6 @@ public class Drivetrain extends DashboardedSubsystem {
 //    private final PoseEstimationCameras poseEstimationCameras;
 //    private final SwerveDrivePoseEstimator poseEstimator;
 
-//    private Pose2d estimatedPose;
-
     private SwerveModulePosition[] modulePositions;
 
     private static Drivetrain instance;
@@ -91,7 +89,6 @@ public class Drivetrain extends DashboardedSubsystem {
         odometry = new SwerveDriveOdometry(kinematics, getRotation2d(), modulePositions, new Pose2d());
 //        poseEstimationCameras = PoseEstimationCameras.getInstance();
 //        poseEstimator = new SwerveDrivePoseEstimator(kinematics, getRotation2d(), modulePositions, new Pose2d());
-//        estimatedPose = new Pose2d();
         configureDashboard();
     }
 
@@ -106,11 +103,13 @@ public class Drivetrain extends DashboardedSubsystem {
 //        List<PoseEstimatorTarget> targets = poseEstimationCameras.getEstimatedPoses();
 //        for (PoseEstimatorTarget target : targets) {
 //            if (target != null) {
-//                if (target.getPose() != null) poseEstimator.addVisionMeasurement(target.getPose(), target.getTimestamp());
+//                if (target.getPose() != null) {
+//                    poseEstimator.addVisionMeasurement(target.getPose(), target.getTimestamp());
+//                    new SpikesLogger().log(target.getPose());
+//                }
 //                break;
 //            }
 //        }
-//        estimatedPose = poseEstimator.getEstimatedPosition();
     }
 
     public void drive(double xSpeed, double ySpeed, double rotationSpeed,
@@ -228,9 +227,9 @@ public class Drivetrain extends DashboardedSubsystem {
         namespace.putNumber("x odom", () -> odometry.getPoseMeters().getX());
         namespace.putNumber("y odom", () -> odometry.getPoseMeters().getY());
         namespace.putNumber("rotation odom", () -> odometry.getPoseMeters().getRotation().getDegrees());
-//        namespace.putNumber("x est", () -> estimatedPose.getX());
-//        namespace.putNumber("y est", () -> estimatedPose.getY());
-//        namespace.putNumber("rotation est", () -> estimatedPose.getRotation().getDegrees());
+//        namespace.putNumber("x est", () -> getPose().getX());
+//        namespace.putNumber("y est", () -> getPose().getY());
+//        namespace.putNumber("rotation est", () -> getPose().getRotation().getDegrees());
         namespace.putNumber("normalized yaw", this::getNormalizedAngle);
         namespace.putNumber("max velocity difference",
                 () -> max(Math.abs(frontLeft.getSpeed()), Math.abs(frontRight.getSpeed()), Math.abs(backLeft.getSpeed()),
@@ -240,9 +239,12 @@ public class Drivetrain extends DashboardedSubsystem {
         namespace.putCommand("rotate to angle", new RotateSwerveWithPID(this,
                 () -> placeInAppropriate0To360Scope(getAngle(), setpoint.get()), this::getAngle, rotateToTargetPIDSettings,
                 rotateToTargetFeedForwardSettings));
+//        namespace.putRunnable("set pose", () -> poseEstimator.resetPosition(gyro.getRotation2d(), modulePositions,
+//                poseEstimationCameras.getEstimatedPoses().get(0).getPose()));
     }
 
     public Pose2d getPose() {
+//        return poseEstimator.getEstimatedPosition();
         return null;
     }
 }

@@ -1,18 +1,6 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkLowLevel;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkPIDController;
 import com.spikes2212.command.DashboardedSubsystem;
-import com.spikes2212.command.genericsubsystem.commands.smartmotorcontrollergenericsubsystem.MoveSmartMotorControllerGenericSubsystem;
-import com.spikes2212.command.genericsubsystem.smartmotorcontrollersubsystem.SparkGenericSubsystem;
-import com.spikes2212.control.FeedForwardController;
-import com.spikes2212.control.FeedForwardSettings;
-import com.spikes2212.control.PIDSettings;
-import com.spikes2212.control.TrapezoidProfileSettings;
-import com.spikes2212.dashboard.SpikesLogger;
-import com.spikes2212.util.UnifiedControlMode;
-import frc.robot.RobotMap;
 
 public class Shooter extends DashboardedSubsystem {
 

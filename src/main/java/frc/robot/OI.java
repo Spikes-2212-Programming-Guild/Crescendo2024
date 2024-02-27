@@ -4,9 +4,7 @@ import com.spikes2212.command.genericsubsystem.commands.MoveGenericSubsystem;
 import com.spikes2212.util.PlaystationControllerWrapper;
 import com.spikes2212.util.XboxControllerWrapper;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import frc.robot.commands.IntakeNote;
-import frc.robot.commands.ShootWithParameters;
-import frc.robot.commands.SpeedUpShooter;
+import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 
 public class OI /*GEVALD*/ {
@@ -29,12 +27,16 @@ public class OI /*GEVALD*/ {
         // Shoots the note - B
         ShootWithParameters shoot = new ShootWithParameters(shooter, drivetrain, shooterAdjuster, storage, () -> 0.0, () -> 3500.0,
                 () -> 3500.0, () -> 24.6);
+//        xbox.getRedButton().onTrue(new Shoot(shooter, drivetrain, shooterAdjuster, storage));
         xbox.getRedButton().onTrue(shoot);
         // Moves the storage backwards - Y
         xbox.getYellowButton().whileTrue(new MoveGenericSubsystem(storage, 0.2));
         // Resets the adjuster - X
         xbox.getBlueButton().onTrue(new SpeedUpShooter(shooter, () -> -2000.0, () -> -2000.0));
         // Stops all running commands - Left
+        xbox.getUpButton().onTrue(new CloseIntake(intakePlacer));
+        xbox.getDownButton().onTrue(new OpenIntake(intakePlacer));
+        xbox.getRightButton().whileTrue(new MoveGenericSubsystem(intakeRoller, 0.85).alongWith(new MoveGenericSubsystem(storage, 0.15)));
         xbox.getLeftButton().onTrue(new InstantCommand(() -> {
         }, storage, intakeRoller, shooterAdjuster, shooter) {
             @Override
@@ -59,11 +61,11 @@ public class OI /*GEVALD*/ {
     }
 
     public double getLeftX() {
-        return ps.getLeftX();
+        return -ps.getLeftX();
     }
 
     public double getLeftY() {
-        return ps.getLeftY();
+        return -ps.getLeftY();
     }
 
     public double getRightX() {
