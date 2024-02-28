@@ -13,7 +13,7 @@ import frc.robot.commands.DriveSwerve;
 import frc.robot.commands.IntakeNote;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.ShootWithParameters;
-import frc.robot.commands.auto.YeetAndRetreat;
+import frc.robot.commands.auto.YeetAndRetreatAmpSide;
 import frc.robot.commands.auto.YeetAndRetreatAndYeet;
 import frc.robot.subsystems.*;
 
@@ -47,9 +47,11 @@ public class Robot extends TimedRobot {
         root.putCommand("intake note", new IntakeNote(IntakeRoller.getInstance(), Storage.getInstance(),
                 IntakePlacer.getInstance(), ShooterAdjuster.getInstance(), false));
 
-        autoChooser.addOption("YeetAndRetreat", new YeetAndRetreat(drivetrain, shooter, shooterAdjuster, storage));
-        autoChooser.addOption("YeetAndRetreatAndYeet",
+        autoChooser.addOption("single (middle and long side)", new YeetAndRetreatAmpSide(drivetrain, shooter, shooterAdjuster, storage, intakePlacer));
+        autoChooser.addOption("double (middle)",
                 new YeetAndRetreatAndYeet(drivetrain, shooter, shooterAdjuster, intakePlacer, intakeRoller, storage));
+        autoChooser.addOption("single (short side)", new YeetAndRetreatAmpSide(drivetrain, shooter, shooterAdjuster, storage, intakePlacer));
+        root.putData("auto chooser", autoChooser);
     }
 
     @Override
@@ -73,7 +75,7 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         Command autoCommand = autoChooser.getSelected() == null ?
-                new YeetAndRetreat(drivetrain, shooter, shooterAdjuster, storage) : autoChooser.getSelected();
+                new YeetAndRetreatAmpSide(drivetrain, shooter, shooterAdjuster, storage, intakePlacer) : autoChooser.getSelected();
         autoCommand.schedule();
     }
 

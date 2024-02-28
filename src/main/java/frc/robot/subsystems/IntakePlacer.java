@@ -69,6 +69,10 @@ public class IntakePlacer extends SparkGenericSubsystem {
         return master.getEncoder().getPosition();
     }
 
+    public void resetPosition() {
+        master.getEncoder().setPosition(0);
+    }
+
     @Override
     public void configureDashboard() {
         namespace.putCommand("open", new OpenIntake(this));
