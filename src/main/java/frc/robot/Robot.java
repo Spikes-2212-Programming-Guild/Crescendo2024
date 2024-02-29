@@ -9,12 +9,13 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.DriveSwerve;
 import frc.robot.commands.IntakeNote;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.ShootWithParameters;
-import frc.robot.commands.auto.YeetAndRetreatAmpSide;
-import frc.robot.commands.auto.YeetAndRetreatAndYeet;
+import frc.robot.commands.auto.*;
 import frc.robot.subsystems.*;
 
 public class Robot extends TimedRobot {
@@ -28,7 +29,7 @@ public class Robot extends TimedRobot {
     private Storage storage;
     private ShooterFlywheel leftShooter;
     private ShooterFlywheel rightShooter;
-    private IntakeRoller intakeRoller;
+//    private IntakeRoller intakeRoller;
     private IntakePlacer intakePlacer;
 
     @Override
@@ -39,7 +40,7 @@ public class Robot extends TimedRobot {
         storage = Storage.getInstance();
         leftShooter = ShooterFlywheel.getLeftInstance();
         rightShooter = ShooterFlywheel.getRightInstance();
-        intakeRoller = IntakeRoller.getInstance();
+//        intakeRoller = IntakeRoller.getInstance();
         intakePlacer = IntakePlacer.getInstance();
 
         root.putCommand("shoot test", new Shoot(Shooter.getInstance(), Drivetrain.getInstance(), ShooterAdjuster.getInstance(),
@@ -47,10 +48,12 @@ public class Robot extends TimedRobot {
         root.putCommand("intake note", new IntakeNote(IntakeRoller.getInstance(), Storage.getInstance(),
                 IntakePlacer.getInstance(), ShooterAdjuster.getInstance(), false));
 
-        autoChooser.addOption("single (middle and long side)", new YeetAndRetreatAmpSide(drivetrain, shooter, shooterAdjuster, storage, intakePlacer));
-        autoChooser.addOption("double (middle)",
-                new YeetAndRetreatAndYeet(drivetrain, shooter, shooterAdjuster, intakePlacer, intakeRoller, storage));
+        autoChooser.addOption("single (middle and long side)", new YeetAndRetreat(drivetrain, shooter, shooterAdjuster, storage, intakePlacer));
+//        autoChooser.addOption("double (middle)",
+//                new YeetAndRetreatAndYeet(drivetrain, shooter, shooterAdjuster, intakePlacer, intakeRoller, storage));
         autoChooser.addOption("single (short side)", new YeetAndRetreatAmpSide(drivetrain, shooter, shooterAdjuster, storage, intakePlacer));
+        autoChooser.addOption("drive straight", new DriveStraight(drivetrain, shooterAdjuster, intakePlacer));
+        autoChooser.addOption("just shoot", new JustShoot(shooter, shooterAdjuster, intakePlacer, drivetrain, storage));
         root.putData("auto chooser", autoChooser);
     }
 
@@ -75,7 +78,7 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         Command autoCommand = autoChooser.getSelected() == null ?
-                new YeetAndRetreatAmpSide(drivetrain, shooter, shooterAdjuster, storage, intakePlacer) : autoChooser.getSelected();
+                new DriveStraight(drivetrain, shooterAdjuster, intakePlacer) : autoChooser.getSelected();
         autoCommand.schedule();
     }
 

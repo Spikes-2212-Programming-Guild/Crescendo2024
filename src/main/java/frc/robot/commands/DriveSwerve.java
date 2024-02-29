@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 
 public class DriveSwerve extends Command {
 
-    public static final double MAX_DRIVE_SPEED = 3.6;
+    public static final double MAX_DRIVE_SPEED = 4.3;
     public static final double MAX_TURN_SPEED = 4;
 
     private static final double DRIVE_ACCELERATION_LIMIT = 2;
