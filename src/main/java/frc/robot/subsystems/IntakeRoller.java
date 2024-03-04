@@ -10,6 +10,8 @@ public class IntakeRoller extends MotoredGenericSubsystem {
 
     private static final String NAMESPACE_NAME = "intake roller";
 
+    private static final int CURRENT_LIMIT = 20;
+
     private static IntakeRoller instance;
 
     public static IntakeRoller getInstance() {
@@ -26,6 +28,7 @@ public class IntakeRoller extends MotoredGenericSubsystem {
         rollMotor.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus0, 100);
         rollMotor.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus1, 500);
         rollMotor.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus2, 500);
+        rollMotor.setSmartCurrentLimit(CURRENT_LIMIT);
         configureDashboard();
     }
 

@@ -9,7 +9,6 @@ import com.spikes2212.control.FeedForwardSettings;
 import com.spikes2212.control.PIDSettings;
 import com.spikes2212.control.TrapezoidProfileSettings;
 import com.spikes2212.dashboard.ChildNamespace;
-import com.spikes2212.dashboard.SpikesLogger;
 import com.spikes2212.util.UnifiedControlMode;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -22,7 +21,7 @@ import java.util.function.Supplier;
 
 public class ShooterAdjuster extends SparkGenericSubsystem {
 
-    public static final double CURRENT_LIMIT = 40;
+    public static final double CURRENT_LIMIT = 30;
     private static final double RESET_SPEED = 0.2;
     private static final double MAX_POSITION = 25;
 
@@ -34,10 +33,10 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
     private final ChildNamespace trapezoidProfileNamespace = namespace.addChild("trapezoid profile");
     private final Supplier<Double> acceleration = trapezoidProfileNamespace.addConstantDouble("acceleration", 0);
     private final Supplier<Double> maxVelocity = trapezoidProfileNamespace.addConstantDouble("max velocity", 0);
-    private final Supplier<Integer> curve = trapezoidProfileNamespace.addConstantInt("curve", 0);
-    private final PIDSettings pidSettings = namespace.addPIDNamespace("", PIDSettings.EMPTY_PID_SETTINGS);
+    private final Supplier<Double> curve = trapezoidProfileNamespace.addConstantDouble("curve", 0);
+    private final PIDSettings pidSettings = namespace.addPIDNamespace("", new PIDSettings(0.3, 0.1, 0.05));
     private final FeedForwardSettings feedForwardSettings = namespace.addFeedForwardNamespace("",
-            FeedForwardSettings.EMPTY_FFSETTINGS);
+            new FeedForwardSettings(0.9, 0));
     private final TrapezoidProfileSettings trapezoidProfileSettings = new TrapezoidProfileSettings(acceleration,
             maxVelocity, curve);
 
@@ -174,9 +173,6 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
         namespace.putNumber("position", this::getPosition);
         namespace.putNumber("current", master::getOutputCurrent);
         Supplier<Double> setpoint = namespace.addConstantDouble("setpoint", 0);
-        namespace.putCommand("move",
-                new MoveSmartMotorControllerGenericSubsystem(this, pidSettings, feedForwardSettings,
-                        UnifiedControlMode.VELOCITY, setpoint));
         namespace.putRunnable("unmove", this::unmove);
         namespace.putCommand("reset", this.getResetCommand().andThen(new InstantCommand(() -> reset = true)));
         namespace.putNumber("velocity", this::getVelocity);

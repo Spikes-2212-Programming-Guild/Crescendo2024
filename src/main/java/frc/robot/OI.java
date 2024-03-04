@@ -24,15 +24,15 @@ public class OI /*GEVALD*/ {
         ps.getR1Button().onTrue(new InstantCommand(drivetrain::resetGyro));
         // Intakes a note - A
         xbox.getGreenButton().onTrue(new IntakeNote(intakeRoller, storage, intakePlacer, shooterAdjuster, false));
-        // Shoots the note - B
-        ShootWithParameters shoot = new ShootWithParameters(shooter, drivetrain, shooterAdjuster, storage, () -> 0.0, () -> 3500.0,
-                () -> 3500.0, () -> 24.6);
-//        xbox.getRedButton().onTrue(new Shoot(shooter, drivetrain, shooterAdjuster, storage));
-        xbox.getRedButton().onTrue(shoot);
+        // Shoots the note from the subwoofer - B
+
+        xbox.getRedButton().onTrue(new Shoot(shooter, drivetrain, shooterAdjuster, storage, Shoot.CLOSE_HEIGHT));
+        // Shoots the note from the safe zone - X
+        xbox.getBlueButton().onTrue(new Shoot(shooter, drivetrain, shooterAdjuster, storage, Shoot.RECTANGLE_HEIGHT));
         // Moves the storage backwards - Y
-        xbox.getYellowButton().whileTrue(new MoveGenericSubsystem(storage, 0.2));
+        xbox.getLTButton().whileTrue(new MoveGenericSubsystem(storage, 0.2));
         // Resets the adjuster - X
-        xbox.getBlueButton().onTrue(new SpeedUpShooter(shooter, () -> -2000.0, () -> -2000.0));
+        xbox.getRTButton().whileTrue(new SpeedUpShooter(shooter, () -> -2000.0, () -> -2000.0));
         // Stops all running commands - Left
         xbox.getUpButton().onTrue(new CloseIntake(intakePlacer));
         xbox.getDownButton().onTrue(new OpenIntake(intakePlacer));

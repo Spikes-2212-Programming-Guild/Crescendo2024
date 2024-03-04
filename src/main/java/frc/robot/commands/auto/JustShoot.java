@@ -12,7 +12,7 @@ public class JustShoot extends SequentialCommandGroup {
         addCommands(
                 new InstantCommand(intakePlacer::resetPosition),
                 adjuster.getResetCommand(),
-                new Shoot(shooter, drivetrain, adjuster, storage)
+                new Shoot(shooter, drivetrain, adjuster, storage, Shoot.CLOSE_HEIGHT)
         );
     }
 }

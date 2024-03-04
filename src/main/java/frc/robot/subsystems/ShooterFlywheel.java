@@ -17,6 +17,12 @@ import java.util.function.Supplier;
 
 public class ShooterFlywheel extends SparkGenericSubsystem {
 
+    private static final PIDSettings LEFT_PID_SETTINGS = new PIDSettings(0.0001, 75, 10000000);
+    private static final FeedForwardSettings LEFT_FF_SETTINGS = new FeedForwardSettings(0.69, 0.00214, 0);
+    private static final PIDSettings RIGHT_PID_SETTINGS = new PIDSettings(0.0001, 75, 10000000);
+    private static final FeedForwardSettings RIGHT_FF_SETTINGS = new FeedForwardSettings(0.52, 0.00213, 0);
+
+
     public final PIDSettings pidSettings = namespace.addPIDNamespace("", new PIDSettings(0, 0, 100000000));
     public final FeedForwardSettings feedForwardSettings = namespace.addFeedForwardNamespace("",
             FeedForwardSettings.EMPTY_FFSETTINGS);

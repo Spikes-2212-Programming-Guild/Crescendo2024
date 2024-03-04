@@ -24,7 +24,7 @@ public class IntakePlacer extends SparkGenericSubsystem {
 
     private static final String NAMESPACE_NAME = "intake placer";
 
-    private final PIDSettings pidSettings = namespace.addPIDNamespace("", PIDSettings.EMPTY_PID_SETTINGS);
+    private final PIDSettings pidSettings = namespace.addPIDNamespace("", new PIDSettings(0.7, 0.0, 1000));
     private final FeedForwardSettings feedForwardSettings = namespace.addFeedForwardNamespace("",
             FeedForwardSettings.EMPTY_FFSETTINGS);
 
@@ -41,6 +41,8 @@ public class IntakePlacer extends SparkGenericSubsystem {
 
     private IntakePlacer(CANSparkMax left, CANSparkMax right) {
         super(NAMESPACE_NAME, left, right);
+        left.restoreFactoryDefaults();
+        right.restoreFactoryDefaults();
         left.setIdleMode(CANSparkBase.IdleMode.kBrake);
         right.setIdleMode(CANSparkBase.IdleMode.kBrake);
         slaves.get(0).follow(master, true);

@@ -15,6 +15,8 @@ public class RotateSwerveWithPID extends Command {
     private final Drivetrain drivetrain;
     private final Supplier<Double> setpoint;
     private final Supplier<Double> source;
+    private final Supplier<Double> xSpeed;
+    private final Supplier<Double> ySpeed;
     private final PIDSettings pidSettings;
     private final PIDController pidController;
     private final FeedForwardSettings feedForwardSettings;
@@ -23,17 +25,25 @@ public class RotateSwerveWithPID extends Command {
     private double lastTimeNotOnTarget;
 
     public RotateSwerveWithPID(Drivetrain drivetrain, Supplier<Double> setpoint, Supplier<Double> source,
+                         Supplier<Double> xSpeed, Supplier<Double> ySpeed,
                          PIDSettings pidSettings, FeedForwardSettings feedForwardSettings) {
         addRequirements(drivetrain);
         this.drivetrain = drivetrain;
         this.setpoint = setpoint;
         this.source = source;
+        this.xSpeed = xSpeed;
+        this.ySpeed = ySpeed;
         this.pidSettings = pidSettings;
         this.pidController = new PIDController(pidSettings.getkP(), pidSettings.getkI(), pidSettings.getkD());
         pidController.setTolerance(pidSettings.getTolerance());
         this.feedForwardSettings = feedForwardSettings;
         this.feedForwardController = new FeedForwardController(feedForwardSettings,
                 FeedForwardController.DEFAULT_PERIOD);
+    }
+
+    public RotateSwerveWithPID(Drivetrain drivetrain, Supplier<Double> setpoint, Supplier<Double> source,
+                               PIDSettings pidSettings, FeedForwardSettings feedForwardSettings) {
+        this(drivetrain, setpoint, source, () -> 0.0, () -> 0.0, pidSettings, feedForwardSettings);
     }
 
     @Override
@@ -47,8 +57,11 @@ public class RotateSwerveWithPID extends Command {
         pidController.setPID(pidSettings.getkP(), pidSettings.getkI(), pidSettings.getkD());
         pidController.setTolerance(pidSettings.getTolerance());
         feedForwardController.setGains(feedForwardSettings);
-        drivetrain.drive(0, 0, pidController.calculate(setpoint.get(),
-                source.get()) + feedForwardController.calculate(setpoint.get()), false, false);
+        double kS = feedForwardSettings.getkS();
+        feedForwardController.setkS(0);
+        drivetrain.drive(xSpeed.get(), ySpeed.get(), pidController.calculate(source.get(),
+                setpoint.get()) + feedForwardController.calculate(setpoint.get())
+                + kS * Math.signum(setpoint.get() - source.get()), false, false, false);
     }
 
     @Override

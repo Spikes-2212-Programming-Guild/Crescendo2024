@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
@@ -18,6 +17,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 
 public class SwerveModule extends DashboardedSubsystem {
 
@@ -29,12 +29,16 @@ public class SwerveModule extends DashboardedSubsystem {
     private static final double WHEEL_CIRCUMFERENCE_METERS = WHEEL_DIAMETER_IN_INCHES * INCHES_TO_METERS * Math.PI;
     private static final double SECONDS_IN_MINUTE = 60;
     private static final double DEGREES_IN_ROTATION = 360;
+    private static final int DRIVE_FREE_CURRENT_LIMIT = 60;
+    private static final int DRIVE_STALL_CURRENT_LIMIT = 80;
 
     public final CANSparkMax driveController;
     public final CANSparkMax turnController;
     private final CANcoder absoluteEncoder;
     private final FeedForwardController driveFeedForwardController;
+    private final FeedForwardController turnFeedForwardController;
     private final FeedForwardSettings driveFeedForwardSettings;
+    private final FeedForwardSettings turnFeedForwardSettings;
     private final PIDSettings drivePIDSettings;
     private final PIDSettings turnPIDSettings;
 
@@ -48,16 +52,19 @@ public class SwerveModule extends DashboardedSubsystem {
     public SwerveModule(String namespaceName, CANSparkMax driveController, CANSparkMax turnController,
                         CANcoder absoluteEncoder, boolean cancoderInverted, FeedForwardSettings driveFeedForwardSettings,
                         PIDSettings drivePIDSettings, PIDSettings turnPIDSettings,
-                        boolean driveInverted, double cancoderOffset) {
+                        FeedForwardSettings turnFeedForwardSettings, boolean driveInverted, double cancoderOffset) {
         super(namespaceName);
         this.driveController = driveController;
         this.turnController = turnController;
         this.absoluteEncoder = absoluteEncoder;
         this.cancoderInverted = cancoderInverted;
         this.driveFeedForwardSettings = driveFeedForwardSettings;
+        this.turnFeedForwardSettings = turnFeedForwardSettings;
         this.drivePIDSettings = drivePIDSettings;
         this.turnPIDSettings = turnPIDSettings;
         this.driveFeedForwardController = new FeedForwardController(driveFeedForwardSettings,
+                FeedForwardController.DEFAULT_PERIOD);
+        this.turnFeedForwardController = new FeedForwardController(turnFeedForwardSettings,
                 FeedForwardController.DEFAULT_PERIOD);
         this.driveEncoder = driveController.getEncoder();
         this.turnEncoder = turnController.getEncoder();
@@ -83,8 +90,8 @@ public class SwerveModule extends DashboardedSubsystem {
                 Rotation2d.fromDegrees(getAbsoluteAngle()));
     }
 
-    public void set(SwerveModuleState state, boolean usePID) {
-        if (Math.abs(state.speedMetersPerSecond) < Drivetrain.MIN_SPEED_METERS_PER_SECONDS) {
+    public void set(SwerveModuleState state, boolean usePID, boolean limitSpeed) {
+        if (Math.abs(state.speedMetersPerSecond) < Drivetrain.MIN_SPEED_METERS_PER_SECONDS && limitSpeed) {
             stop();
             return;
         }
@@ -105,6 +112,7 @@ public class SwerveModule extends DashboardedSubsystem {
         driveEncoder.setVelocityConversionFactor(
                 ((1 / DRIVING_GEAR_RATIO) * WHEEL_CIRCUMFERENCE_METERS) / SECONDS_IN_MINUTE);
         driveEncoder.setPositionConversionFactor((1 / DRIVING_GEAR_RATIO) * WHEEL_CIRCUMFERENCE_METERS);
+        driveController.setSmartCurrentLimit(DRIVE_FREE_CURRENT_LIMIT, DRIVE_STALL_CURRENT_LIMIT);
     }
 
     private void configureTurnController() {
@@ -139,7 +147,18 @@ public class SwerveModule extends DashboardedSubsystem {
     //angle between 0 and 360
     public void setAngle(double angle) {
         configureTurnController();
-        turnController.getPIDController().setReference(angle, CANSparkMax.ControlType.kPosition, PID_SLOT);
+        configFF();
+        double kS = turnFeedForwardController.getkS();
+        turnFeedForwardController.setkS(0);
+        double feedForward = turnFeedForwardController.calculate(angle);
+        if (Math.abs(getAbsoluteAngle() - angle) > 180) {
+            kS *= Math.signum(getAbsoluteAngle() - angle);
+        } else {
+            kS *= -Math.signum(getAbsoluteAngle() - angle);
+        }
+        feedForward += kS;
+        turnController.getPIDController().setReference(angle, CANSparkMax.ControlType.kPosition, PID_SLOT, feedForward,
+                SparkPIDController.ArbFFUnits.kVoltage);
     }
 
     //speed - m/s
@@ -214,6 +233,11 @@ public class SwerveModule extends DashboardedSubsystem {
     public void configFF() {
         driveFeedForwardController.setGains(driveFeedForwardSettings.getkS(), driveFeedForwardSettings.getkV(),
                 driveFeedForwardSettings.getkA(), driveFeedForwardSettings.getkG());
+        turnFeedForwardController.setGains(turnFeedForwardSettings);
+    }
+
+    public SwerveModuleState getState() {
+        return new SwerveModuleState(getSpeed(), Rotation2d.fromDegrees(getAbsoluteAngle()));
     }
 
     @Override
@@ -223,15 +247,25 @@ public class SwerveModule extends DashboardedSubsystem {
         namespace.putNumber("absolute angle", this::getAbsoluteAngle);
         namespace.putNumber("relative angle", this::getRelativeAngle);
         namespace.putData("reset angle", new InstantCommand(this::configureRelativeTurnEncoder).ignoringDisable(true));
-        namespace.putData("set angle to 0",
-                new FunctionalCommand(() -> set(new SwerveModuleState(0, Rotation2d.fromDegrees(0)), false), () -> {
-                },
-                        b -> turnController.stopMotor(), () -> false));
+        namespace.putCommand("set angle to 0", new RunCommand(() -> set(new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
+                false, false)) {
+            @Override
+            public void end(boolean interrupted) {
+                turnController.stopMotor();
+            }
+        });
         namespace.putData("move",
-                new FunctionalCommand(() -> set(new SwerveModuleState(1.5, Rotation2d.fromDegrees(0)), false), () -> {
+                new FunctionalCommand(() -> set(new SwerveModuleState(1.5, Rotation2d.fromDegrees(0)), false, true), () -> {
                 },
                         b -> turnController.stopMotor(), () -> false));
         namespace.putRunnable("stop", turnController::stopMotor);
+        namespace.putRunnable("config turn", this::configureTurnController);
+        namespace.putCommand("move", new RunCommand(() -> driveController.set(0.2)) {
+            @Override
+            public void end(boolean i) {
+                driveController.stopMotor();
+            }
+        });
         namespace.putNumber("applied output", driveController::getAppliedOutput);
     }
 }

@@ -29,17 +29,19 @@ public class SwerveModuleHolder {
     private static final boolean BACK_RIGHT_CANCODER_INVERTED = false;
 
     //all in rotations
-    private static final double FRONT_LEFT_OFFSET = -0.821289 ;
+    private static final double FRONT_LEFT_OFFSET = -0.821289;
     private static final double FRONT_RIGHT_OFFSET = -0.210938;
     private static final double BACK_LEFT_OFFSET = -0.565918;
-    private static final double BACK_RIGHT_OFFSET = -0.170410;
+    private static final double BACK_RIGHT_OFFSET = -0.157715;
 
     private static final PIDSettings drivePIDSettings = namespace.addPIDNamespace("drive",
             new PIDSettings(-1, -1, -1, -1, -1));
     private static final PIDSettings turnPIDSettings = namespace.addPIDNamespace("turn",
-            new PIDSettings(0.007, 0, 0, 0, 0));
+            new PIDSettings(0.004, 0, 0, 0, 0));
     private static final FeedForwardSettings driveFeedForwardSettings = namespace.addFeedForwardNamespace("drive",
             new FeedForwardSettings(-1, -1, -1, -1));
+    private static final FeedForwardSettings turnFeedForwardSettings = namespace.addFeedForwardNamespace("turn",
+            new FeedForwardSettings(0.29, 0, 0, 0));
 
     private static SwerveModule frontLeft;
     private static SwerveModule frontRight;
@@ -52,8 +54,8 @@ public class SwerveModuleHolder {
                     new CANSparkMax(RobotMap.CAN.FRONT_LEFT_DRIVE_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
                     new CANSparkMax(RobotMap.CAN.FRONT_LEFT_TURN_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
                     new CANcoder(RobotMap.CAN.FRONT_LEFT_ABSOLUTE_ENCODER), FRONT_LEFT_CANCODER_INVERTED,
-                    driveFeedForwardSettings, drivePIDSettings, turnPIDSettings, FRONT_LEFT_DRIVE_INVERTED,
-                    FRONT_LEFT_OFFSET);
+                    driveFeedForwardSettings, drivePIDSettings, turnPIDSettings, turnFeedForwardSettings,
+                    FRONT_LEFT_DRIVE_INVERTED, FRONT_LEFT_OFFSET);
         }
         return frontLeft;
     }
@@ -64,8 +66,8 @@ public class SwerveModuleHolder {
                     new CANSparkMax(RobotMap.CAN.FRONT_RIGHT_DRIVE_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
                     new CANSparkMax(RobotMap.CAN.FRONT_RIGHT_TURN_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
                     new CANcoder(RobotMap.CAN.FRONT_RIGHT_ABSOLUTE_ENCODER), FRONT_RIGHT_CANCODER_INVERTED,
-                    driveFeedForwardSettings, drivePIDSettings, turnPIDSettings, FRONT_RIGHT_DRIVE_INVERTED,
-                    FRONT_RIGHT_OFFSET);
+                    driveFeedForwardSettings, drivePIDSettings, turnPIDSettings, turnFeedForwardSettings,
+                    FRONT_RIGHT_DRIVE_INVERTED, FRONT_RIGHT_OFFSET);
         }
         return frontRight;
     }
@@ -76,8 +78,8 @@ public class SwerveModuleHolder {
                     new CANSparkMax(RobotMap.CAN.BACK_LEFT_DRIVE_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
                     new CANSparkMax(RobotMap.CAN.BACK_LEFT_TURN_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
                     new CANcoder(RobotMap.CAN.BACK_LEFT_ABSOLUTE_ENCODER), BACK_LEFT_CANCODER_INVERTED,
-                    driveFeedForwardSettings, drivePIDSettings, turnPIDSettings, BACK_LEFT_DRIVE_INVERTED,
-                    BACK_LEFT_OFFSET);
+                    driveFeedForwardSettings, drivePIDSettings, turnPIDSettings, turnFeedForwardSettings,
+                    BACK_LEFT_DRIVE_INVERTED, BACK_LEFT_OFFSET);
         }
         return backLeft;
     }
@@ -88,8 +90,8 @@ public class SwerveModuleHolder {
                     new CANSparkMax(RobotMap.CAN.BACK_RIGHT_DRIVE_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
                     new CANSparkMax(RobotMap.CAN.BACK_RIGHT_TURN_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
                     new CANcoder(RobotMap.CAN.BACK_RIGHT_ABSOLUTE_ENCODER), BACK_RIGHT_CANCODER_INVERTED,
-                    driveFeedForwardSettings, drivePIDSettings, turnPIDSettings, BACK_RIGHT_DRIVE_INVERTED,
-                    BACK_RIGHT_OFFSET);
+                    driveFeedForwardSettings, drivePIDSettings, turnPIDSettings, turnFeedForwardSettings,
+                    BACK_RIGHT_DRIVE_INVERTED, BACK_RIGHT_OFFSET);
         }
         return backRight;
     }
