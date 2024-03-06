@@ -20,7 +20,7 @@ public class YeetAndRetreatAndYeet extends SequentialCommandGroup {
                 new InstantCommand(intakePlacer::resetPosition),
                 adjuster.getResetCommand(),
                 new ParallelCommandGroup(
-                        new Shoot(shooter, drivetrain, adjuster, storage, Shoot.CLOSE_HEIGHT),
+                        new Shoot(shooter, drivetrain, adjuster, storage, Shoot.CLOSE_HEIGHT).getCommand(),
                         new OpenIntake(intakePlacer)
                 ),
                 new ParallelRaceGroup(
@@ -30,7 +30,7 @@ public class YeetAndRetreatAndYeet extends SequentialCommandGroup {
                 ),
                 new DriveSwerve(drivetrain, () -> -DRIVE_SPEED, () -> 0.0, () -> 0.0, false, false).withTimeout(MOVE_TIMEOUT),
                 new ParallelCommandGroup(
-                        new Shoot(shooter, drivetrain, adjuster, storage, Shoot.CLOSE_HEIGHT),
+                        new Shoot(shooter, drivetrain, adjuster, storage, Shoot.CLOSE_HEIGHT).getCommand(),
                         new CloseIntake(intakePlacer)
                 )
         );

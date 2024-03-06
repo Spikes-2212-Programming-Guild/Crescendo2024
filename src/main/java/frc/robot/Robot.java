@@ -4,23 +4,26 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.revrobotics.CANSparkBase;
 import com.spikes2212.dashboard.RootNamespace;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.DriveSwerve;
-import frc.robot.commands.IntakeNote;
-import frc.robot.commands.Shoot;
-import frc.robot.commands.ShootWithParameters;
+import frc.robot.commands.*;
 import frc.robot.commands.auto.DriveStraight;
 import frc.robot.commands.auto.JustShoot;
 import frc.robot.commands.auto.YeetAndRetreat;
 import frc.robot.commands.auto.YeetAndRetreatAmpSide;
 import frc.robot.subsystems.*;
 import frc.robot.util.LEDService;
+import org.littletonrobotics.urcl.URCL;
 
 import java.awt.*;
 
@@ -43,7 +46,7 @@ public class Robot extends TimedRobot {
     private Storage storage;
     private ShooterFlywheel leftShooter;
     private ShooterFlywheel rightShooter;
-    //    private IntakeRoller intakeRoller;
+    private IntakeRoller intakeRoller;
     private IntakePlacer intakePlacer;
     LEDService led = LEDService.getInstance();
 
@@ -58,23 +61,33 @@ public class Robot extends TimedRobot {
         storage = Storage.getInstance();
         leftShooter = ShooterFlywheel.getLeftInstance();
         rightShooter = ShooterFlywheel.getRightInstance();
-//        intakeRoller = IntakeRoller.getInstance();
+        intakeRoller = IntakeRoller.getInstance();
         intakePlacer = IntakePlacer.getInstance();
 
         root.putCommand("shoot test", new Shoot(Shooter.getInstance(), Drivetrain.getInstance(), ShooterAdjuster.getInstance(),
-                Storage.getInstance(), Shoot.CLOSE_HEIGHT));
+                Storage.getInstance(), Shoot.CLOSE_HEIGHT).getCommand());
         root.putCommand("intake note", new IntakeNote(IntakeRoller.getInstance(), Storage.getInstance(),
                 IntakePlacer.getInstance(), ShooterAdjuster.getInstance(), false));
+        NamedCommands.registerCommand("open-intake", new OpenIntake(intakePlacer));
+        NamedCommands.registerCommand("close-intake", new CloseIntake(intakePlacer));
+        NamedCommands.registerCommand("shoot-close", new Shoot(shooter, drivetrain, shooterAdjuster, storage,
+                Shoot.CLOSE_HEIGHT).getCommand());
+        NamedCommands.registerCommand("shoot-middle", new Shoot(shooter, drivetrain, shooterAdjuster, storage,
+                Shoot.MIDDLE_HEIGHT).getCommand());
+        NamedCommands.registerCommand("intake-note", new IntakeNote(intakeRoller, storage, intakePlacer, shooterAdjuster,
+                false));
+        NamedCommands.registerCommand("reset-adjuster", shooterAdjuster.getResetCommand());
+        NamedCommands.registerCommand("reset-placer", new InstantCommand(intakePlacer::resetPosition));
+        NamedCommands.registerCommand("reset-gyro", new InstantCommand(drivetrain::resetGyro));
+        root.putCommand("2", new PathPlannerAuto("2"));
 
-        autoChooser.addOption("single (middle and long side)", new YeetAndRetreat(drivetrain, shooter, shooterAdjuster, storage, intakePlacer));
-//        autoChooser.addOption("double (middle)",
-//                new YeetAndRetreatAndYeet(drivetrain, shooter, shooterAdjuster, intakePlacer, intakeRoller, storage));
-        autoChooser.addOption("single (short side)", new YeetAndRetreatAmpSide(drivetrain, shooter, shooterAdjuster, storage, intakePlacer));
-        autoChooser.addOption("drive straight", new DriveStraight(drivetrain, shooterAdjuster, intakePlacer));
+        autoChooser.addOption("single (middle)", new PathPlannerAuto("single middle"));
+        autoChooser.addOption("double (middle)", new PathPlannerAuto("double middle"));
+        autoChooser.addOption("single (short side)", new PathPlannerAuto("single short"));
+        autoChooser.addOption("single (long side)", new PathPlannerAuto("single long side"));
         autoChooser.addOption("just shoot", new JustShoot(shooter, shooterAdjuster, intakePlacer, drivetrain, storage));
         root.putData("auto chooser", autoChooser);
-        root.putData("test", new InstantCommand(() -> leftShooter.setVoltage(12)));
-//        sysid();
+        sysid();
     }
 
     @Override
@@ -100,7 +113,7 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         Command autoCommand = autoChooser.getSelected() == null ?
-                new DriveStraight(drivetrain, shooterAdjuster, intakePlacer) : autoChooser.getSelected();
+                new PathPlannerAuto("double middle") : autoChooser.getSelected();
         autoCommand.schedule();
     }
 
@@ -151,6 +164,7 @@ public class Robot extends TimedRobot {
                 new SysIdRoutine.Config(),
                 new SysIdRoutine.Mechanism(
                         voltageMeasure -> {
+                            drivetrain.setIdleMode(CANSparkBase.IdleMode.kBrake);
                             drivetrain.setAnglesToZero();
                             drivetrain.setVoltage(voltageMeasure.in(Volts));
                         },

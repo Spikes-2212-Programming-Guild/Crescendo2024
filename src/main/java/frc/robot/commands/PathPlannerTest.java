@@ -19,7 +19,7 @@ public class PathPlannerTest extends FollowPathCommand {
     public PathPlannerTest(PathPlannerPath path, Drivetrain drivetrain) {
         super(path, drivetrain::getPose, drivetrain::getRobotRelativeSpeeds,
                 speeds -> drivetrain.drive(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond,
-                        speeds.omegaRadiansPerSecond, false, false),
+                        speeds.omegaRadiansPerSecond, false, true),
                 new PPHolonomicDriveController(
                         new PIDConstants(translationSettings.getkP(),
                                 translationSettings.getkI(), translationSettings.getkD()),

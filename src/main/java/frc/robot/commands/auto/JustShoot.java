@@ -10,6 +10,7 @@ public class JustShoot extends SequentialCommandGroup {
     public JustShoot(Shooter shooter, ShooterAdjuster adjuster, IntakePlacer intakePlacer, Drivetrain drivetrain,
                      Storage storage) {
         addCommands(
+                new InstantCommand(drivetrain::resetGyro),
                 new InstantCommand(intakePlacer::resetPosition),
                 adjuster.getResetCommand(),
                 new Shoot(shooter, drivetrain, adjuster, storage, Shoot.CLOSE_HEIGHT)

@@ -1,6 +1,11 @@
 package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.ReplanningConfig;
+import com.revrobotics.CANSparkBase;
 import com.spikes2212.command.DashboardedSubsystem;
 import com.spikes2212.control.FeedForwardSettings;
 import com.spikes2212.control.PIDSettings;
@@ -10,16 +15,17 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.*;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.RotateSwerveWithPID;
+import frc.robot.commands.DriveSwerve;
+import frc.robot.commands.PathPlannerTest;
 import frc.robot.services.poseestimation.PoseEstimationCameras;
-import frc.robot.services.poseestimation.PoseEstimatorTarget;
 
-import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -39,6 +45,7 @@ public class Drivetrain extends DashboardedSubsystem {
     public static final Translation2d CENTER_OF_ROBOT = new Translation2d(
             (FRONT_LEFT_WHEEL_POSITION.getX() + BACK_RIGHT_WHEEL_POSITION.getX()) / 2,
             (FRONT_LEFT_WHEEL_POSITION.getY() + BACK_RIGHT_WHEEL_POSITION.getY()) / 2);
+    public static final double RADIUS = FRONT_LEFT_WHEEL_POSITION.getDistance(FRONT_RIGHT_WHEEL_POSITION);
 
     public static final double MAX_SPEED_METERS_PER_SECONDS = 4.3;
     public static final double MIN_SPEED_METERS_PER_SECONDS = 0.2;
@@ -64,8 +71,6 @@ public class Drivetrain extends DashboardedSubsystem {
     private final PoseEstimationCameras poseEstimationCameras;
     private final SwerveDrivePoseEstimator poseEstimator;
 
-    private SwerveModulePosition[] modulePositions;
-
     private double maxFrontLeftSpeed = 0;
     private double maxBackLeftSpeed = 0;
     private double maxFrontRightSpeed = 0;
@@ -74,6 +79,9 @@ public class Drivetrain extends DashboardedSubsystem {
     private double maxAcceleration = 0;
 
     private SpikesLogger logger = new SpikesLogger();
+
+    private double lastAngle;
+    private double lastTime = Timer.getFPGATimestamp();
 
     private static Drivetrain instance;
 
@@ -89,32 +97,61 @@ public class Drivetrain extends DashboardedSubsystem {
     private Drivetrain(SwerveModule frontLeft, SwerveModule frontRight, SwerveModule backLeft,
                        SwerveModule backRight, AHRS gyro) {
         super(NAMESPACE_NAME);
+        this.gyro = gyro;
         this.frontLeft = frontLeft;
         this.frontRight = frontRight;
         this.backLeft = backLeft;
         this.backRight = backRight;
         this.kinematics = new SwerveDriveKinematics(FRONT_LEFT_WHEEL_POSITION, FRONT_RIGHT_WHEEL_POSITION,
                 BACK_LEFT_WHEEL_POSITION, BACK_RIGHT_WHEEL_POSITION);
-        this.gyro = gyro;
-        modulePositions = new SwerveModulePosition[]
-                {frontLeft.getModulePosition(), frontRight.getModulePosition(), backLeft.getModulePosition(),
-                        backRight.getModulePosition()};
-        odometry = new SwerveDriveOdometry(kinematics, getRotation2d(), modulePositions, new Pose2d());
+        odometry = new SwerveDriveOdometry(kinematics, getRotation2d(), getModulePositions(), new Pose2d());
         modules = Set.of(frontLeft, frontRight, backLeft, backRight);
         poseEstimationCameras = PoseEstimationCameras.getInstance();
-        poseEstimator = new SwerveDrivePoseEstimator(kinematics, getRotation2d(), modulePositions, new Pose2d());
+        poseEstimator = new SwerveDrivePoseEstimator(kinematics, getRotation2d(), getModulePositions(), new Pose2d());
+        lastAngle = getAngle();
+        AutoBuilder.configureHolonomic(
+             odometry::getPoseMeters,
+                this::resetPosition,
+                () -> kinematics.toChassisSpeeds(frontLeft.getState(), frontRight.getState(), backLeft.getState(),
+                        backRight.getState()),
+                this::drive,
+                new HolonomicPathFollowerConfig(
+                        MAX_SPEED_METERS_PER_SECONDS,
+                        RADIUS,
+                        new ReplanningConfig(
+                                false, false
+                        )
+                ),
+                () -> {
+                    // Boolean supplier that controls when the path will be mirrored for the red alliance
+                    // This will flip the path being followed to the red side of the field.
+                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                },
+                this
+        );
         configureDashboard();
     }
 
     @Override
     public void periodic() {
         super.periodic();
-        modulePositions = new SwerveModulePosition[]
-                {frontLeft.getModulePosition(), frontRight.getModulePosition(), backLeft.getModulePosition(),
-                        backRight.getModulePosition()};
-        odometry.update(getRotation2d(), modulePositions);
-        poseEstimator.update(getRotation2d(), modulePositions);
-        List<PoseEstimatorTarget> targets = poseEstimationCameras.getEstimatedPoses();
+        odometry.update(getRotation2d(), getModulePositions());
+        poseEstimator.update(getRotation2d(), getModulePositions());
+//        List<PoseEstimatorTarget> targets = poseEstimationCameras.getEstimatedPoses();
+        try {
+            double now = Timer.getFPGATimestamp();
+            double angle = getAngle();
+            double rate = (angle - lastAngle) / (now - lastTime);
+            logger.log("rate: " + rate);
+            lastTime = now;
+            lastAngle = angle;
+        } catch (Exception ignored) {}
 //        for (PoseEstimatorTarget target : targets) {
 //            if (target != null) {
 //                if (target.getPose() != null) {
@@ -137,6 +174,7 @@ public class Drivetrain extends DashboardedSubsystem {
         }
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds, CENTER_OF_ROBOT);
         SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_SPEED_METERS_PER_SECONDS);
+        maxAcceleration = Math.max(maxAcceleration, gyro.getWorldLinearAccelX());
         frontLeft.set(states[0], usePID, limitSpeed);
         frontRight.set(states[1], usePID, limitSpeed);
         backLeft.set(states[2], usePID, limitSpeed);
@@ -146,6 +184,10 @@ public class Drivetrain extends DashboardedSubsystem {
     public void drive(double xSpeed, double ySpeed, double rotationSpeed,
                       boolean fieldRelative, boolean usePID) {
         drive(xSpeed, ySpeed, rotationSpeed, fieldRelative, usePID, true);
+    }
+
+    public void drive(ChassisSpeeds speeds) {
+        drive(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond, false, true, false);
     }
 
     public void resetGyro() {
@@ -224,6 +266,10 @@ public class Drivetrain extends DashboardedSubsystem {
         return newAngle;
     }
 
+    public void resetPosition(Pose2d newPose) {
+        odometry.resetPosition(newPose.getRotation(), getModulePositions(), newPose);
+    }
+
     public double getNormalizedAngle() {
         return getRotation2d().getDegrees() % 180;
     }
@@ -247,6 +293,7 @@ public class Drivetrain extends DashboardedSubsystem {
         namespace.putNumber("x odom", () -> odometry.getPoseMeters().getX());
         namespace.putNumber("y odom", () -> odometry.getPoseMeters().getY());
         namespace.putNumber("rotation odom", () -> odometry.getPoseMeters().getRotation().getDegrees());
+        Supplier<Double> voltage = namespace.addConstantDouble("voltage", 0.2141);
 //        namespace.putNumber("x est", () -> getPose().getX());
 //        namespace.putNumber("y est", () -> getPose().getY());
 //        namespace.putNumber("rotation est", () -> getPose().getRotation().getDegrees());
@@ -263,10 +310,6 @@ public class Drivetrain extends DashboardedSubsystem {
                 () -> max(Math.abs(frontLeft.getSpeed()), Math.abs(frontRight.getSpeed()), Math.abs(backLeft.getSpeed()),
                         Math.abs(backRight.getSpeed())) - min(Math.abs(frontLeft.getSpeed()), Math.abs(frontRight.getSpeed()), Math.abs(backLeft.getSpeed()),
                         Math.abs(backRight.getSpeed())));
-        Supplier<Double> setpoint = namespace.addConstantDouble("setpoint", 0);
-        namespace.putCommand("rotate to angle", new RotateSwerveWithPID(this,
-                () -> placeInAppropriate0To360Scope(getAngle(), setpoint.get()), this::getAngle, rotateToTargetPIDSettings,
-                rotateToTargetFeedForwardSettings));
         namespace.putData("find max drive velocity (good idea)", new RunCommand(this::driveFast) {
             @Override
             public void end(boolean interrupted) {
@@ -286,14 +329,21 @@ public class Drivetrain extends DashboardedSubsystem {
         namespace.putNumber("max br speed", () -> maxBackRightSpeed);
         namespace.putNumber("max accel", () -> maxAcceleration);
         namespace.putNumber("max rotation speed", () -> maxRotationSpeed);
-        namespace.putData("set voltage", new RunCommand(() -> setVoltage(2.5), this, frontLeft, frontRight, backLeft, backRight));
-//        namespace.putData("test pathplanner", new PathPlannerTest(PathPlannerPath.fromPathFile("New Path"), this));
+        namespace.putData("set voltage", new RunCommand(() -> setVoltage(voltage.get()), this, frontLeft, frontRight, backLeft, backRight));
+        Supplier<Double> setpoint = namespace.addConstantDouble("setpoint", 0);
+        namespace.putData("drive in speed i tell you", new DriveSwerve(this, setpoint, () -> 0.0, () -> 0.0, false,
+                true));
+        namespace.putNumber("rotation speed", gyro::getRawGyroZ);
+        namespace.putData("test pathplanner", new InstantCommand(() -> odometry.resetPosition(gyro.getRotation2d(),
+                getModulePositions(), new Pose2d(0, 2, new Rotation2d()))).andThen(
+                        new PathPlannerTest(PathPlannerPath.fromPathFile("lol"), this)));
 //        namespace.putRunnable("set pose", () -> poseEstimator.resetPosition(gyro.getRotation2d(), modulePositions,
 //                poseEstimationCameras.getEstimatedPoses().get(0).getPose()));
     }
 
     public Pose2d getPose() {
-        return poseEstimator.getEstimatedPosition();
+//        return poseEstimator.getEstimatedPosition();
+        return odometry.getPoseMeters();
 //        return null;
     }
 
@@ -304,9 +354,7 @@ public class Drivetrain extends DashboardedSubsystem {
     }
 
     public void driveFast() {
-        for (SwerveModule module : modules) {
-            module.driveController.set(1);
-        }
+        setVoltage(12);
         maxFrontLeftSpeed = Math.max(maxFrontLeftSpeed, Math.abs(frontLeft.getSpeed()));
         maxFrontRightSpeed = Math.max(maxFrontRightSpeed, Math.abs(frontRight.getSpeed()));
         maxBackLeftSpeed = Math.max(maxBackLeftSpeed, Math.abs(backLeft.getSpeed()));
@@ -342,5 +390,22 @@ public class Drivetrain extends DashboardedSubsystem {
 
     public void setVoltage(double voltage) {
         modules.forEach(m -> m.driveController.setVoltage(voltage));
+        diamond();
     }
+
+    public void setIdleMode(CANSparkBase.IdleMode mode) {
+        modules.forEach(m -> {
+            m.driveController.setIdleMode(mode);
+        });
+    }
+
+    public SwerveModulePosition[] getModulePositions() {
+        return new SwerveModulePosition[]{
+                frontLeft.getModulePosition(),
+                frontRight.getModulePosition(),
+                backLeft.getModulePosition(),
+                backRight.getModulePosition()
+        };
+    }
+
 }

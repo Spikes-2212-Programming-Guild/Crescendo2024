@@ -15,6 +15,7 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterAdjuster;
 import frc.robot.subsystems.Storage;
+import frc.robot.util.LEDService;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -28,7 +29,7 @@ public class Shoot extends ParallelDeadlineGroup {
     private static final double MIN_HEIGHT = 17;
 
     private static final double STORAGE_VOLTAGE = -6;
-    private static final double WAIT_TIME = 3;
+    private static final double WAIT_TIME = 0.7;
     private static final double CROSS_TIMEOUT = 1;
 
     public static final RootNamespace ROOT = new RootNamespace("shoot");
@@ -37,6 +38,7 @@ public class Shoot extends ParallelDeadlineGroup {
     private static final Supplier<Double> HEIGHT = ROOT.addConstantDouble("shoot height", 0);
 
     public static final double CLOSE_HEIGHT = 24.6;
+    public static final double MIDDLE_HEIGHT = 22;
     public static final double RECTANGLE_HEIGHT = 16.3;
 
     //@TODO CHANGE!
@@ -44,6 +46,12 @@ public class Shoot extends ParallelDeadlineGroup {
 
     private static final SpikesLogger LOGGER = new SpikesLogger();
     private final double height;
+
+    private final Shooter shooter;
+    private final Drivetrain drivetrain;
+    private final ShooterAdjuster adjuster;
+    private final Storage storage;
+    private final LEDService ledService;
 
     private Pose2d speakerPose = new Pose2d(0.52, 5.59, new Rotation2d());
 
@@ -53,6 +61,11 @@ public class Shoot extends ParallelDeadlineGroup {
     public Shoot(Shooter shooter, Drivetrain drivetrain, ShooterAdjuster adjuster, Storage storage, double height) {
         super(new InstantCommand());
         this.height = height;
+        this.drivetrain = drivetrain;
+        this.adjuster = adjuster;
+        this.shooter = shooter;
+        this.storage = storage;
+        ledService = LEDService.getInstance();
 
         Command rotateCommand = getDrivetrainCommand(drivetrain);
 
@@ -60,7 +73,7 @@ public class Shoot extends ParallelDeadlineGroup {
 
         MoveSmartMotorControllerGenericSubsystem adjustCommand =
                 new MoveSmartMotorControllerGenericSubsystem(adjuster, adjuster.getPIDSettings(),
-                        adjuster.getFeedForwardSettings(), UnifiedControlMode.POSITION, getRequiredShooterAngle(Pose2d::new)) {
+                        adjuster.getFeedForwardSettings(), UnifiedControlMode.POSITION, getRequiredShooterAngle()) {
 
                     @Override
                     public boolean isFinished() {
@@ -85,6 +98,7 @@ public class Shoot extends ParallelDeadlineGroup {
                 shooter.getRightFlywheel().pidSettings.getTolerance(), getRequiredRightSpeed().get()));
 
         addCommands(setSpeakerPoseCommand, speedUpCommand, adjustCommand, rotateCommand);
+        ledService.attemptShoot();
         setDeadline(
                 new SequentialCommandGroup(
                         new WaitUntilCommand(() ->
@@ -94,12 +108,12 @@ public class Shoot extends ParallelDeadlineGroup {
                                         shooter.getRightFlywheel().onTarget(UnifiedControlMode.VELOCITY,
                                                 shooter.getRightFlywheel().pidSettings.getTolerance(), getRequiredRightSpeed().get())),
                         new MoveGenericSubsystem(storage, () -> STORAGE_VOLTAGE / RobotController.getBatteryVoltage())
-                                .withTimeout(WAIT_TIME),
+                                .withTimeout(WAIT_TIME).alongWith(new InstantCommand(ledService::shootSuccessful)),
                         new InstantCommand(shooter::stop)
                 ));
     }
 
-    public Supplier<Double> getRequiredShooterAngle(Supplier<Pose2d> robotPose) {
+    public Supplier<Double> getRequiredShooterAngle() {
 //        double rx = robotPose.get().getX();
 //        double ry = robotPose.get().getY();
 //        double sx = speakerPose.getX();
@@ -126,7 +140,7 @@ public class Shoot extends ParallelDeadlineGroup {
 
     private Command getDrivetrainCommand(Drivetrain drivetrain) {
         return new SequentialCommandGroup(
-                new RotateSwerveWithPID(drivetrain, getRequiredShooterAngle(Pose2d::new),
+                new RotateSwerveWithPID(drivetrain, () -> getRequiredRobotAngle(new Pose2d()),
                         drivetrain::getAngle, drivetrain.rotateToTargetPIDSettings,
                         drivetrain.rotateToTargetFeedForwardSettings) {
 
@@ -165,6 +179,12 @@ public class Shoot extends ParallelDeadlineGroup {
                     }
                 },
                 new SpikesLogger().logCommand("Here!")
+        );
+    }
+
+    public Command getCommand() {
+        return this.andThen(
+                new InstantCommand(shooter::stop, shooter, shooter.getRightFlywheel(), shooter.getLeftFlywheel())
         );
     }
 }

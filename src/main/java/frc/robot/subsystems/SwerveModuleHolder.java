@@ -54,7 +54,7 @@ public class SwerveModuleHolder {
                     new CANSparkMax(RobotMap.CAN.FRONT_LEFT_DRIVE_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
                     new CANSparkMax(RobotMap.CAN.FRONT_LEFT_TURN_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
                     new CANcoder(RobotMap.CAN.FRONT_LEFT_ABSOLUTE_ENCODER), FRONT_LEFT_CANCODER_INVERTED,
-                    driveFeedForwardSettings, drivePIDSettings, turnPIDSettings, turnFeedForwardSettings,
+                    drivePIDSettings, turnPIDSettings, turnFeedForwardSettings,
                     FRONT_LEFT_DRIVE_INVERTED, FRONT_LEFT_OFFSET);
         }
         return frontLeft;
@@ -66,7 +66,7 @@ public class SwerveModuleHolder {
                     new CANSparkMax(RobotMap.CAN.FRONT_RIGHT_DRIVE_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
                     new CANSparkMax(RobotMap.CAN.FRONT_RIGHT_TURN_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
                     new CANcoder(RobotMap.CAN.FRONT_RIGHT_ABSOLUTE_ENCODER), FRONT_RIGHT_CANCODER_INVERTED,
-                    driveFeedForwardSettings, drivePIDSettings, turnPIDSettings, turnFeedForwardSettings,
+                    drivePIDSettings, turnPIDSettings, turnFeedForwardSettings,
                     FRONT_RIGHT_DRIVE_INVERTED, FRONT_RIGHT_OFFSET);
         }
         return frontRight;
@@ -78,7 +78,7 @@ public class SwerveModuleHolder {
                     new CANSparkMax(RobotMap.CAN.BACK_LEFT_DRIVE_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
                     new CANSparkMax(RobotMap.CAN.BACK_LEFT_TURN_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
                     new CANcoder(RobotMap.CAN.BACK_LEFT_ABSOLUTE_ENCODER), BACK_LEFT_CANCODER_INVERTED,
-                    driveFeedForwardSettings, drivePIDSettings, turnPIDSettings, turnFeedForwardSettings,
+                    drivePIDSettings, turnPIDSettings, turnFeedForwardSettings,
                     BACK_LEFT_DRIVE_INVERTED, BACK_LEFT_OFFSET);
         }
         return backLeft;
@@ -90,7 +90,7 @@ public class SwerveModuleHolder {
                     new CANSparkMax(RobotMap.CAN.BACK_RIGHT_DRIVE_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
                     new CANSparkMax(RobotMap.CAN.BACK_RIGHT_TURN_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
                     new CANcoder(RobotMap.CAN.BACK_RIGHT_ABSOLUTE_ENCODER), BACK_RIGHT_CANCODER_INVERTED,
-                    driveFeedForwardSettings, drivePIDSettings, turnPIDSettings, turnFeedForwardSettings,
+                    drivePIDSettings, turnPIDSettings, turnFeedForwardSettings,
                     BACK_RIGHT_DRIVE_INVERTED, BACK_RIGHT_OFFSET);
         }
         return backRight;

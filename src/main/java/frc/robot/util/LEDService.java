@@ -36,7 +36,7 @@ public class LEDService extends CorrectAddressableLEDWrapper {
 
     public void attemptIntake() {
         for (int i = 0; i < NUMBER_OF_LEDS; i++) {
-            setColorAt((i + animation) % 150, 255, 150 - i, 100 + i);
+            setColorAt((i + animation) % NUMBER_OF_LEDS, 255, NUMBER_OF_LEDS - i, 100 + i);
         }
     }
 
@@ -57,29 +57,29 @@ public class LEDService extends CorrectAddressableLEDWrapper {
 
     public void attemptShoot() {
         for (int i = 0; i < NUMBER_OF_LEDS / 2; i++) {
-            setColorAt((i + animation) % 75, 255, (int) (i * 3.4), 0);
+            setColorAt((i + animation) % NUMBER_OF_LEDS / 2, 255, (int) (i * 3.4), 0);
         }
         for (int i = NUMBER_OF_LEDS / 2; i < NUMBER_OF_LEDS; i++) {
-            setColorAt((i - 75 + animation) % 75 + 75, 255, 255 - (int) (i * 3.4), 0);
+            setColorAt((i - NUMBER_OF_LEDS / 2 + animation) % 75 + 75, 255, 255 - (int) (i * 3.4), 0);
         }
         animation %= 75;
     }
 
     public void shootSuccessful() {
         for (int i = 0; i < NUMBER_OF_LEDS; i++) {
-            if (i % 20 == 0) setColorAt((i + animation * 2) % 150, 255, 255, 0);
-            else setColorAt((i + animation * 2) % 150, 0, 0, 0);
+            if (i % 20 == 0) setColorAt((i + animation * 2) % NUMBER_OF_LEDS, 255, 255, 0);
+            else setColorAt((i + animation * 2) % NUMBER_OF_LEDS, 0, 0, 0);
         }
     }
 
     public void preGame() {
         if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
             for (int i = 0; i < NUMBER_OF_LEDS; i++) {
-                setColorAt((i + animation) % 150, (int)(i * 1.7), 0, 255);
+                setColorAt((i + animation) % NUMBER_OF_LEDS, i * NUMBER_OF_LEDS / 255, 0, 255);
             }
         } else {
             for (int i = 0; i < NUMBER_OF_LEDS; i++) {
-                setColorAt((i + animation) % 150, 255, (int)(i * 1.7), 0);
+                setColorAt((i + animation) % NUMBER_OF_LEDS, 255, i * NUMBER_OF_LEDS / 255, 0);
             }
         }
     }

@@ -34,6 +34,8 @@ public class Shooter extends DashboardedSubsystem {
     }
 
     public void stop() {
+        leftFlywheel.finish();
+        rightFlywheel.finish();
         leftFlywheel.stop();
         rightFlywheel.stop();
     }

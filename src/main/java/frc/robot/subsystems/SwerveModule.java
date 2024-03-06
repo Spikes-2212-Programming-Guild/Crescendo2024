@@ -15,6 +15,7 @@ import com.spikes2212.control.PIDSettings;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -32,12 +33,14 @@ public class SwerveModule extends DashboardedSubsystem {
     private static final int DRIVE_FREE_CURRENT_LIMIT = 60;
     private static final int DRIVE_STALL_CURRENT_LIMIT = 80;
 
+    private final FeedForwardSettings driveFeedForwardSettings = namespace.addFeedForwardNamespace("drive",
+            FeedForwardSettings.EMPTY_FFSETTINGS);
+
     public final CANSparkMax driveController;
     public final CANSparkMax turnController;
     private final CANcoder absoluteEncoder;
     private final FeedForwardController driveFeedForwardController;
     private final FeedForwardController turnFeedForwardController;
-    private final FeedForwardSettings driveFeedForwardSettings;
     private final FeedForwardSettings turnFeedForwardSettings;
     private final PIDSettings drivePIDSettings;
     private final PIDSettings turnPIDSettings;
@@ -49,8 +52,12 @@ public class SwerveModule extends DashboardedSubsystem {
     private final boolean driveInverted;
     private final double cancoderOffset; //rotations
 
+    private double maxAcceleration = 0;
+    private double lastTime = 0;
+    private double lastVelocity = 0;
+
     public SwerveModule(String namespaceName, CANSparkMax driveController, CANSparkMax turnController,
-                        CANcoder absoluteEncoder, boolean cancoderInverted, FeedForwardSettings driveFeedForwardSettings,
+                        CANcoder absoluteEncoder, boolean cancoderInverted,
                         PIDSettings drivePIDSettings, PIDSettings turnPIDSettings,
                         FeedForwardSettings turnFeedForwardSettings, boolean driveInverted, double cancoderOffset) {
         super(namespaceName);
@@ -58,7 +65,6 @@ public class SwerveModule extends DashboardedSubsystem {
         this.turnController = turnController;
         this.absoluteEncoder = absoluteEncoder;
         this.cancoderInverted = cancoderInverted;
-        this.driveFeedForwardSettings = driveFeedForwardSettings;
         this.turnFeedForwardSettings = turnFeedForwardSettings;
         this.drivePIDSettings = drivePIDSettings;
         this.turnPIDSettings = turnPIDSettings;
@@ -99,6 +105,11 @@ public class SwerveModule extends DashboardedSubsystem {
         double angle = state.angle.getDegrees();
         setAngle(angle);
         setSpeed(state.speedMetersPerSecond, usePID);
+    }
+
+    public void setVoltage(Rotation2d angle, double voltage) {
+        setAngle(angle.getDegrees());
+        driveController.setVoltage(voltage);
     }
 
     private void configureDriveController() {
@@ -267,5 +278,18 @@ public class SwerveModule extends DashboardedSubsystem {
             }
         });
         namespace.putNumber("applied output", driveController::getAppliedOutput);
+        namespace.putNumber("max accel", () -> maxAcceleration);
+        namespace.putNumber("actual kp", () -> driveController.getPIDController().getP());
+    }
+
+    @Override
+    public void periodic() {
+        super.periodic();
+        double now = Timer.getFPGATimestamp();
+        double speed = getSpeed();
+        double accel = (speed - lastVelocity) / (now - lastTime);
+        lastTime = now;
+        lastVelocity = speed;
+        if (lastTime != 0 & lastVelocity > 0 && speed > 0) maxAcceleration = Math.max(accel, maxAcceleration);
     }
 }
