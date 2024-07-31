@@ -48,7 +48,7 @@ public class Shoot extends ParallelDeadlineGroup {
     private final double height;
 
     private final Shooter shooter;
-    private final Drivetrain drivetrain;
+//    private final Drivetrain drivetrain;
     private final ShooterAdjuster adjuster;
     private final Storage storage;
     private final LEDService ledService;
@@ -61,13 +61,12 @@ public class Shoot extends ParallelDeadlineGroup {
     public Shoot(Shooter shooter, Drivetrain drivetrain, ShooterAdjuster adjuster, Storage storage, double height) {
         super(new InstantCommand());
         this.height = height;
-        this.drivetrain = drivetrain;
         this.adjuster = adjuster;
         this.shooter = shooter;
         this.storage = storage;
         ledService = LEDService.getInstance();
 
-        Command rotateCommand = getDrivetrainCommand(drivetrain);
+//        Command rotateCommand = getDrivetrainCommand(drivetrain);
 
         SpeedUpShooter speedUpCommand = new SpeedUpShooter(shooter, getRequiredLeftSpeed(), getRequiredRightSpeed());
 
@@ -97,12 +96,12 @@ public class Shoot extends ParallelDeadlineGroup {
         ROOT.putBoolean("right on target", () -> shooter.getRightFlywheel().onTarget(UnifiedControlMode.VELOCITY,
                 shooter.getRightFlywheel().pidSettings.getTolerance(), getRequiredRightSpeed().get()));
 
-        addCommands(setSpeakerPoseCommand, speedUpCommand, adjustCommand, rotateCommand);
+        addCommands(setSpeakerPoseCommand, speedUpCommand, adjustCommand);
         ledService.attemptShoot();
         setDeadline(
                 new SequentialCommandGroup(
                         new WaitUntilCommand(() ->
-                                rotateCommandFinished[0] && adjustCommand.isFinished() &&
+                                adjustCommand.isFinished() &&
                                         shooter.getLeftFlywheel().onTarget(UnifiedControlMode.VELOCITY,
                                                 shooter.getLeftFlywheel().pidSettings.getTolerance(), getRequiredLeftSpeed().get()) &&
                                         shooter.getRightFlywheel().onTarget(UnifiedControlMode.VELOCITY,
@@ -185,6 +184,14 @@ public class Shoot extends ParallelDeadlineGroup {
     public Command getCommand() {
         return this.andThen(
                 new InstantCommand(shooter::stop, shooter, shooter.getRightFlywheel(), shooter.getLeftFlywheel())
-        );
+                        .andThen(
+                                new MoveSmartMotorControllerGenericSubsystem(adjuster, adjuster.getPIDSettings(),
+                                        adjuster.getFeedForwardSettings(), UnifiedControlMode.POSITION, IntakeNote.SHOOTER_HEIGHT) {
+                                    @Override
+                                    public boolean isFinished() {
+                                        return super.isFinished() || !adjuster.wasReset();
+                                    }
+                                }
+                        ));
     }
 }

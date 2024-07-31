@@ -9,7 +9,9 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.revrobotics.CANSparkBase;
 import com.spikes2212.dashboard.RootNamespace;
+import com.spikes2212.dashboard.SpikesLogger;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -39,6 +41,8 @@ public class Robot extends TimedRobot {
 
     private final RootNamespace root = new RootNamespace("robot");
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
+
+    SpikesLogger logger = new SpikesLogger("Robot");
 
     private Drivetrain drivetrain;
     private Shooter shooter;
@@ -87,11 +91,11 @@ public class Robot extends TimedRobot {
         autoChooser.addOption("single (long side)", new PathPlannerAuto("single long side"));
         autoChooser.addOption("just shoot", new JustShoot(shooter, shooterAdjuster, intakePlacer, drivetrain, storage));
         root.putData("auto chooser", autoChooser);
-        sysid();
     }
 
     @Override
     public void robotPeriodic() {
+        logger.log(DriverStation.getAlliance().get() == DriverStation.Alliance.Red ? "red" : "blue");
         led.periodic();
         led.preGame();
         CommandScheduler.getInstance().run();
@@ -113,7 +117,7 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         Command autoCommand = autoChooser.getSelected() == null ?
-                new PathPlannerAuto("double middle") : autoChooser.getSelected();
+                new JustShoot(shooter, shooterAdjuster, intakePlacer, drivetrain, storage) : autoChooser.getSelected();
         autoCommand.schedule();
     }
 
@@ -156,25 +160,5 @@ public class Robot extends TimedRobot {
     @Override
     public void simulationPeriodic() {
 
-    }
-
-    private void sysid() {
-//         Create the SysId routine
-        SysIdRoutine sysIdRoutine = new SysIdRoutine(
-                new SysIdRoutine.Config(),
-                new SysIdRoutine.Mechanism(
-                        voltageMeasure -> {
-                            drivetrain.setIdleMode(CANSparkBase.IdleMode.kBrake);
-                            drivetrain.setAnglesToZero();
-                            drivetrain.setVoltage(voltageMeasure.in(Volts));
-                        },
-                        null,
-                        drivetrain
-                )
-        );
-        root.putData("q forward", sysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward));
-        root.putData("q backward", sysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse));
-        root.putData("d forward", sysIdRoutine.dynamic(SysIdRoutine.Direction.kForward));
-        root.putData("d backward", sysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse));
     }
 }

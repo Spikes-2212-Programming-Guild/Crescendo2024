@@ -55,7 +55,7 @@ public class SwerveModuleHolder {
                     new CANSparkMax(RobotMap.CAN.FRONT_LEFT_TURN_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
                     new CANcoder(RobotMap.CAN.FRONT_LEFT_ABSOLUTE_ENCODER), FRONT_LEFT_CANCODER_INVERTED,
                     drivePIDSettings, turnPIDSettings, turnFeedForwardSettings,
-                    FRONT_LEFT_DRIVE_INVERTED, FRONT_LEFT_OFFSET);
+                    FRONT_LEFT_DRIVE_INVERTED, FRONT_LEFT_OFFSET, true);
         }
         return frontLeft;
     }
@@ -67,7 +67,7 @@ public class SwerveModuleHolder {
                     new CANSparkMax(RobotMap.CAN.FRONT_RIGHT_TURN_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
                     new CANcoder(RobotMap.CAN.FRONT_RIGHT_ABSOLUTE_ENCODER), FRONT_RIGHT_CANCODER_INVERTED,
                     drivePIDSettings, turnPIDSettings, turnFeedForwardSettings,
-                    FRONT_RIGHT_DRIVE_INVERTED, FRONT_RIGHT_OFFSET);
+                    FRONT_RIGHT_DRIVE_INVERTED, FRONT_RIGHT_OFFSET, true);
         }
         return frontRight;
     }
@@ -79,19 +79,18 @@ public class SwerveModuleHolder {
                     new CANSparkMax(RobotMap.CAN.BACK_LEFT_TURN_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
                     new CANcoder(RobotMap.CAN.BACK_LEFT_ABSOLUTE_ENCODER), BACK_LEFT_CANCODER_INVERTED,
                     drivePIDSettings, turnPIDSettings, turnFeedForwardSettings,
-                    BACK_LEFT_DRIVE_INVERTED, BACK_LEFT_OFFSET);
+                    BACK_LEFT_DRIVE_INVERTED, BACK_LEFT_OFFSET, true);
         }
         return backLeft;
     }
 
     public static SwerveModule getBackRight() {
         if (backRight == null) {
-            backRight = new SwerveModule(BACK_RIGHT_NAMESPACE_NAME,
-                    new CANSparkMax(RobotMap.CAN.BACK_RIGHT_DRIVE_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
+            backRight = new SwerveModule(BACK_RIGHT_NAMESPACE_NAME, null,
                     new CANSparkMax(RobotMap.CAN.BACK_RIGHT_TURN_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
                     new CANcoder(RobotMap.CAN.BACK_RIGHT_ABSOLUTE_ENCODER), BACK_RIGHT_CANCODER_INVERTED,
                     drivePIDSettings, turnPIDSettings, turnFeedForwardSettings,
-                    BACK_RIGHT_DRIVE_INVERTED, BACK_RIGHT_OFFSET);
+                    BACK_RIGHT_DRIVE_INVERTED, BACK_RIGHT_OFFSET, false);
         }
         return backRight;
     }

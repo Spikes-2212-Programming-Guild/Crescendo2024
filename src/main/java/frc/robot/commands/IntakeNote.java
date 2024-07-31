@@ -21,7 +21,7 @@ public class IntakeNote extends SequentialCommandGroup {
 
     private static final Supplier<Double> ROLLER_SPEED = () -> -0.85;
     private static final double STORAGE_VOLTAGE = -4.0;
-    private static final Supplier<Double> SHOOTER_HEIGHT = () -> 8.0;
+    public static final Supplier<Double> SHOOTER_HEIGHT = () -> 8.0;
 
     private final LEDService ledService;
 
@@ -40,13 +40,13 @@ public class IntakeNote extends SequentialCommandGroup {
         ledService = LEDService.getInstance();
         ledService.attemptIntake();
             addCommands(
-//                    new MoveSmartMotorControllerGenericSubsystem(adjuster, adjuster.getPIDSettings(),
-//                    adjuster.getFeedForwardSettings(), UnifiedControlMode.POSITION, SHOOTER_HEIGHT) {
-//                        @Override
-//                        public boolean isFinished() {
-//                            return super.isFinished() || !adjuster.wasReset();
-//                        }
-//                    },
+                    new MoveSmartMotorControllerGenericSubsystem(adjuster, adjuster.getPIDSettings(),
+                    adjuster.getFeedForwardSettings(), UnifiedControlMode.POSITION, SHOOTER_HEIGHT) {
+                        @Override
+                        public boolean isFinished() {
+                            return super.isFinished() || !adjuster.wasReset();
+                        }
+                    },
                     new MoveGenericSubsystem(intakeRoller, ROLLER_SPEED)
                             .raceWith(new MoveGenericSubsystem(storage, () -> STORAGE_VOLTAGE / RobotController.getBatteryVoltage())),
                     new InstantCommand(ledService::intakeSuccessful));

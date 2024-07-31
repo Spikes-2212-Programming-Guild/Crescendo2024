@@ -5,12 +5,10 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.ReplanningConfig;
-import com.revrobotics.CANSparkBase;
 import com.spikes2212.command.DashboardedSubsystem;
 import com.spikes2212.control.FeedForwardSettings;
 import com.spikes2212.control.PIDSettings;
 import com.spikes2212.dashboard.SpikesLogger;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -18,18 +16,19 @@ import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.DriveSwerve;
 import frc.robot.commands.PathPlannerTest;
-import frc.robot.services.poseestimation.PoseEstimationCameras;
 
 import java.util.Set;
 import java.util.function.Supplier;
 
 // https://cdn.discordapp.com/attachments/927272978356510721/1167115100117807264/uwuyd99s0cub1.png?ex=654cf3a3&is=653a7ea3&hm=4fd387e2c5dbac2377e7a6c69bceb3218edb077aaeb6685f592d95a89ef7923c&
+
+/**
+ * This class represents an MK4 swerve drivetrain.
+ */
 public class Drivetrain extends DashboardedSubsystem {
 
     public static final double TRACK_WIDTH = 0.59;
@@ -68,9 +67,8 @@ public class Drivetrain extends DashboardedSubsystem {
 
     private final SwerveDriveKinematics kinematics;
     private final SwerveDriveOdometry odometry;
-    private final PoseEstimationCameras poseEstimationCameras;
-    private final SwerveDrivePoseEstimator poseEstimator;
 
+    // variables we used to find the max velocity and acceleration for the modules
     private double maxFrontLeftSpeed = 0;
     private double maxBackLeftSpeed = 0;
     private double maxFrontRightSpeed = 0;
@@ -78,7 +76,7 @@ public class Drivetrain extends DashboardedSubsystem {
     private double maxRotationSpeed = 0;
     private double maxAcceleration = 0;
 
-    private SpikesLogger logger = new SpikesLogger();
+    private SpikesLogger logger = new SpikesLogger("drivetrain");
 
     private double lastAngle;
     private double lastTime = Timer.getFPGATimestamp();
@@ -106,11 +104,9 @@ public class Drivetrain extends DashboardedSubsystem {
                 BACK_LEFT_WHEEL_POSITION, BACK_RIGHT_WHEEL_POSITION);
         odometry = new SwerveDriveOdometry(kinematics, getRotation2d(), getModulePositions(), new Pose2d());
         modules = Set.of(frontLeft, frontRight, backLeft, backRight);
-        poseEstimationCameras = PoseEstimationCameras.getInstance();
-        poseEstimator = new SwerveDrivePoseEstimator(kinematics, getRotation2d(), getModulePositions(), new Pose2d());
         lastAngle = getAngle();
         AutoBuilder.configureHolonomic(
-             odometry::getPoseMeters,
+                odometry::getPoseMeters,
                 this::resetPosition,
                 () -> kinematics.toChassisSpeeds(frontLeft.getState(), frontRight.getState(), backLeft.getState(),
                         backRight.getState()),
@@ -129,6 +125,7 @@ public class Drivetrain extends DashboardedSubsystem {
 
                     var alliance = DriverStation.getAlliance();
                     if (alliance.isPresent()) {
+                        logger.log(DriverStation.getAlliance().get() == DriverStation.Alliance.Red ? "red" : "blue");
                         return alliance.get() == DriverStation.Alliance.Red;
                     }
                     return false;
@@ -142,8 +139,6 @@ public class Drivetrain extends DashboardedSubsystem {
     public void periodic() {
         super.periodic();
         odometry.update(getRotation2d(), getModulePositions());
-        poseEstimator.update(getRotation2d(), getModulePositions());
-//        List<PoseEstimatorTarget> targets = poseEstimationCameras.getEstimatedPoses();
         try {
             double now = Timer.getFPGATimestamp();
             double angle = getAngle();
@@ -151,16 +146,8 @@ public class Drivetrain extends DashboardedSubsystem {
             logger.log("rate: " + rate);
             lastTime = now;
             lastAngle = angle;
-        } catch (Exception ignored) {}
-//        for (PoseEstimatorTarget target : targets) {
-//            if (target != null) {
-//                if (target.getPose() != null) {
-//                    poseEstimator.addVisionMeasurement(target.getPose(), target.getTimestamp());
-//                    new SpikesLogger().log(target.getPose());
-//                }
-//                break;
-//            }
-//        }
+        } catch (Exception ignored) {
+        }
     }
 
     public void drive(double xSpeed, double ySpeed, double rotationSpeed,
@@ -202,10 +189,10 @@ public class Drivetrain extends DashboardedSubsystem {
     }
 
     public void resetRelativeEncoders() {
-        frontLeft.configureRelativeTurnEncoder();
-        frontRight.configureRelativeTurnEncoder();
-        backLeft.configureRelativeTurnEncoder();
-        backRight.configureRelativeTurnEncoder();
+        frontLeft.resetRelativeTurnEncoder();
+        frontRight.resetRelativeTurnEncoder();
+        backLeft.resetRelativeTurnEncoder();
+        backRight.resetRelativeTurnEncoder();
     }
 
     public double getAngle() {
@@ -310,33 +297,19 @@ public class Drivetrain extends DashboardedSubsystem {
                 () -> max(Math.abs(frontLeft.getSpeed()), Math.abs(frontRight.getSpeed()), Math.abs(backLeft.getSpeed()),
                         Math.abs(backRight.getSpeed())) - min(Math.abs(frontLeft.getSpeed()), Math.abs(frontRight.getSpeed()), Math.abs(backLeft.getSpeed()),
                         Math.abs(backRight.getSpeed())));
-        namespace.putData("find max drive velocity (good idea)", new RunCommand(this::driveFast) {
-            @Override
-            public void end(boolean interrupted) {
-                stop();
-            }
-        });
-        namespace.putData("find max rotation velocity (probalbly safer)",
-                new SequentialCommandGroup(
-                        new FunctionalCommand(() -> {
-                        }, this::diamond, b -> stop(), () -> false, this).withTimeout(0.5),
-                        new FunctionalCommand(() -> {
-                        }, this::driveFast,
-                                b -> stop(), () -> false, this)));
         namespace.putNumber("max fl speed", () -> maxFrontLeftSpeed);
         namespace.putNumber("max fr speed", () -> maxFrontRightSpeed);
         namespace.putNumber("max bl speed", () -> maxBackLeftSpeed);
         namespace.putNumber("max br speed", () -> maxBackRightSpeed);
         namespace.putNumber("max accel", () -> maxAcceleration);
         namespace.putNumber("max rotation speed", () -> maxRotationSpeed);
-        namespace.putData("set voltage", new RunCommand(() -> setVoltage(voltage.get()), this, frontLeft, frontRight, backLeft, backRight));
         Supplier<Double> setpoint = namespace.addConstantDouble("setpoint", 0);
         namespace.putData("drive in speed i tell you", new DriveSwerve(this, setpoint, () -> 0.0, () -> 0.0, false,
                 true));
         namespace.putNumber("rotation speed", gyro::getRawGyroZ);
         namespace.putData("test pathplanner", new InstantCommand(() -> odometry.resetPosition(gyro.getRotation2d(),
                 getModulePositions(), new Pose2d(0, 2, new Rotation2d()))).andThen(
-                        new PathPlannerTest(PathPlannerPath.fromPathFile("lol"), this)));
+                new PathPlannerTest(PathPlannerPath.fromPathFile("lol"), this)));
 //        namespace.putRunnable("set pose", () -> poseEstimator.resetPosition(gyro.getRotation2d(), modulePositions,
 //                poseEstimationCameras.getEstimatedPoses().get(0).getPose()));
     }
@@ -351,23 +324,6 @@ public class Drivetrain extends DashboardedSubsystem {
     public ChassisSpeeds getRobotRelativeSpeeds() {
         return kinematics.toChassisSpeeds(frontRight.getState(), frontRight.getState(), backLeft.getState(),
                 backRight.getState());
-    }
-
-    public void driveFast() {
-        setVoltage(12);
-        maxFrontLeftSpeed = Math.max(maxFrontLeftSpeed, Math.abs(frontLeft.getSpeed()));
-        maxFrontRightSpeed = Math.max(maxFrontRightSpeed, Math.abs(frontRight.getSpeed()));
-        maxBackLeftSpeed = Math.max(maxBackLeftSpeed, Math.abs(backLeft.getSpeed()));
-        maxBackRightSpeed = Math.max(maxBackRightSpeed, Math.abs(backRight.getSpeed()));
-        maxRotationSpeed = Math.max(maxRotationSpeed, Math.abs(gyro.getRate()));
-        //maybe
-        maxAcceleration = Math.max(maxAcceleration, Math.abs(gyro.getWorldLinearAccelX()));
-    }
-
-    public void beyblade() {
-        for (SwerveModule module : modules) {
-            module.driveController.set(1);
-        }
     }
 
     public void setAnglesToZero() {
@@ -386,17 +342,6 @@ public class Drivetrain extends DashboardedSubsystem {
         frontRight.setAngle(135);
         backLeft.setAngle(135);
         backRight.setAngle(45);
-    }
-
-    public void setVoltage(double voltage) {
-        modules.forEach(m -> m.driveController.setVoltage(voltage));
-        diamond();
-    }
-
-    public void setIdleMode(CANSparkBase.IdleMode mode) {
-        modules.forEach(m -> {
-            m.driveController.setIdleMode(mode);
-        });
     }
 
     public SwerveModulePosition[] getModulePositions() {
