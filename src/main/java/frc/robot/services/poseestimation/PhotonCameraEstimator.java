@@ -12,6 +12,9 @@ import org.photonvision.PhotonUtils;
 
 import java.io.IOException;
 
+/**
+ * Class which represents a camera running photonvision which is used to get the robot pose.
+ */
 public class PhotonCameraEstimator extends BasePoseSource {
 
     private final PhotonCamera photonCamera;

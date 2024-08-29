@@ -2,9 +2,13 @@ package frc.robot.util;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import com.spikes2212.util.AddressableLEDWrapper;
 
 import java.awt.*;
 
+/**
+ * A correct version of the {@link AddressableLEDWrapper}, as it did not work in 2024 SpikesLib.
+ */
 public class CorrectAddressableLEDWrapper {
 
     private final AddressableLED led;

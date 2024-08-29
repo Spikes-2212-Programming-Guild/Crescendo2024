@@ -8,6 +8,9 @@ import edu.wpi.first.math.geometry.Translation3d;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class which represents the cameras placed on the robot.
+ */
 public class PoseEstimationCameras {
 
     private static final String CENTER_CAMERA_NAME = "center";

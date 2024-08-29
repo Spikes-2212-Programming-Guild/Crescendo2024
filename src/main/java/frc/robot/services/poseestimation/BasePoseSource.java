@@ -5,6 +5,10 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 
 //https://www.google.com/url?sa=i&url=https%3A%2F%2Fbr.ifunny.co%2Fpicture%2Fthank-you-for-50-followers-EBR5wbN09&psig=AOvVaw2RYeu6jPFY5xituY0gxZ6Z&ust=1706021378549000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCJih2YSf8YMDFQAAAAAdAAAAABAD
+
+/**
+ * Class which represents a camera which is used to get the robot pose.
+ */
 public abstract class BasePoseSource {
 
     private final Transform3d cameraToRobotCenter;

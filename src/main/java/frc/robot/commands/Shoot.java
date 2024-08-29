@@ -21,9 +21,9 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-
 public class Shoot extends ParallelDeadlineGroup {
 
+    // formula which translates the distance of the robot from the speaker to the required height to shoot
     private static final Function<Double, Double> DISTANCE_TO_HEIGHT = x -> -3.8 * x + 28.8;
     private static final double MAX_FORMULA_DISTANCE = 2.285;
     private static final double MIN_HEIGHT = 17;

@@ -7,6 +7,9 @@ import frc.robot.RobotMap;
 import java.awt.*;
 import java.sql.Driver;
 
+/**
+ * Class which is responsible for doing cool animations with the LED strips.
+ */
 public class LEDService extends CorrectAddressableLEDWrapper {
 
     private static final int NUMBER_OF_LEDS = 150;

@@ -10,6 +10,9 @@ import frc.robot.subsystems.Drivetrain;
 
 import java.util.function.Supplier;
 
+/**
+ * Command which rotates the drivetrain to a certain angle using PID + FF control.
+ */
 public class RotateSwerveWithPID extends Command {
 
     private final Drivetrain drivetrain;

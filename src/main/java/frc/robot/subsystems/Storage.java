@@ -19,7 +19,7 @@ public class Storage extends MotoredGenericSubsystem {
     private static final int STATUS_1_PERIODIC_FRAME = 500;
     private static final int STATUS_2_PERIODIC_FRAME = 500;
 
-    private final DigitalInput ir;
+    private final DigitalInput infrared;
     private final CANSparkMax sparkMax;
     private static Storage instance;
     private boolean seen = false;
@@ -34,10 +34,11 @@ public class Storage extends MotoredGenericSubsystem {
         return instance;
     }
 
-    private Storage(String namespaceName, CANSparkMax motor, DigitalInput ir) {
+    private Storage(String namespaceName, CANSparkMax motor, DigitalInput infrared) {
         super(namespaceName, motor);
-        this.ir = ir;
+        this.infrared = infrared;
         this.sparkMax = motor;
+        // an issue which we've had is the can usage being too high. to prevent that we slowed down the periodic frame
         sparkMax.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus0, STATUS_0_PERIODIC_FRAME);
         sparkMax.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus1, STATUS_1_PERIODIC_FRAME);
         sparkMax.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus2, STATUS_2_PERIODIC_FRAME);
@@ -45,7 +46,7 @@ public class Storage extends MotoredGenericSubsystem {
     }
 
     public boolean seesNote() {
-        return !ir.get();
+        return !infrared.get();
     }
 
     public boolean cantMove() {
@@ -70,6 +71,6 @@ public class Storage extends MotoredGenericSubsystem {
 
         namespace.putNumber("current", sparkMax::getOutputCurrent);
         namespace.putBoolean("sees note", this::seesNote);
-        namespace.putBoolean("ir val", ir::get);
+        namespace.putBoolean("ir val", infrared::get);
     }
 }

@@ -31,6 +31,7 @@ public class IntakeRoller extends MotoredGenericSubsystem {
     private IntakeRoller(CANSparkMax rollMotor) {
         super(NAMESPACE_NAME, rollMotor);
         rollMotor.restoreFactoryDefaults();
+        // an issue which we've had is the can usage being too high. to prevent that we slowed down the periodic frame
         rollMotor.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus0, STATUS_0_PERIODIC_FRAME);
         rollMotor.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus1, STATUS_1_PERIODIC_FRAME);
         rollMotor.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus2, STATUS_2_PERIODIC_FRAME);

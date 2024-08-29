@@ -9,8 +9,6 @@ import com.spikes2212.control.FeedForwardSettings;
 import com.spikes2212.control.PIDSettings;
 import com.spikes2212.control.TrapezoidProfileSettings;
 import com.spikes2212.util.UnifiedControlMode;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -37,7 +35,7 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
 
     private static final double RESET_SPEED = 0.25;
 
-    //screw height in cm
+    // screw height in cm
     private static final double MOTOR_ROTATIONS_TO_SCREW_HEIGHT = 1 / 6.0;
 
     private final PIDSettings pidSettings = namespace.addPIDNamespace("", new PIDSettings(0.3, 0.1, 0.05));

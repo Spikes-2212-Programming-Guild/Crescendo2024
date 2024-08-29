@@ -22,6 +22,7 @@ public class DriveSwerve extends Command {
     private final boolean usePID;
     private final boolean useMinSpeed;
 
+    // limits the acceleration
     private final SlewRateLimiter xLimiter;
     private final SlewRateLimiter yLimiter;
     private final SlewRateLimiter rotationLimiter;

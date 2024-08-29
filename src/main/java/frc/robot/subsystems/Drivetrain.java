@@ -92,6 +92,7 @@ public class Drivetrain extends DashboardedSubsystem {
                 BACK_LEFT_WHEEL_POSITION, BACK_RIGHT_WHEEL_POSITION);
         odometry = new SwerveDriveOdometry(kinematics, getRotation2d(), getModulePositions(), new Pose2d());
         modules = Set.of(frontLeft, frontRight, backLeft, backRight);
+        // configures the auto builder for pathplanner
         AutoBuilder.configureHolonomic(
                 odometry::getPoseMeters,
                 this::resetPosition,
