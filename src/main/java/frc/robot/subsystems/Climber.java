@@ -5,6 +5,9 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import frc.robot.RobotMap;
 
+/**
+ * A class representing a single climber which uses a double solenoid.
+ */
 public class Climber extends DoubleSolenoidSubsystem {
 
     private static final String LEFT_NAMESPACE_NAME = "left climber";
@@ -13,6 +16,7 @@ public class Climber extends DoubleSolenoidSubsystem {
     private static final boolean LEFT_INVERTED = false;
     private static final boolean RIGHT_INVERTED = false;
 
+    // in 2024, we had 2 climbers; one of each side
     private static Climber leftInstance;
     private static Climber rightInstance;
 

@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController;
@@ -15,13 +14,15 @@ import frc.robot.RobotMap;
 
 import java.util.function.Supplier;
 
+/**
+ * A class which represents a single shooter flywheel, which uses 1 NEO.
+ */
 public class ShooterFlywheel extends SparkGenericSubsystem {
 
     private static final PIDSettings LEFT_PID_SETTINGS = new PIDSettings(0.0001, 75, 10000000);
     private static final FeedForwardSettings LEFT_FF_SETTINGS = new FeedForwardSettings(0.69, 0.00214, 0);
     private static final PIDSettings RIGHT_PID_SETTINGS = new PIDSettings(0.0001, 75, 10000000);
     private static final FeedForwardSettings RIGHT_FF_SETTINGS = new FeedForwardSettings(0.52, 0.00213, 0);
-
 
     public final PIDSettings pidSettings = namespace.addPIDNamespace("", new PIDSettings(0, 0, 100000000));
     public final FeedForwardSettings feedForwardSettings = namespace.addFeedForwardNamespace("",
@@ -58,8 +59,6 @@ public class ShooterFlywheel extends SparkGenericSubsystem {
         this.inverted = inverted;
         this.sparkMax = master;
         master.setInverted(inverted);
-        namespace.putCommand("test", new MoveSmartMotorControllerGenericSubsystem(this, pidSettings, feedForwardSettings,
-                UnifiedControlMode.VELOCITY, () -> 800.0));
         configureDashboard();
     }
 
@@ -91,10 +90,8 @@ public class ShooterFlywheel extends SparkGenericSubsystem {
         Supplier<Double> setpoint = namespace.addConstantDouble("setpoint", 0);
         namespace.putCommand("move", new MoveSmartMotorControllerGenericSubsystem(this, pidSettings, feedForwardSettings,
                 UnifiedControlMode.VELOCITY, setpoint));
-    }
-
-    public void setVoltage(double voltage) {
-        master.setVoltage(voltage);
+        namespace.putCommand("test", new MoveSmartMotorControllerGenericSubsystem(this, pidSettings, feedForwardSettings,
+                UnifiedControlMode.VELOCITY, () -> 800.0));
     }
 
     public void stop() {

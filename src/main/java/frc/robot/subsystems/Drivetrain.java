@@ -15,11 +15,10 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SerialPort;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.commands.DriveSwerve;
-import frc.robot.commands.PathPlannerTest;
+import frc.robot.commands.auto.PathPlannerTest;
 
 import java.util.Set;
 import java.util.function.Supplier;
@@ -68,18 +67,7 @@ public class Drivetrain extends DashboardedSubsystem {
     private final SwerveDriveKinematics kinematics;
     private final SwerveDriveOdometry odometry;
 
-    // variables we used to find the max velocity and acceleration for the modules
-    private double maxFrontLeftSpeed = 0;
-    private double maxBackLeftSpeed = 0;
-    private double maxFrontRightSpeed = 0;
-    private double maxBackRightSpeed = 0;
-    private double maxRotationSpeed = 0;
-    private double maxAcceleration = 0;
-
     private SpikesLogger logger = new SpikesLogger("drivetrain");
-
-    private double lastAngle;
-    private double lastTime = Timer.getFPGATimestamp();
 
     private static Drivetrain instance;
 
@@ -104,7 +92,6 @@ public class Drivetrain extends DashboardedSubsystem {
                 BACK_LEFT_WHEEL_POSITION, BACK_RIGHT_WHEEL_POSITION);
         odometry = new SwerveDriveOdometry(kinematics, getRotation2d(), getModulePositions(), new Pose2d());
         modules = Set.of(frontLeft, frontRight, backLeft, backRight);
-        lastAngle = getAngle();
         AutoBuilder.configureHolonomic(
                 odometry::getPoseMeters,
                 this::resetPosition,
@@ -139,15 +126,6 @@ public class Drivetrain extends DashboardedSubsystem {
     public void periodic() {
         super.periodic();
         odometry.update(getRotation2d(), getModulePositions());
-        try {
-            double now = Timer.getFPGATimestamp();
-            double angle = getAngle();
-            double rate = (angle - lastAngle) / (now - lastTime);
-            logger.log("rate: " + rate);
-            lastTime = now;
-            lastAngle = angle;
-        } catch (Exception ignored) {
-        }
     }
 
     public void drive(double xSpeed, double ySpeed, double rotationSpeed,
@@ -161,7 +139,6 @@ public class Drivetrain extends DashboardedSubsystem {
         }
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds, CENTER_OF_ROBOT);
         SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_SPEED_METERS_PER_SECONDS);
-        maxAcceleration = Math.max(maxAcceleration, gyro.getWorldLinearAccelX());
         frontLeft.set(states[0], usePID, limitSpeed);
         frontRight.set(states[1], usePID, limitSpeed);
         backLeft.set(states[2], usePID, limitSpeed);
@@ -173,6 +150,7 @@ public class Drivetrain extends DashboardedSubsystem {
         drive(xSpeed, ySpeed, rotationSpeed, fieldRelative, usePID, true);
     }
 
+    // overload method created for pathplanner
     public void drive(ChassisSpeeds speeds) {
         drive(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond, false, true, false);
     }
@@ -199,60 +177,6 @@ public class Drivetrain extends DashboardedSubsystem {
         return -gyro.getAngle();
     }
 
-//    /**
-//     * Minimize the change in heading the desired swerve module state would require by potentially
-//     * reversing the direction the wheel spins. Customized from WPILib's version to include placing
-//     * in appropriate scope for REV onboard control.
-//     * Credit to team #364.
-//     *
-//     * @param desiredState the desired state
-//     * @param currentAngle the current module angle
-//     */
-//    private double optimize(Rotation2d desiredAngle, Rotation2d currentAngle) {
-//        double targetAngle = placeInAppropriate0To360Scope(currentAngle.getDegrees(), desiredAngle.getDegrees());
-//        double targetSpeed = desiredState.speedMetersPerSecond;
-//        double delta = targetAngle - currentAngle.getDegrees();
-//        if (Math.abs(delta) > 180) {
-//            targetSpeed = -targetSpeed;
-//            targetAngle = delta > 90 ? targetAngle - 180 : targetAngle + 180;
-//        }
-//        return new SwerveModuleState(targetSpeed, Rotation2d.fromDegrees(targetAngle));
-//    }
-
-    /**
-     * Takes the module's angle and the desired angle, and returns it in within the scope reference and 360 degrees
-     * above it.
-     * Credit to team #364.
-     *
-     * @param scopeReference current angle
-     * @param newAngle       target angle
-     * @return closest angle within scope
-     */
-    private double placeInAppropriate0To360Scope(double scopeReference, double newAngle) {
-        double lowerBound;
-        double upperBound;
-        double lowerOffset = scopeReference % 360;
-        if (lowerOffset >= 0) {
-            lowerBound = scopeReference - lowerOffset;
-            upperBound = scopeReference + (360 - lowerOffset);
-        } else {
-            upperBound = scopeReference - lowerOffset;
-            lowerBound = scopeReference - (360 + lowerOffset);
-        }
-        while (newAngle < lowerBound) {
-            newAngle += 360;
-        }
-        while (newAngle > upperBound) {
-            newAngle -= 360;
-        }
-        if (newAngle - scopeReference > 180) {
-            newAngle -= 360;
-        } else if (newAngle - scopeReference < -180) {
-            newAngle += 360;
-        }
-        return newAngle;
-    }
-
     public void resetPosition(Pose2d newPose) {
         odometry.resetPosition(newPose.getRotation(), getModulePositions(), newPose);
     }
@@ -263,6 +187,28 @@ public class Drivetrain extends DashboardedSubsystem {
 
     public Rotation2d getRotation2d() {
         return Rotation2d.fromDegrees(getAngle());
+    }
+
+    public Pose2d getPose() {
+        return odometry.getPoseMeters();
+    }
+
+    public ChassisSpeeds getRobotRelativeSpeeds() {
+        return kinematics.toChassisSpeeds(frontRight.getState(), frontRight.getState(), backLeft.getState(),
+                backRight.getState());
+    }
+
+    public void setAnglesToZero() {
+        modules.forEach(module -> module.setAngle(0));
+    }
+
+    public SwerveModulePosition[] getModulePositions() {
+        return new SwerveModulePosition[]{
+                frontLeft.getModulePosition(),
+                frontRight.getModulePosition(),
+                backLeft.getModulePosition(),
+                backRight.getModulePosition()
+        };
     }
 
     private double max(double a, double b, double c, double d) {
@@ -281,9 +227,6 @@ public class Drivetrain extends DashboardedSubsystem {
         namespace.putNumber("y odom", () -> odometry.getPoseMeters().getY());
         namespace.putNumber("rotation odom", () -> odometry.getPoseMeters().getRotation().getDegrees());
         Supplier<Double> voltage = namespace.addConstantDouble("voltage", 0.2141);
-//        namespace.putNumber("x est", () -> getPose().getX());
-//        namespace.putNumber("y est", () -> getPose().getY());
-//        namespace.putNumber("rotation est", () -> getPose().getRotation().getDegrees());
         namespace.putNumber("normalized yaw", this::getNormalizedAngle);
         namespace.putData("set to 0", new RunCommand(this::setAnglesToZero) {
             @Override
@@ -297,12 +240,6 @@ public class Drivetrain extends DashboardedSubsystem {
                 () -> max(Math.abs(frontLeft.getSpeed()), Math.abs(frontRight.getSpeed()), Math.abs(backLeft.getSpeed()),
                         Math.abs(backRight.getSpeed())) - min(Math.abs(frontLeft.getSpeed()), Math.abs(frontRight.getSpeed()), Math.abs(backLeft.getSpeed()),
                         Math.abs(backRight.getSpeed())));
-        namespace.putNumber("max fl speed", () -> maxFrontLeftSpeed);
-        namespace.putNumber("max fr speed", () -> maxFrontRightSpeed);
-        namespace.putNumber("max bl speed", () -> maxBackLeftSpeed);
-        namespace.putNumber("max br speed", () -> maxBackRightSpeed);
-        namespace.putNumber("max accel", () -> maxAcceleration);
-        namespace.putNumber("max rotation speed", () -> maxRotationSpeed);
         Supplier<Double> setpoint = namespace.addConstantDouble("setpoint", 0);
         namespace.putData("drive in speed i tell you", new DriveSwerve(this, setpoint, () -> 0.0, () -> 0.0, false,
                 true));
@@ -310,47 +247,5 @@ public class Drivetrain extends DashboardedSubsystem {
         namespace.putData("test pathplanner", new InstantCommand(() -> odometry.resetPosition(gyro.getRotation2d(),
                 getModulePositions(), new Pose2d(0, 2, new Rotation2d()))).andThen(
                 new PathPlannerTest(PathPlannerPath.fromPathFile("lol"), this)));
-//        namespace.putRunnable("set pose", () -> poseEstimator.resetPosition(gyro.getRotation2d(), modulePositions,
-//                poseEstimationCameras.getEstimatedPoses().get(0).getPose()));
     }
-
-    public Pose2d getPose() {
-//        return poseEstimator.getEstimatedPosition();
-        return odometry.getPoseMeters();
-//        return null;
-    }
-
-
-    public ChassisSpeeds getRobotRelativeSpeeds() {
-        return kinematics.toChassisSpeeds(frontRight.getState(), frontRight.getState(), backLeft.getState(),
-                backRight.getState());
-    }
-
-    public void setAnglesToZero() {
-        modules.forEach(m -> m.setAngle(0));
-    }
-
-    public void diamond() {
-        frontLeft.setAngle(135);
-        frontRight.setAngle(45);
-        backLeft.setAngle(45);
-        backRight.setAngle(135);
-    }
-
-    public void crossMode() {
-        frontLeft.setAngle(45);
-        frontRight.setAngle(135);
-        backLeft.setAngle(135);
-        backRight.setAngle(45);
-    }
-
-    public SwerveModulePosition[] getModulePositions() {
-        return new SwerveModulePosition[]{
-                frontLeft.getModulePosition(),
-                frontRight.getModulePosition(),
-                backLeft.getModulePosition(),
-                backRight.getModulePosition()
-        };
-    }
-
 }

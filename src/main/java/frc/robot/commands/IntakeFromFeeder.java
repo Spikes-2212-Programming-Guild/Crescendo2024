@@ -1,13 +1,11 @@
 package frc.robot.commands;
 
-import com.spikes2212.command.genericsubsystem.commands.MoveGenericSubsystem;
 import com.spikes2212.command.genericsubsystem.commands.smartmotorcontrollergenericsubsystem.MoveSmartMotorControllerGenericSubsystem;
 import com.spikes2212.control.FeedForwardSettings;
 import com.spikes2212.control.PIDSettings;
 import com.spikes2212.util.UnifiedControlMode;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.ShooterAdjuster;
 import frc.robot.subsystems.Storage;
 
 public class IntakeFromFeeder extends ParallelCommandGroup {

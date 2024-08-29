@@ -55,9 +55,6 @@ public class Shoot extends ParallelDeadlineGroup {
 
     private Pose2d speakerPose = new Pose2d(0.52, 5.59, new Rotation2d());
 
-    private final boolean[] rotateCommandFinished = new boolean[1];
-
-
     public Shoot(Shooter shooter, Drivetrain drivetrain, ShooterAdjuster adjuster, Storage storage, double height) {
         super(new InstantCommand());
         this.height = height;
@@ -65,8 +62,6 @@ public class Shoot extends ParallelDeadlineGroup {
         this.shooter = shooter;
         this.storage = storage;
         ledService = LEDService.getInstance();
-
-//        Command rotateCommand = getDrivetrainCommand(drivetrain);
 
         SpeedUpShooter speedUpCommand = new SpeedUpShooter(shooter, getRequiredLeftSpeed(), getRequiredRightSpeed());
 
@@ -89,7 +84,6 @@ public class Shoot extends ParallelDeadlineGroup {
             }
         }
         );
-        ROOT.putBoolean("rotate finished", () -> rotateCommandFinished[0]);
         ROOT.putBoolean("adjust finished", adjustCommand::isFinished);
         ROOT.putBoolean("left on target", () -> shooter.getLeftFlywheel().onTarget(UnifiedControlMode.VELOCITY,
                 shooter.getLeftFlywheel().pidSettings.getTolerance(), getRequiredLeftSpeed().get()));
@@ -103,9 +97,11 @@ public class Shoot extends ParallelDeadlineGroup {
                         new WaitUntilCommand(() ->
                                 adjustCommand.isFinished() &&
                                         shooter.getLeftFlywheel().onTarget(UnifiedControlMode.VELOCITY,
-                                                shooter.getLeftFlywheel().pidSettings.getTolerance(), getRequiredLeftSpeed().get()) &&
+                                                shooter.getLeftFlywheel().pidSettings.getTolerance(),
+                                                getRequiredLeftSpeed().get()) &&
                                         shooter.getRightFlywheel().onTarget(UnifiedControlMode.VELOCITY,
-                                                shooter.getRightFlywheel().pidSettings.getTolerance(), getRequiredRightSpeed().get())),
+                                                shooter.getRightFlywheel().pidSettings.getTolerance(),
+                                                getRequiredRightSpeed().get())),
                         new MoveGenericSubsystem(storage, () -> STORAGE_VOLTAGE / RobotController.getBatteryVoltage())
                                 .withTimeout(WAIT_TIME).alongWith(new InstantCommand(ledService::shootSuccessful)),
                         new InstantCommand(shooter::stop)
@@ -137,56 +133,13 @@ public class Shoot extends ParallelDeadlineGroup {
         return () -> 3900.0;
     }
 
-    private Command getDrivetrainCommand(Drivetrain drivetrain) {
-        return new SequentialCommandGroup(
-                new RotateSwerveWithPID(drivetrain, () -> getRequiredRobotAngle(new Pose2d()),
-                        drivetrain::getAngle, drivetrain.rotateToTargetPIDSettings,
-                        drivetrain.rotateToTargetFeedForwardSettings) {
-
-                    @Override
-                    public void initialize() {
-                        super.initialize();
-                        rotateCommandFinished[0] = false;
-                    }
-
-                    @Override
-                    public boolean isFinished() {
-                        return true;
-                    }
-                },
-                new RunCommand(drivetrain::crossMode) {
-
-                    private final Timer timer = new Timer();
-
-                    @Override
-                    public void initialize() {
-                        timer.reset();
-                        timer.start();
-                    }
-
-                    @Override
-                    public boolean isFinished() {
-                        boolean b = timer.get() >= CROSS_TIMEOUT;
-                        new SpikesLogger().log(b);
-                        rotateCommandFinished[0] = true;
-                        return b;
-                    }
-
-                    @Override
-                    public void end(boolean interrupted) {
-                        drivetrain.stop();
-                    }
-                },
-                new SpikesLogger().logCommand("Here!")
-        );
-    }
-
     public Command getCommand() {
         return this.andThen(
                 new InstantCommand(shooter::stop, shooter, shooter.getRightFlywheel(), shooter.getLeftFlywheel())
                         .andThen(
                                 new MoveSmartMotorControllerGenericSubsystem(adjuster, adjuster.getPIDSettings(),
-                                        adjuster.getFeedForwardSettings(), UnifiedControlMode.POSITION, IntakeNote.SHOOTER_HEIGHT) {
+                                        adjuster.getFeedForwardSettings(), UnifiedControlMode.POSITION,
+                                        IntakeNote.SHOOTER_HEIGHT) {
                                     @Override
                                     public boolean isFinished() {
                                         return super.isFinished() || !adjuster.wasReset();

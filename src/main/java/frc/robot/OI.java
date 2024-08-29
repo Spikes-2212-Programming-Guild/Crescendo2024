@@ -52,12 +52,6 @@ public class OI /*GEVALD*/ {
                 return true;
             }
         });
-        // Moves the adjuster up - RB
-        xbox.getRBButton().whileTrue(new InstantCommand(shooterAdjuster::move)).onFalse(
-                new InstantCommand(shooterAdjuster::stop));
-        // Moves the adjuster down - LB
-        xbox.getLBButton().whileTrue(new InstantCommand(shooterAdjuster::unmove)).onFalse(
-                new InstantCommand(shooterAdjuster::stop));
     }
 
     public double getLeftX() {

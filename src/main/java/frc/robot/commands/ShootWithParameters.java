@@ -17,7 +17,6 @@ import java.util.function.Supplier;
 
 public class ShootWithParameters extends ParallelDeadlineGroup {
 
-
     private static final double STORAGE_SPEED = -0.5;
     private static final double WAIT_TIME = 3;
 

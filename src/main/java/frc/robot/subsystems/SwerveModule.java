@@ -127,7 +127,8 @@ public class SwerveModule extends DashboardedSubsystem {
         double kS = turnFeedForwardController.getkS();
         turnFeedForwardController.setkS(0);
         double feedForward = turnFeedForwardController.calculate(angle);
-        if (Math.abs(getAbsoluteAngle() - angle) > 180) {
+        // @TODO figure out what the fuck
+        if (Math.abs(getAbsoluteAngle() - angle) > DEGREES_IN_ROTATION / 2) {
             kS *= Math.signum(getAbsoluteAngle() - angle);
         } else {
             kS *= -Math.signum(getAbsoluteAngle() - angle);
@@ -144,8 +145,8 @@ public class SwerveModule extends DashboardedSubsystem {
     }
 
     private void configureDriveController() {
-        driveController.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus2, SPARKMAX_PERIODIC_FRAME_MS);
         driveController.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus1, SPARKMAX_PERIODIC_FRAME_MS);
+        driveController.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus2, SPARKMAX_PERIODIC_FRAME_MS);
         driveController.getPIDController().setP(drivePIDSettings.getkP());
         driveController.getPIDController().setI(drivePIDSettings.getkI());
         driveController.getPIDController().setD(drivePIDSettings.getkD());
@@ -160,7 +161,6 @@ public class SwerveModule extends DashboardedSubsystem {
     private void configureTurnController() {
         turnController.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus2, SPARKMAX_PERIODIC_FRAME_MS);
         turnController.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus1, SPARKMAX_PERIODIC_FRAME_MS);
-        turnController.setIdleMode(CANSparkMax.IdleMode.kCoast);
         turnController.getPIDController().setP(turnPIDSettings.getkP());
         turnController.getPIDController().setI(turnPIDSettings.getkI());
         turnController.getPIDController().setD(turnPIDSettings.getkD());

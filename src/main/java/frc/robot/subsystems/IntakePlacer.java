@@ -20,6 +20,9 @@ import frc.robot.commands.OpenIntake;
 
 import java.util.function.Supplier;
 
+/**
+ * A class which represents the intake's placing subsystem, using 2 NEOs; one of each side.
+ */
 public class IntakePlacer extends SparkGenericSubsystem {
 
     private static final String NAMESPACE_NAME = "intake placer";
@@ -45,6 +48,7 @@ public class IntakePlacer extends SparkGenericSubsystem {
         right.restoreFactoryDefaults();
         left.setIdleMode(CANSparkBase.IdleMode.kBrake);
         right.setIdleMode(CANSparkBase.IdleMode.kBrake);
+        // left is master, right is slaves.get(0)
         slaves.get(0).follow(master, true);
         master.getEncoder().setPosition(0);
         slaves.get(0).getEncoder().setPosition(0);

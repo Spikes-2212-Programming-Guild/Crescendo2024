@@ -9,18 +9,24 @@ import frc.robot.subsystems.ShooterAdjuster;
 
 import java.util.function.Supplier;
 
+/**
+ * This command first runs the adjuster towards the setpoint by setting the motor's voltage, and once its close it runs
+ * a PID control loop.
+ */
 public class Adjust extends SequentialCommandGroup {
+
+    private static final double PID_START_POINT = 2.5;
+    private static final double SPEED = 0.75;
 
     public RootNamespace namespace = new RootNamespace("why");
 
     public Adjust(ShooterAdjuster adjuster, Supplier<Double> setpoint) {
         addRequirements(adjuster);
-        namespace.putBoolean("finished", this::isFinished);
-        if (Math.abs(adjuster.getPosition() - setpoint.get()) > 2.5) {
-            addCommands(new RunCommand(() -> adjuster.set(0.75 * Math.signum(adjuster.getPosition() - setpoint.get()))) {
+        if (Math.abs(adjuster.getPosition() - setpoint.get()) > PID_START_POINT) {
+            addCommands(new RunCommand(() -> adjuster.set(SPEED * Math.signum(adjuster.getPosition() - setpoint.get()))) {
                             @Override
                             public boolean isFinished() {
-                                return Math.abs(adjuster.getPosition() - setpoint.get()) > 2.5;
+                                return Math.abs(adjuster.getPosition() - setpoint.get()) > PID_START_POINT;
                             }
 
                             @Override
@@ -32,5 +38,10 @@ public class Adjust extends SequentialCommandGroup {
                             adjuster.getFeedForwardSettings(), UnifiedControlMode.POSITION, setpoint));
         } else addCommands(new MoveSmartMotorControllerGenericSubsystem(adjuster, adjuster.getPIDSettings(),
                 adjuster.getFeedForwardSettings(), UnifiedControlMode.POSITION, setpoint));
+        configureDashboard();
+    }
+
+    public void configureDashboard() {
+        namespace.putBoolean("finished", this::isFinished);
     }
 }
