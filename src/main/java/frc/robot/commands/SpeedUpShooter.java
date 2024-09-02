@@ -7,6 +7,9 @@ import frc.robot.subsystems.Shooter;
 
 import java.util.function.Supplier;
 
+/**
+ * Command which is responsible for speeding up each side of the shooter.
+ */
 public class SpeedUpShooter extends ParallelCommandGroup {
 
     public SpeedUpShooter(Shooter shooter, Supplier<Double> leftSetpoint, Supplier<Double> rightSetpoint) {

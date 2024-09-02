@@ -9,6 +9,9 @@ import frc.robot.subsystems.ShooterAdjuster;
 
 import java.util.function.Supplier;
 
+/**
+ * Auto which drives out of the wing then stops.
+ */
 public class DriveStraight extends SequentialCommandGroup {
 
     private static final double MOVE_TIMEOUT = 4;

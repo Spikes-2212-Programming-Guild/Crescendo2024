@@ -14,7 +14,9 @@ import frc.robot.subsystems.Storage;
 
 import java.util.function.Supplier;
 
-
+/**
+ * Command which shoots a note, with parameters controlling the height and speeds of the shooter.
+ */
 public class ShootWithParameters extends ParallelDeadlineGroup {
 
     private static final double STORAGE_SPEED = -0.5;
@@ -26,8 +28,8 @@ public class ShootWithParameters extends ParallelDeadlineGroup {
     private static final Pose2d SPEAKER_POSE = new Pose2d(0, 0, new Rotation2d());
 
     public ShootWithParameters(Shooter shooter, Drivetrain drivetrain, ShooterAdjuster adjuster, Storage storage,
-                               Supplier<Double> requiredAngle, Supplier<Double> requiredLeftSpeed, Supplier<Double> requiredRightSpeed,
-                               Supplier<Double> requiredHeight) {
+                               Supplier<Double> requiredAngle, Supplier<Double> requiredLeftSpeed,
+                               Supplier<Double> requiredRightSpeed, Supplier<Double> requiredHeight) {
 
         super(new InstantCommand());
 

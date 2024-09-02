@@ -10,6 +10,9 @@ import com.spikes2212.dashboard.RootNamespace;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.subsystems.Drivetrain;
 
+/**
+ * A class used for testing a path planner auto
+ */
 public class PathPlannerTest extends FollowPathCommand {
 
     private static final RootNamespace root = new RootNamespace("path planner test");

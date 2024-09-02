@@ -7,8 +7,9 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 
-import java.util.function.Supplier;
-
+/**
+ * Auto which shoots once, intakes a note and then shoots again.
+ */
 public class YeetAndRetreatAndYeet extends SequentialCommandGroup {
 
     private static final double MOVE_TIMEOUT = 1.5;

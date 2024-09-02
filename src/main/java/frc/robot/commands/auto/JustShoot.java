@@ -5,6 +5,9 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.Shoot;
 import frc.robot.subsystems.*;
 
+/**
+ * Auto which shoots the starting note.
+ */
 public class JustShoot extends SequentialCommandGroup {
 
     public JustShoot(Shooter shooter, ShooterAdjuster adjuster, IntakePlacer intakePlacer, Drivetrain drivetrain,
