@@ -35,10 +35,9 @@ public class OI /*GEVALD*/ {
         xbox.getBlueButton().onTrue(new Shoot(shooter, drivetrain, shooterAdjuster, storage, Shoot.RECTANGLE_HEIGHT).getCommand());
         // Moves the storage backwards - LT
         xbox.getLTButton().whileTrue(new MoveGenericSubsystem(storage, STORAGE_RETRACTION_SPEED));
-        // Resets the adjuster - RT
+        // Retracts the shooter's flywheels - RT
         xbox.getRTButton().whileTrue(new SpeedUpShooter(shooter, SHOOTER_RETRACTION_SPEED_ROTATIONS_PER_MINUTE,
                 SHOOTER_RETRACTION_SPEED_ROTATIONS_PER_MINUTE));
-        // Stops all running commands - Left
         xbox.getUpButton().onTrue(new CloseIntake(intakePlacer));
         xbox.getDownButton().onTrue(new OpenIntake(intakePlacer));
         xbox.getLeftButton().onTrue(new InstantCommand(() -> {
