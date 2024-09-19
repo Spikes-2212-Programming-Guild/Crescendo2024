@@ -7,6 +7,7 @@ import com.spikes2212.dashboard.SpikesLogger;
 import com.spikes2212.util.UnifiedControlMode;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.*;
@@ -21,6 +22,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class Shoot extends ParallelDeadlineGroup {
+
+    private static final Pose2d BLUE_SPEAKER_POSE = new Pose2d(new Translation2d(0.52, 5.59), new Rotation2d());
+    private static final Pose2d RED_SPEAKER_POSE = new Pose2d(new Translation2d(16.07, 5.59), new Rotation2d());
 
     // formula which translates the distance of the robot from the speaker to the required height to shoot
     private static final Function<Double, Double> DISTANCE_TO_HEIGHT = x -> -3.8 * x + 28.8;
@@ -73,9 +77,9 @@ public class Shoot extends ParallelDeadlineGroup {
         InstantCommand setSpeakerPoseCommand = new InstantCommand(() -> {
             Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
             if (alliance.isEmpty() || alliance.get() == DriverStation.Alliance.Blue) {
-                speakerPose = new Pose2d(0.52, 5.59, new Rotation2d());
+                speakerPose = BLUE_SPEAKER_POSE;
             } else {
-                speakerPose = new Pose2d(16.07, 5.59, new Rotation2d());
+                speakerPose = RED_SPEAKER_POSE;
             }
         }
         );
