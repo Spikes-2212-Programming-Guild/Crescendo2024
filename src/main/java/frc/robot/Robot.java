@@ -33,12 +33,6 @@ import static edu.wpi.first.units.Units.Volts;
 
 public class Robot extends TimedRobot {
 
-    int foodAnimation = 0;
-    int snakeAnimation = 0;
-    int explosionAnimation = 0;
-    boolean invert;
-    boolean explosion;
-
     private final RootNamespace root = new RootNamespace("robot");
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
 
