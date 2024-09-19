@@ -34,7 +34,7 @@ import static edu.wpi.first.units.Units.Volts;
 public class Robot extends TimedRobot {
 
     private final RootNamespace root = new RootNamespace("robot");
-    private SendableChooser<Command> autoChooser = new SendableChooser<>();
+    private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
     SpikesLogger logger = new SpikesLogger("Robot");
 
