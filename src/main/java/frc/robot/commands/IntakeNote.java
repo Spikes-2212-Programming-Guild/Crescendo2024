@@ -38,10 +38,15 @@ public class IntakeNote extends SequentialCommandGroup {
 //            );
 //        } else if (!storage.seesNote()) {
         ledService = LEDService.getInstance();
-        ledService.attemptIntake();
             addCommands(
                     new MoveSmartMotorControllerGenericSubsystem(adjuster, adjuster.getPIDSettings(),
                     adjuster.getFeedForwardSettings(), UnifiedControlMode.POSITION, SHOOTER_HEIGHT) {
+                        @Override
+                        public void execute() {
+                            ledService.attemptIntake();
+                            super.execute();
+                        }
+
                         @Override
                         public boolean isFinished() {
                             return super.isFinished() || !adjuster.wasReset();
