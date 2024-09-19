@@ -36,7 +36,7 @@ public class Robot extends TimedRobot {
     private final RootNamespace root = new RootNamespace("robot");
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
-    SpikesLogger logger = new SpikesLogger("Robot");
+    private final SpikesLogger logger = new SpikesLogger("Robot");
 
     private Drivetrain drivetrain;
     private Shooter shooter;
