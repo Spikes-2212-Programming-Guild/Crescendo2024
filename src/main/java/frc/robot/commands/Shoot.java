@@ -40,9 +40,6 @@ public class Shoot extends ParallelDeadlineGroup {
     public static final double MIDDLE_HEIGHT = 22;
     public static final double RECTANGLE_HEIGHT = 16.3;
 
-    //@TODO CHANGE!
-    private static final Pose2d SPEAKER_POSE = new Pose2d(0, 0, new Rotation2d());
-
     private static final SpikesLogger LOGGER = new SpikesLogger();
     private final double height;
 
@@ -116,10 +113,6 @@ public class Shoot extends ParallelDeadlineGroup {
 //        ROOT.putNumber("distance", distance);
 //        return distance <= MAX_FORMULA_DISTANCE ? () -> DISTANCE_TO_HEIGHT.apply(distance) : () -> MIN_HEIGHT;
         return () -> height;
-    }
-
-    public double getRequiredRobotAngle(Pose2d robotPose) {
-        return Math.atan2(SPEAKER_POSE.minus(robotPose).getX(), SPEAKER_POSE.minus(robotPose).getY());
     }
 
     public Supplier<Double> getRequiredLeftSpeed() {
