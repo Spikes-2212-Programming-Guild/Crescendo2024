@@ -55,7 +55,7 @@ public class IntakeNote extends SequentialCommandGroup {
                     new MoveGenericSubsystem(intakeRoller, ROLLER_SPEED)
                             .raceWith(new MoveGenericSubsystem(storage, () -> STORAGE_VOLTAGE / RobotController.getBatteryVoltage())),
                     new InstantCommand(ledService::intakeSuccessful));
-//            addCommands(nezw MoveGenericSubsystem(intakeRoller, 0.5)
+//            addCommands(new MoveGenericSubsystem(intakeRoller, 0.5)
 //                    .alongWith(new MoveGenericSubsystem(storage, 0.5)).until(storage::hasNote)
 //                    .andThen(new InstantCommand(storage::stop).alongWith(new InstantCommand(intakeRoller::stop))));
 //        }
