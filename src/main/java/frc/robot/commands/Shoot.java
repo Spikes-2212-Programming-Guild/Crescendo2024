@@ -44,7 +44,6 @@ public class Shoot extends ParallelDeadlineGroup {
     private final double height;
 
     private final Shooter shooter;
-//    private final Drivetrain drivetrain;
     private final ShooterAdjuster adjuster;
     private final Storage storage;
     private final LEDService ledService;
