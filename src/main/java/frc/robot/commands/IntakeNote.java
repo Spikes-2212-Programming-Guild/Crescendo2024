@@ -6,6 +6,7 @@ import com.spikes2212.dashboard.RootNamespace;
 import com.spikes2212.util.UnifiedControlMode;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.IntakePlacer;
 import frc.robot.subsystems.IntakeRoller;
@@ -42,18 +43,13 @@ public class IntakeNote extends SequentialCommandGroup {
                     new MoveSmartMotorControllerGenericSubsystem(adjuster, adjuster.getPIDSettings(),
                     adjuster.getFeedForwardSettings(), UnifiedControlMode.POSITION, SHOOTER_HEIGHT) {
                         @Override
-                        public void execute() {
-                            ledService.attemptIntake();
-                            super.execute();
-                        }
-
-                        @Override
                         public boolean isFinished() {
                             return super.isFinished() || !adjuster.wasReset();
                         }
                     },
                     new MoveGenericSubsystem(intakeRoller, ROLLER_SPEED)
-                            .raceWith(new MoveGenericSubsystem(storage, () -> STORAGE_VOLTAGE / RobotController.getBatteryVoltage())),
+                            .raceWith(new MoveGenericSubsystem(storage, () -> STORAGE_VOLTAGE / RobotController.getBatteryVoltage())
+                                    .raceWith(new RunCommand(ledService::attemptIntake))),
                     new InstantCommand(ledService::intakeSuccessful));
 //            addCommands(new MoveGenericSubsystem(intakeRoller, 0.5)
 //                    .alongWith(new MoveGenericSubsystem(storage, 0.5)).until(storage::hasNote)
