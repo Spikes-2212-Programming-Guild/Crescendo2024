@@ -18,6 +18,8 @@ import java.util.function.Supplier;
 
 public class IntakeNote extends SequentialCommandGroup {
 
+    private static final double STORAGE_SPEED = 0.5;
+
     private final RootNamespace root = new RootNamespace("intake note");
 
     private static final Supplier<Double> ROLLER_SPEED = () -> -0.85;
@@ -51,8 +53,8 @@ public class IntakeNote extends SequentialCommandGroup {
                             .raceWith(new MoveGenericSubsystem(storage, () -> STORAGE_VOLTAGE / RobotController.getBatteryVoltage())
                                     .raceWith(new RunCommand(ledService::attemptIntake))),
                     new InstantCommand(ledService::intakeSuccessful));
-//            addCommands(new MoveGenericSubsystem(intakeRoller, 0.5)
-//                    .alongWith(new MoveGenericSubsystem(storage, 0.5)).until(storage::hasNote)
+//            addCommands(new MoveGenericSubsystem(intakeRoller, STORAGE_SPEED)
+//                    .alongWith(new MoveGenericSubsystem(storage, STORAGE_SPEED)).until(storage::hasNote)
 //                    .andThen(new InstantCommand(storage::stop).alongWith(new InstantCommand(intakeRoller::stop))));
 //        }
     }
