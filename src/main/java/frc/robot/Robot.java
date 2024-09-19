@@ -46,7 +46,7 @@ public class Robot extends TimedRobot {
     private ShooterFlywheel rightShooter;
     private IntakeRoller intakeRoller;
     private IntakePlacer intakePlacer;
-    LEDService led = LEDService.getInstance();
+    private LEDService led;
 
     @Override
     public void robotInit() {
@@ -61,6 +61,7 @@ public class Robot extends TimedRobot {
         rightShooter = ShooterFlywheel.getRightInstance();
         intakeRoller = IntakeRoller.getInstance();
         intakePlacer = IntakePlacer.getInstance();
+        led = LEDService.getInstance();
 
         root.putCommand("shoot test", new Shoot(Shooter.getInstance(), Drivetrain.getInstance(), ShooterAdjuster.getInstance(),
                 Storage.getInstance(), Shoot.CLOSE_HEIGHT).getCommand());
