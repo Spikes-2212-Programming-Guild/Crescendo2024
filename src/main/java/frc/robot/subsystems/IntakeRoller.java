@@ -17,6 +17,7 @@ public class IntakeRoller extends MotoredGenericSubsystem {
     private static final int STATUS_0_PERIODIC_FRAME = 100;
     private static final int STATUS_1_PERIODIC_FRAME = 500;
     private static final int STATUS_2_PERIODIC_FRAME = 500;
+    private static final double MOVE_SPEED = 0.65;
 
     private static IntakeRoller instance;
 
@@ -46,6 +47,6 @@ public class IntakeRoller extends MotoredGenericSubsystem {
 
     @Override
     public void configureDashboard() {
-        namespace.putCommand("move", new MoveGenericSubsystem(this, 0.65));
+        namespace.putCommand("move", new MoveGenericSubsystem(this, MOVE_SPEED));
     }
 }
