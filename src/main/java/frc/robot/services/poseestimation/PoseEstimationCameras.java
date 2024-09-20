@@ -25,9 +25,9 @@ public class PoseEstimationCameras {
     private static final Transform3d RIGHT_CAMERA_LOCATION = new Transform3d();
 
     private final List<PhotonCameraEstimator> estimators;
-    private List<PoseEstimatorTarget> results;
+    private final SpikesLogger logger = new SpikesLogger();
 
-    private SpikesLogger logger = new SpikesLogger();
+    private List<PoseEstimatorTarget> results;
 
     private static PoseEstimationCameras instance;
 
