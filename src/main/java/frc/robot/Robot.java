@@ -63,30 +63,9 @@ public class Robot extends TimedRobot {
         intakePlacer = IntakePlacer.getInstance();
         led = LEDService.getInstance();
 
-        root.putCommand("shoot test", new Shoot(Shooter.getInstance(), Drivetrain.getInstance(), ShooterAdjuster.getInstance(),
-                Storage.getInstance(), Shoot.CLOSE_HEIGHT).getCommand());
-        root.putCommand("intake note", new IntakeNote(IntakeRoller.getInstance(), Storage.getInstance(),
-                IntakePlacer.getInstance(), ShooterAdjuster.getInstance(), false));
-        NamedCommands.registerCommand("open-intake", new OpenIntake(intakePlacer));
-        NamedCommands.registerCommand("close-intake", new CloseIntake(intakePlacer));
-        NamedCommands.registerCommand("shoot-close", new Shoot(shooter, drivetrain, shooterAdjuster, storage,
-                Shoot.CLOSE_HEIGHT).getCommand());
-        NamedCommands.registerCommand("shoot-middle", new Shoot(shooter, drivetrain, shooterAdjuster, storage,
-                Shoot.MIDDLE_HEIGHT).getCommand());
-        NamedCommands.registerCommand("intake-note", new IntakeNote(intakeRoller, storage, intakePlacer, shooterAdjuster,
-                false));
-        NamedCommands.registerCommand("reset-adjuster", shooterAdjuster.getResetCommand());
-        NamedCommands.registerCommand("reset-placer", new InstantCommand(intakePlacer::resetPosition));
-        NamedCommands.registerCommand("reset-gyro", new InstantCommand(drivetrain::resetGyro));
-        // @TODO find out what this does
-        root.putCommand("2", new PathPlannerAuto("2"));
-
-        autoChooser.addOption("single (middle)", new PathPlannerAuto("single middle"));
-        autoChooser.addOption("double (middle)", new PathPlannerAuto("double middle"));
-        autoChooser.addOption("single (short side)", new PathPlannerAuto("single short"));
-        autoChooser.addOption("single (long side)", new PathPlannerAuto("single long side"));
-        autoChooser.addOption("just shoot", new JustShoot(shooter, shooterAdjuster, intakePlacer, drivetrain, storage));
-        root.putData("auto chooser", autoChooser);
+        registerPathPlannerCommands();
+        configureDashboard();
+        configureAutoChooser();
     }
 
     @Override
@@ -156,5 +135,37 @@ public class Robot extends TimedRobot {
     @Override
     public void simulationPeriodic() {
 
+    }
+
+    private void configureDashboard() {
+        root.putCommand("shoot test", new Shoot(Shooter.getInstance(), Drivetrain.getInstance(), ShooterAdjuster.getInstance(),
+                Storage.getInstance(), Shoot.CLOSE_HEIGHT).getCommand());
+        root.putCommand("intake note", new IntakeNote(IntakeRoller.getInstance(), Storage.getInstance(),
+                IntakePlacer.getInstance(), ShooterAdjuster.getInstance(), false));
+        // @TODO find out what this does
+        root.putCommand("2", new PathPlannerAuto("2"));
+        root.putData("auto chooser", autoChooser);
+    }
+
+    private void configureAutoChooser() {
+        autoChooser.addOption("single (middle)", new PathPlannerAuto("single middle"));
+        autoChooser.addOption("double (middle)", new PathPlannerAuto("double middle"));
+        autoChooser.addOption("single (short side)", new PathPlannerAuto("single short"));
+        autoChooser.addOption("single (long side)", new PathPlannerAuto("single long side"));
+        autoChooser.addOption("just shoot", new JustShoot(shooter, shooterAdjuster, intakePlacer, drivetrain, storage));
+    }
+
+    private void registerPathPlannerCommands() {
+        NamedCommands.registerCommand("open-intake", new OpenIntake(intakePlacer));
+        NamedCommands.registerCommand("close-intake", new CloseIntake(intakePlacer));
+        NamedCommands.registerCommand("shoot-close", new Shoot(shooter, drivetrain, shooterAdjuster, storage,
+                Shoot.CLOSE_HEIGHT).getCommand());
+        NamedCommands.registerCommand("shoot-middle", new Shoot(shooter, drivetrain, shooterAdjuster, storage,
+                Shoot.MIDDLE_HEIGHT).getCommand());
+        NamedCommands.registerCommand("intake-note", new IntakeNote(intakeRoller, storage, intakePlacer, shooterAdjuster,
+                false));
+        NamedCommands.registerCommand("reset-adjuster", shooterAdjuster.getResetCommand());
+        NamedCommands.registerCommand("reset-placer", new InstantCommand(intakePlacer::resetPosition));
+        NamedCommands.registerCommand("reset-gyro", new InstantCommand(drivetrain::resetGyro));
     }
 }
