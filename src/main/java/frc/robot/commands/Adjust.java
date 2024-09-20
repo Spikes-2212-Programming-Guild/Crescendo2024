@@ -18,7 +18,7 @@ public class Adjust extends SequentialCommandGroup {
     private static final double PID_START_POINT = 2.5;
     private static final double SPEED = 0.75;
 
-    public RootNamespace namespace = new RootNamespace("why");
+    public final RootNamespace namespace = new RootNamespace("adjust");
 
     public Adjust(ShooterAdjuster adjuster, Supplier<Double> setpoint) {
         addRequirements(adjuster);
