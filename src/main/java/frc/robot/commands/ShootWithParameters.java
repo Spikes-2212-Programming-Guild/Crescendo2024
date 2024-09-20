@@ -24,9 +24,6 @@ public class ShootWithParameters extends ParallelDeadlineGroup {
 
     public static final RootNamespace ROOT = new RootNamespace("shoot with parameters");
 
-    //@TODO CHANGE!
-    private static final Pose2d SPEAKER_POSE = new Pose2d(0, 0, new Rotation2d());
-
     public ShootWithParameters(Shooter shooter, Drivetrain drivetrain, ShooterAdjuster adjuster, Storage storage,
                                Supplier<Double> requiredAngle, Supplier<Double> requiredLeftSpeed,
                                Supplier<Double> requiredRightSpeed, Supplier<Double> requiredHeight) {
