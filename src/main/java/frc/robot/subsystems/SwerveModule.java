@@ -127,7 +127,7 @@ public class SwerveModule extends DashboardedSubsystem {
         double kS = turnFeedForwardController.getkS();
         turnFeedForwardController.setkS(0);
         double feedForward = turnFeedForwardController.calculate(angle);
-        // @TODO figure out what the fuck
+        // decides the direction for the static constant
         if (Math.abs(getAbsoluteAngle() - angle) > DEGREES_IN_ROTATION / 2) {
             kS *= Math.signum(getAbsoluteAngle() - angle);
         } else {
