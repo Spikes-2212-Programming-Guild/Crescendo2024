@@ -30,6 +30,8 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
     private static final int CURRENT_LIMIT = 20;
     private static final int SECONDARY_CURRENT_LIMIT = 10;
     private static final double MAX_POSITION = 25;
+    private static final double MINIMUM_PID_OUTPUT_RANGE = -0.7;
+    private static final double MAXIMUM_PID_OUTPUT_RANGE = -0.7;
 
     private static final int SECONDS_IN_MINUTE = 60;
 
@@ -73,7 +75,7 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
         master.getEncoder().setVelocityConversionFactor(MOTOR_ROTATIONS_TO_SCREW_HEIGHT / SECONDS_IN_MINUTE);
         master.setInverted(true);
         master.setSecondaryCurrentLimit(SECONDARY_CURRENT_LIMIT);
-        master.getPIDController().setOutputRange(-0.7, 0.7);
+        master.getPIDController().setOutputRange(MINIMUM_PID_OUTPUT_RANGE, MAXIMUM_PID_OUTPUT_RANGE);
         configureDashboard();
     }
 
