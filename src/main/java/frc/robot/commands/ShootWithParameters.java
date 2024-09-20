@@ -30,8 +30,6 @@ public class ShootWithParameters extends ParallelDeadlineGroup {
 
         super(new InstantCommand());
 
-//        Pose2d pose = drivetrain.getPose();
-
         RotateSwerveWithPID rotateCommand = new RotateSwerveWithPID(drivetrain, requiredAngle,
                 drivetrain::getAngle, drivetrain.rotateToTargetPIDSettings,
                 drivetrain.rotateToTargetFeedForwardSettings) {
