@@ -152,9 +152,4 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
         namespace.putCommand("new adjust", new Adjust(this, setpoint));
         namespace.putBoolean("was reset", this.wasReset());
     }
-
-    @Override
-    public void periodic() {
-        super.periodic();
-    }
 }
