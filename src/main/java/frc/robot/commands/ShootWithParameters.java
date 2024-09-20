@@ -22,7 +22,7 @@ public class ShootWithParameters extends ParallelDeadlineGroup {
     private static final double STORAGE_SPEED = -0.5;
     private static final double WAIT_TIME = 3;
 
-    public static final RootNamespace ROOT = new RootNamespace("shoot2");
+    public static final RootNamespace ROOT = new RootNamespace("shoot with parameters");
 
     //@TODO CHANGE!
     private static final Pose2d SPEAKER_POSE = new Pose2d(0, 0, new Rotation2d());
