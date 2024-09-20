@@ -36,8 +36,8 @@ public class Shoot extends ParallelDeadlineGroup {
     private static final double CROSS_TIMEOUT = 1;
 
     public static final RootNamespace ROOT = new RootNamespace("shoot");
-    private static final Supplier<Double> LEFT_SPEED = ROOT.addConstantDouble("shoot left speed", 0);
-    private static final Supplier<Double> RIGHT_SPEED = ROOT.addConstantDouble("shoot right speed", 0);
+    private static final Supplier<Double> LEFT_SPEED = () -> 3900.0;
+    private static final Supplier<Double> RIGHT_SPEED = () -> 3900.0;
     private static final Supplier<Double> HEIGHT = ROOT.addConstantDouble("shoot height", 0);
 
     public static final double CLOSE_HEIGHT = 24.6;
@@ -119,13 +119,11 @@ public class Shoot extends ParallelDeadlineGroup {
     }
 
     public Supplier<Double> getRequiredLeftSpeed() {
-//        return LEFT_SPEED;
-        return () -> 3900.0;
+        return LEFT_SPEED;
     }
 
     public Supplier<Double> getRequiredRightSpeed() {
-//        return RIGHT_SPEED;
-        return () -> 3900.0;
+        return RIGHT_SPEED;
     }
 
     public Command getCommand() {
