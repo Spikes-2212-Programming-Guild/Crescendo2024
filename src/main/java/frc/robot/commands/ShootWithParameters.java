@@ -21,6 +21,8 @@ public class ShootWithParameters extends ParallelDeadlineGroup {
 
     private static final double STORAGE_SPEED = -0.5;
     private static final double WAIT_TIME = 3;
+    private static final double LEFT_TOLERANCE = 300;
+    private static final double RIGHT_TOLERANCE = 300;
 
     public static final RootNamespace ROOT = new RootNamespace("shoot with parameters");
 
@@ -59,9 +61,9 @@ public class ShootWithParameters extends ParallelDeadlineGroup {
                         new WaitUntilCommand(() ->
                                 rotateCommand.isFinished() && adjustCommand.isFinished() &&
                                         shooter.getLeftFlywheel().onTarget(UnifiedControlMode.VELOCITY,
-                                                300, requiredLeftSpeed.get()) &&
+                                                LEFT_TOLERANCE, requiredLeftSpeed.get()) &&
                                         shooter.getRightFlywheel().onTarget(UnifiedControlMode.VELOCITY,
-                                                300, requiredRightSpeed.get())),
+                                                RIGHT_TOLERANCE, requiredRightSpeed.get())),
                         new MoveGenericSubsystem(storage, STORAGE_SPEED),
                         new WaitCommand(WAIT_TIME)
                 ));
