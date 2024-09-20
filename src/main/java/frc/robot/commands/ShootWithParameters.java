@@ -29,7 +29,6 @@ public class ShootWithParameters extends ParallelDeadlineGroup {
     public ShootWithParameters(Shooter shooter, Drivetrain drivetrain, ShooterAdjuster adjuster, Storage storage,
                                Supplier<Double> requiredAngle, Supplier<Double> requiredLeftSpeed,
                                Supplier<Double> requiredRightSpeed, Supplier<Double> requiredHeight) {
-
         super(new InstantCommand());
 
         RotateSwerveWithPID rotateCommand = new RotateSwerveWithPID(drivetrain, requiredAngle,
@@ -58,8 +57,7 @@ public class ShootWithParameters extends ParallelDeadlineGroup {
         addCommands(speedUpCommand, adjustCommand);
         setDeadline(
                 new SequentialCommandGroup(
-                        new WaitUntilCommand(() ->
-                                rotateCommand.isFinished() && adjustCommand.isFinished() &&
+                        new WaitUntilCommand(() -> rotateCommand.isFinished() && adjustCommand.isFinished() &&
                                         shooter.getLeftFlywheel().onTarget(UnifiedControlMode.VELOCITY,
                                                 LEFT_TOLERANCE, requiredLeftSpeed.get()) &&
                                         shooter.getRightFlywheel().onTarget(UnifiedControlMode.VELOCITY,
