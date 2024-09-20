@@ -3,7 +3,7 @@ package frc.robot.subsystems;
 import com.spikes2212.command.DashboardedSubsystem;
 
 /**
- * A class which controls the shooter's speed using 2 {@link ShooterFlywheel}s; one on each side.
+ * A class which controls the shooter's speed using 2 {@link ShooterFlywheel}s: one on each side.
  */
 public class Shooter extends DashboardedSubsystem {
 
