@@ -92,34 +92,7 @@ public class Drivetrain extends DashboardedSubsystem {
                 BACK_LEFT_WHEEL_POSITION, BACK_RIGHT_WHEEL_POSITION);
         odometry = new SwerveDriveOdometry(kinematics, getRotation2d(), getModulePositions(), new Pose2d());
         modules = Set.of(frontLeft, frontRight, backLeft, backRight);
-        // configures the auto builder for pathplanner
-        AutoBuilder.configureHolonomic(
-                odometry::getPoseMeters,
-                this::resetPosition,
-                () -> kinematics.toChassisSpeeds(frontLeft.getState(), frontRight.getState(), backLeft.getState(),
-                        backRight.getState()),
-                this::drive,
-                new HolonomicPathFollowerConfig(
-                        MAX_SPEED_METERS_PER_SECONDS,
-                        RADIUS,
-                        new ReplanningConfig(
-                                false, false
-                        )
-                ),
-                () -> {
-                    // Boolean supplier that controls when the path will be mirrored for the red alliance
-                    // This will flip the path being followed to the red side of the field.
-                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-
-                    var alliance = DriverStation.getAlliance();
-                    if (alliance.isPresent()) {
-                        logger.log(DriverStation.getAlliance().get() == DriverStation.Alliance.Red ? "red" : "blue");
-                        return alliance.get() == DriverStation.Alliance.Red;
-                    }
-                    return false;
-                },
-                this
-        );
+        configureAutoBuilder();
         configureDashboard();
     }
 
@@ -218,6 +191,36 @@ public class Drivetrain extends DashboardedSubsystem {
 
     private double min(double a, double b, double c, double d) {
         return Math.min(Math.min(a, b), Math.min(c, d));
+    }
+
+    private void configureAutoBuilder() {
+        AutoBuilder.configureHolonomic(
+                odometry::getPoseMeters,
+                this::resetPosition,
+                () -> kinematics.toChassisSpeeds(frontLeft.getState(), frontRight.getState(), backLeft.getState(),
+                        backRight.getState()),
+                this::drive,
+                new HolonomicPathFollowerConfig(
+                        MAX_SPEED_METERS_PER_SECONDS,
+                        RADIUS,
+                        new ReplanningConfig(
+                                false, false
+                        )
+                ),
+                () -> {
+                    // Boolean supplier that controls when the path will be mirrored for the red alliance
+                    // This will flip the path being followed to the red side of the field.
+                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                        logger.log(DriverStation.getAlliance().get() == DriverStation.Alliance.Red ? "red" : "blue");
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                },
+                this
+        );
     }
 
     @Override
