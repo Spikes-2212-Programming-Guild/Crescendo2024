@@ -78,6 +78,7 @@ public class Robot extends TimedRobot {
         NamedCommands.registerCommand("reset-adjuster", shooterAdjuster.getResetCommand());
         NamedCommands.registerCommand("reset-placer", new InstantCommand(intakePlacer::resetPosition));
         NamedCommands.registerCommand("reset-gyro", new InstantCommand(drivetrain::resetGyro));
+        // @TODO find out what this does
         root.putCommand("2", new PathPlannerAuto("2"));
 
         autoChooser.addOption("single (middle)", new PathPlannerAuto("single middle"));
