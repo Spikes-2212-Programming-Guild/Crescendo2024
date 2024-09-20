@@ -16,15 +16,15 @@ public class Shooter extends DashboardedSubsystem {
 
     public static Shooter getInstance() {
         if (instance == null) {
-            instance = new Shooter();
+            instance = new Shooter(ShooterFlywheel.getLeftInstance(), ShooterFlywheel.getRightInstance());
         }
         return instance;
     }
 
-    public Shooter() {
+    public Shooter(ShooterFlywheel leftFlywheel, ShooterFlywheel rightFlywheel) {
         super(NAMESPACE_NAME);
-        this.leftFlywheel = ShooterFlywheel.getLeftInstance();
-        this.rightFlywheel = ShooterFlywheel.getRightInstance();
+        this.leftFlywheel = leftFlywheel;
+        this.rightFlywheel = rightFlywheel;
         configureDashboard();
     }
 
