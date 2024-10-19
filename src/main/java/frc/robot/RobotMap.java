@@ -48,6 +48,7 @@ public class RobotMap {
     }
     
     public interface PWM {
+
         int LED = 0;
     }
     
@@ -65,6 +66,5 @@ public class RobotMap {
         int LEFT_CLIMBER_BACKWARD = 1;
         int RIGHT_CLIMBER_FORWARD = 2;
         int RIGHT_CLIMBER_BACKWARD = 3;
-
     }
 }
