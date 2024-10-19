@@ -40,9 +40,7 @@ public abstract class BasePoseSource {
     protected abstract boolean hasResult();
 
     private boolean isNewTimestamp() {
-        if (lastUpdatedTimestamp == getLastResultTimestamp())
-            return false;
-
+        if (lastUpdatedTimestamp == getLastResultTimestamp()) return false;
         lastUpdatedTimestamp = getLastResultTimestamp();
         return true;
     }
