@@ -47,13 +47,6 @@ public class ShootWithParameters extends ParallelDeadlineGroup {
                 new MoveSmartMotorControllerGenericSubsystem(adjuster, adjuster.getPIDSettings(),
                         adjuster.getFeedForwardSettings(), UnifiedControlMode.POSITION, requiredHeight);
 
-        ROOT.putBoolean("rotate finished", rotateCommand::isFinished);
-        ROOT.putBoolean("adjust finished", adjustCommand::isFinished);
-        ROOT.putBoolean("left on target", () -> shooter.getLeftFlywheel().onTarget(UnifiedControlMode.VELOCITY,
-                shooter.getLeftFlywheel().pidSettings.getTolerance(), requiredLeftSpeed.get()));
-        ROOT.putBoolean("right on target", () -> shooter.getRightFlywheel().onTarget(UnifiedControlMode.VELOCITY,
-                shooter.getRightFlywheel().pidSettings.getTolerance(), requiredRightSpeed.get()));
-
         addCommands(speedUpCommand, adjustCommand);
         setDeadline(
                 new SequentialCommandGroup(
