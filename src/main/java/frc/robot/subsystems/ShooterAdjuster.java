@@ -85,6 +85,10 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
                 SparkPIDController.ArbFFUnits.kVoltage);
     }
 
+    public void stop() {
+        master.stopMotor();
+    }
+
     public PIDSettings getPIDSettings() {
         return pidSettings;
     }
@@ -125,10 +129,6 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
 
     public void set(double speed) {
         master.set(speed);
-    }
-
-    public void stop() {
-        master.stopMotor();
     }
 
     @Override
