@@ -48,12 +48,12 @@ public class Drivetrain extends DashboardedSubsystem {
     public static final double MAX_SPEED_METERS_PER_SECONDS = 4.3;
     public static final double MIN_SPEED_METERS_PER_SECONDS = 0.2;
 
-    private static final String NAMESPACE_NAME = "drivetrain";
-
     public final PIDSettings rotateToTargetPIDSettings =
             namespace.addPIDNamespace("rotate to target", new PIDSettings(0.08, 0, 0.0045, 0.6, 0.1));
     public final FeedForwardSettings rotateToTargetFeedForwardSettings =
             namespace.addFeedForwardNamespace("rotate to target", new FeedForwardSettings(0.18, 0));
+
+    private static final String NAMESPACE_NAME = "drivetrain";
 
     private final SwerveModule frontLeft;
     private final SwerveModule frontRight;
