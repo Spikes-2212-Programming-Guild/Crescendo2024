@@ -90,10 +90,10 @@ public class Shoot extends ParallelDeadlineGroup {
                         new WaitUntilCommand(() ->
                                 adjustCommand.isFinished() &&
                                         shooter.getLeftFlywheel().onTarget(UnifiedControlMode.VELOCITY,
-                                                shooter.getLeftFlywheel().pidSettings.getTolerance(),
+                                                shooter.getLeftFlywheel().getPIDSettings().getTolerance(),
                                                 getRequiredLeftSpeed().get()) &&
                                         shooter.getRightFlywheel().onTarget(UnifiedControlMode.VELOCITY,
-                                                shooter.getRightFlywheel().pidSettings.getTolerance(),
+                                                shooter.getRightFlywheel().getPIDSettings().getTolerance(),
                                                 getRequiredRightSpeed().get())),
                         new MoveGenericSubsystem(storage, () -> STORAGE_VOLTAGE / RobotController.getBatteryVoltage())
                                 .withTimeout(WAIT_TIME).alongWith(new InstantCommand(ledService::shootSuccessful)),
