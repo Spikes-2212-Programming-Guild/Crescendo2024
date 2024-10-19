@@ -72,7 +72,8 @@ public class LEDService extends CorrectAddressableLEDWrapper {
     }
 
     public void preGame() {
-        if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
+        if (DriverStation.getAlliance().isPresent() &&
+                DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
             for (int i = 0; i < NUMBER_OF_LEDS; i++) {
                 setColorAt((i + animation) % NUMBER_OF_LEDS, i * NUMBER_OF_LEDS / 255, 0, 255);
             }
