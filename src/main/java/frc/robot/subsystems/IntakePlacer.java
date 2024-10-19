@@ -55,14 +55,6 @@ public class IntakePlacer extends SparkGenericSubsystem {
         configureDashboard();
     }
 
-    public PIDSettings getPIDSettings() {
-        return pidSettings;
-    }
-
-    public FeedForwardSettings getFeedForwardSettings() {
-        return feedForwardSettings;
-    }
-
     @Override
     public void configureLoop(PIDSettings pidSettings, FeedForwardSettings feedForwardSettings,
                               TrapezoidProfileSettings trapezoidProfileSettings) {
@@ -72,12 +64,20 @@ public class IntakePlacer extends SparkGenericSubsystem {
         slaves.get(0).follow(master, true);
     }
 
-    public double getPosition() {
-        return master.getEncoder().getPosition();
-    }
-
     public void resetPosition() {
         master.getEncoder().setPosition(0);
+    }
+
+    public PIDSettings getPIDSettings() {
+        return pidSettings;
+    }
+
+    public FeedForwardSettings getFeedForwardSettings() {
+        return feedForwardSettings;
+    }
+
+    public double getPosition() {
+        return master.getEncoder().getPosition();
     }
 
     @Override
