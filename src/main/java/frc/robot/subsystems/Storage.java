@@ -21,8 +21,9 @@ public class Storage extends MotoredGenericSubsystem {
 
     private final DigitalInput infrared;
     private final CANSparkMax sparkMax;
-    private static Storage instance;
     private boolean seen = false;
+
+    private static Storage instance;
 
     public static Storage getInstance() {
         if (instance == null) {
