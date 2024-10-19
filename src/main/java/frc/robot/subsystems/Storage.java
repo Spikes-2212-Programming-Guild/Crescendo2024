@@ -69,7 +69,6 @@ public class Storage extends MotoredGenericSubsystem {
     public void configureDashboard() {
         namespace.putCommand("move", new MoveGenericSubsystem(this, -0.4).until(this::cantMove));
         namespace.putCommand("just move", new MoveGenericSubsystem(this, -0.6));
-
         namespace.putNumber("current", sparkMax::getOutputCurrent);
         namespace.putBoolean("sees note", this::seesNote);
         namespace.putBoolean("ir val", infrared::get);
