@@ -144,8 +144,8 @@ public class Robot extends TimedRobot {
                 Shoot.CLOSE_HEIGHT).getCommand());
         NamedCommands.registerCommand("shoot-middle", new Shoot(shooter, drivetrain, shooterAdjuster, storage,
                 Shoot.MIDDLE_HEIGHT).getCommand());
-        NamedCommands.registerCommand("intake-note", new IntakeNote(intakeRoller, storage, intakePlacer, shooterAdjuster,
-                false));
+        NamedCommands.registerCommand("intake-note", new IntakeNote(intakeRoller, storage, intakePlacer,
+                shooterAdjuster, false));
         NamedCommands.registerCommand("reset-adjuster", shooterAdjuster.getResetCommand());
         NamedCommands.registerCommand("reset-placer", new InstantCommand(intakePlacer::resetPosition));
         NamedCommands.registerCommand("reset-gyro", new InstantCommand(drivetrain::resetGyro));
