@@ -18,11 +18,12 @@ import java.util.function.Supplier;
 
 public class IntakeNote extends SequentialCommandGroup {
 
+    public static final Supplier<Double> SHOOTER_HEIGHT = () -> 8.0;
+
     private static final double STORAGE_SPEED = 0.5;
     private static final double STORAGE_VOLTAGE = -4.0;
     private static final Supplier<Double> ROLLER_SPEED = () -> -0.85;
-    public static final Supplier<Double> SHOOTER_HEIGHT = () -> 8.0;
-
+    
     private final RootNamespace root = new RootNamespace("intake note");
     private final LEDService ledService;
 
