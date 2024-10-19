@@ -67,7 +67,7 @@ public class Drivetrain extends DashboardedSubsystem {
     private final SwerveDriveKinematics kinematics;
     private final SwerveDriveOdometry odometry;
 
-    private SpikesLogger logger = new SpikesLogger("drivetrain");
+    private final SpikesLogger logger = new SpikesLogger("drivetrain");
 
     private static Drivetrain instance;
 
