@@ -27,7 +27,6 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
     private static final int PID_SLOT = 0;
 
     private static final int STALL_CURRENT = 30;
-    private static final int CURRENT_LIMIT = 20;
     private static final int SECONDARY_CURRENT_LIMIT = 10;
     private static final double MAX_POSITION = 25;
     private static final double MINIMUM_PID_OUTPUT_RANGE = -0.7;
