@@ -90,7 +90,8 @@ public class SwerveModuleHolder {
 
     public static SwerveModule getBackRight() {
         if (backRight == null) {
-            backRight = new SwerveModule(BACK_RIGHT_NAMESPACE_NAME, null,
+            backRight = new SwerveModule(BACK_RIGHT_NAMESPACE_NAME,
+                    new CANSparkMax(RobotMap.CAN.BACK_RIGHT_DRIVE_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
                     new CANSparkMax(RobotMap.CAN.BACK_RIGHT_TURN_SPARK_MAX, CANSparkLowLevel.MotorType.kBrushless),
                     new CANcoder(RobotMap.CAN.BACK_RIGHT_ABSOLUTE_ENCODER), BACK_RIGHT_CANCODER_INVERTED,
                     drivePIDSettings, driveFeedForwardSettings, turnPIDSettings, turnFeedForwardSettings,
