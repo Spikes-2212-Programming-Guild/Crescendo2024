@@ -71,13 +71,15 @@ public class ShooterFlywheel extends SparkGenericSubsystem {
     }
 
     @Override
-    public void configureLoop(PIDSettings pidSettings, FeedForwardSettings feedForwardSettings, TrapezoidProfileSettings trapezoidProfileSettings) {
+    public void configureLoop(PIDSettings pidSettings, FeedForwardSettings feedForwardSettings,
+                              TrapezoidProfileSettings trapezoidProfileSettings) {
         super.configureLoop(pidSettings, feedForwardSettings, trapezoidProfileSettings);
         master.setInverted(inverted);
     }
 
     @Override
-    public void pidSet(UnifiedControlMode controlMode, double setpoint, PIDSettings pidSettings, FeedForwardSettings feedForwardSettings, TrapezoidProfileSettings trapezoidProfileSettings) {
+    public void pidSet(UnifiedControlMode controlMode, double setpoint, PIDSettings pidSettings,
+                       FeedForwardSettings feedForwardSettings, TrapezoidProfileSettings trapezoidProfileSettings) {
         configPIDF(pidSettings, feedForwardSettings);
         configureTrapezoid(trapezoidProfileSettings);
         master.getPIDController().setReference(setpoint, controlMode.getSparkMaxControlType(), 0,
@@ -88,10 +90,10 @@ public class ShooterFlywheel extends SparkGenericSubsystem {
     public void configureDashboard() {
         namespace.putNumber("speed", () -> master.getEncoder().getVelocity());
         Supplier<Double> setpoint = namespace.addConstantDouble("setpoint", 0);
-        namespace.putCommand("move", new MoveSmartMotorControllerGenericSubsystem(this, pidSettings, feedForwardSettings,
-                UnifiedControlMode.VELOCITY, setpoint));
-        namespace.putCommand("test", new MoveSmartMotorControllerGenericSubsystem(this, pidSettings, feedForwardSettings,
-                UnifiedControlMode.VELOCITY, () -> 800.0));
+        namespace.putCommand("move", new MoveSmartMotorControllerGenericSubsystem(this, pidSettings,
+                feedForwardSettings, UnifiedControlMode.VELOCITY, setpoint));
+        namespace.putCommand("test", new MoveSmartMotorControllerGenericSubsystem(this, pidSettings,
+                feedForwardSettings, UnifiedControlMode.VELOCITY, () -> 800.0));
     }
 
     public void stop() {
