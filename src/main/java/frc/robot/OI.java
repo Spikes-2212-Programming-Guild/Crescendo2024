@@ -38,23 +38,17 @@ public class OI /*GEVALD*/ {
         // Retracts the shooter's flywheels - RT
         xbox.getRTButton().whileTrue(new SpeedUpShooter(shooter, SHOOTER_RETRACTION_SPEED_ROTATIONS_PER_MINUTE,
                 SHOOTER_RETRACTION_SPEED_ROTATIONS_PER_MINUTE));
+        // Closes the intake - UP
         xbox.getUpButton().onTrue(new CloseIntake(intakePlacer));
+        // Opens the intake - DOWN
         xbox.getDownButton().onTrue(new OpenIntake(intakePlacer));
+        // Stops all subsystems - LEFT
         xbox.getLeftButton().onTrue(new InstantCommand(() -> {
-        }, storage, intakeRoller, shooterAdjuster, shooter) {
-            @Override
-            public void end(boolean interrupted) {
-                storage.stop();
-                intakeRoller.stop();
-                shooterAdjuster.stop();
-                shooter.stop();
-            }
-
-            @Override
-            public boolean isFinished() {
-                return true;
-            }
-        });
+            storage.stop();
+            intakeRoller.stop();
+            shooterAdjuster.stop();
+            shooter.stop();
+        }, storage, intakeRoller, shooterAdjuster, shooter));
     }
 
     public double getLeftX() {
