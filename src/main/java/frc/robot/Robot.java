@@ -86,7 +86,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledPeriodic() {
-
     }
 
     @Override
@@ -124,17 +123,14 @@ public class Robot extends TimedRobot {
 
     @Override
     public void testPeriodic() {
-
     }
 
     @Override
     public void simulationInit() {
-
     }
 
     @Override
     public void simulationPeriodic() {
-
     }
 
     private void configureDashboard() {
@@ -142,7 +138,6 @@ public class Robot extends TimedRobot {
                 Storage.getInstance(), Shoot.CLOSE_HEIGHT).getCommand());
         root.putCommand("intake note", new IntakeNote(IntakeRoller.getInstance(), Storage.getInstance(),
                 IntakePlacer.getInstance(), ShooterAdjuster.getInstance(), false));
-        // @TODO find out what this does
         root.putCommand("2", new PathPlannerAuto("2"));
         root.putData("auto chooser", autoChooser);
     }
