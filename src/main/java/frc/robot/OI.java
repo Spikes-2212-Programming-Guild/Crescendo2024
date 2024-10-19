@@ -30,9 +30,11 @@ public class OI /*GEVALD*/ {
         // Intakes a note - A
         xbox.getGreenButton().onTrue(new IntakeNote(intakeRoller, storage, intakePlacer, shooterAdjuster, false));
         // Shoots the note from the subwoofer - B
-        xbox.getRedButton().onTrue(new Shoot(shooter, drivetrain, shooterAdjuster, storage, Shoot.CLOSE_HEIGHT).getCommand());
+        xbox.getRedButton().onTrue(new Shoot(shooter, drivetrain, shooterAdjuster, storage,
+                Shoot.CLOSE_HEIGHT).getCommand());
         // Shoots the note from the safe zone - X
-        xbox.getBlueButton().onTrue(new Shoot(shooter, drivetrain, shooterAdjuster, storage, Shoot.RECTANGLE_HEIGHT).getCommand());
+        xbox.getBlueButton().onTrue(new Shoot(shooter, drivetrain, shooterAdjuster, storage,
+                Shoot.RECTANGLE_HEIGHT).getCommand());
         // Moves the storage backwards - LT
         xbox.getLTButton().whileTrue(new MoveGenericSubsystem(storage, STORAGE_RETRACTION_SPEED));
         // Retracts the shooter's flywheels - RT
