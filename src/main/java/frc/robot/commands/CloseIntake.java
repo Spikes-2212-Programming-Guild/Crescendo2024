@@ -1,6 +1,6 @@
 package frc.robot.commands;
 
-import com.spikes2212.command.genericsubsystem.commands.smartmotorcontrollergenericsubsystem.MoveSmartMotorControllerGenericSubsystem;
+import com.spikes2212.command.genericsubsystem.commands.smartmotorcontrollergenericsubsystem.*;
 import com.spikes2212.util.UnifiedControlMode;
 import frc.robot.subsystems.IntakePlacer;
 
