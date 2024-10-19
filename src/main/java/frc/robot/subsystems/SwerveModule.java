@@ -254,8 +254,8 @@ public class SwerveModule extends DashboardedSubsystem {
         namespace.putNumber("absolute angle", this::getAbsoluteAngle);
         namespace.putNumber("relative angle", this::getRelativeAngle);
         namespace.putData("reset angle", new InstantCommand(this::resetRelativeTurnEncoder).ignoringDisable(true));
-        namespace.putCommand("set angle to 0", new RunCommand(() -> set(new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
-                false, false)) {
+        namespace.putCommand("set angle to 0", new RunCommand(() -> set(new SwerveModuleState(0,
+                        Rotation2d.fromDegrees(0)), false, false)) {
             @Override
             public void end(boolean interrupted) {
                 turnController.stopMotor();
