@@ -24,6 +24,9 @@ import java.util.function.Supplier;
 public class Shoot extends ParallelDeadlineGroup {
 
     public static final RootNamespace ROOT = new RootNamespace("shoot");
+
+    private static final SpikesLogger LOGGER = new SpikesLogger();
+
     public static final double CLOSE_HEIGHT = 24.6;
     public static final double MIDDLE_HEIGHT = 22;
     public static final double RECTANGLE_HEIGHT = 16.3;
@@ -44,9 +47,7 @@ public class Shoot extends ParallelDeadlineGroup {
     private static final Supplier<Double> RIGHT_SPEED = () -> 3900.0;
     private static final Supplier<Double> HEIGHT = ROOT.addConstantDouble("shoot height", 0);
 
-    private static final SpikesLogger LOGGER = new SpikesLogger();
     private final double height;
-
     private final Shooter shooter;
     private final ShooterAdjuster adjuster;
     private final Storage storage;
