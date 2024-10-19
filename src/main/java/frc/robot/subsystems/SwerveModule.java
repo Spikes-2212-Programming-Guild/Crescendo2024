@@ -95,22 +95,6 @@ public class SwerveModule extends DashboardedSubsystem {
         setSpeed(state.speedMetersPerSecond, usePID);
     }
 
-    public double getAbsoluteAngle() {
-        return Rotation2d.fromRotations(absoluteEncoder.getAbsolutePosition().getValue()).getDegrees();
-    }
-
-    public SwerveModulePosition getModulePosition() {
-        return new SwerveModulePosition(driveEncoder.getPosition(), Rotation2d.fromDegrees(getAbsoluteAngle()));
-    }
-
-    public double getSpeed() {
-        return driveEncoder.getVelocity();
-    }
-
-    public SwerveModuleState getState() {
-        return new SwerveModuleState(getSpeed(), Rotation2d.fromDegrees(getAbsoluteAngle()));
-    }
-
     public void resetRelativeTurnEncoder() {
         turnEncoder.setPosition(getAbsoluteAngle());
     }
@@ -118,6 +102,19 @@ public class SwerveModule extends DashboardedSubsystem {
     public void stop() {
         driveController.stopMotor();
         turnController.stopMotor();
+    }
+
+    public SwerveModulePosition getModulePosition() {
+        return new SwerveModulePosition(driveEncoder.getPosition(), Rotation2d.fromDegrees(getAbsoluteAngle()));
+    }
+
+    public SwerveModuleState getState() {
+        return new SwerveModuleState(getSpeed(), Rotation2d.fromDegrees(getAbsoluteAngle()));
+    }
+
+    //angle between 0 and 360
+    public double getAbsoluteAngle() {
+        return Rotation2d.fromRotations(absoluteEncoder.getAbsolutePosition().getValue()).getDegrees();
     }
 
     //angle between 0 and 360
@@ -136,6 +133,21 @@ public class SwerveModule extends DashboardedSubsystem {
         feedForward += kS;
         turnController.getPIDController().setReference(angle, CANSparkMax.ControlType.kPosition, PID_SLOT, feedForward,
                 SparkPIDController.ArbFFUnits.kVoltage);
+    }
+
+    public double getSpeed() {
+        return driveEncoder.getVelocity();
+    }
+
+    //speed - m/s
+    private void setSpeed(double speed, boolean usePID) {
+        if (usePID) {
+            configureDriveController();
+            configFF();
+            double feedForward = driveFeedForwardController.calculate(speed);
+            driveController.getPIDController().setReference(speed, CANSparkMax.ControlType.kVelocity, PID_SLOT,
+                    feedForward, SparkPIDController.ArbFFUnits.kVoltage);
+        } else driveController.set(speed / Drivetrain.MAX_SPEED_METERS_PER_SECONDS);
     }
 
     private void configFF() {
@@ -175,18 +187,6 @@ public class SwerveModule extends DashboardedSubsystem {
                         SensorDirectionValue.CounterClockwise_Positive)
                 .withMagnetOffset(cancoderOffset);
         absoluteEncoder.getConfigurator().apply(config);
-    }
-
-
-    //speed - m/s
-    private void setSpeed(double speed, boolean usePID) {
-        if (usePID) {
-            configureDriveController();
-            configFF();
-            double feedForward = driveFeedForwardController.calculate(speed);
-            driveController.getPIDController().setReference(speed, CANSparkMax.ControlType.kVelocity, PID_SLOT,
-                    feedForward, SparkPIDController.ArbFFUnits.kVoltage);
-        } else driveController.set(speed / Drivetrain.MAX_SPEED_METERS_PER_SECONDS);
     }
 
     /**
