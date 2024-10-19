@@ -48,15 +48,6 @@ public class PhotonCameraEstimator extends BasePoseSource {
     }
 
     @Override
-    protected Pose3d getCameraPose() {
-        if (photonCamera.getLatestResult().hasTargets()) {
-            return new Pose3d(photonCamera.getLatestResult().getBestTarget().getBestCameraToTarget().getTranslation(),
-                    photonCamera.getLatestResult().getBestTarget().getBestCameraToTarget().getRotation());
-        }
-        return null;
-    }
-
-    @Override
     public Pose2d getRobotPose() {
         if (getCameraPose() != null) {
             if (poseEstimator.getFieldTags().getTagPose(getID()).isPresent()) {
@@ -68,13 +59,22 @@ public class PhotonCameraEstimator extends BasePoseSource {
         return null;
     }
 
+    public int getID() {
+        if (hasResult()) return photonCamera.getLatestResult().getBestTarget().getFiducialId();
+        return -1;
+    }
+
     @Override
     protected boolean hasResult() {
         return photonCamera.getLatestResult().hasTargets();
     }
 
-    public int getID() {
-        if (hasResult()) return photonCamera.getLatestResult().getBestTarget().getFiducialId();
-        return -1;
+    @Override
+    protected Pose3d getCameraPose() {
+        if (photonCamera.getLatestResult().hasTargets()) {
+            return new Pose3d(photonCamera.getLatestResult().getBestTarget().getBestCameraToTarget().getTranslation(),
+                    photonCamera.getLatestResult().getBestTarget().getBestCameraToTarget().getRotation());
+        }
+        return null;
     }
 }
