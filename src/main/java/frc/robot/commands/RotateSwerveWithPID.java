@@ -53,13 +53,11 @@ public class RotateSwerveWithPID extends Command {
     public void initialize() {
         pidController.setPID(pidSettings.getkP(), pidSettings.getkI(), pidSettings.getkD());
         pidController.setTolerance(pidSettings.getTolerance());
+        feedForwardController.setGains(feedForwardSettings);
     }
 
     @Override
     public void execute() {
-        pidController.setPID(pidSettings.getkP(), pidSettings.getkI(), pidSettings.getkD());
-        pidController.setTolerance(pidSettings.getTolerance());
-        feedForwardController.setGains(feedForwardSettings);
         double kS = feedForwardSettings.getkS();
         feedForwardController.setkS(0);
         drivetrain.drive(xSpeed.get(), ySpeed.get(), pidController.calculate(source.get(),
