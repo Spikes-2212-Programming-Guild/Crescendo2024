@@ -28,17 +28,17 @@ public class Shooter extends DashboardedSubsystem {
         configureDashboard();
     }
 
+    public void stop() {
+        leftFlywheel.stop();
+        rightFlywheel.stop();
+    }
+
     public ShooterFlywheel getLeftFlywheel() {
         return leftFlywheel;
     }
 
     public ShooterFlywheel getRightFlywheel() {
         return rightFlywheel;
-    }
-
-    public void stop() {
-        leftFlywheel.stop();
-        rightFlywheel.stop();
     }
 
     @Override
