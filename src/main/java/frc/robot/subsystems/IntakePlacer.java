@@ -64,7 +64,8 @@ public class IntakePlacer extends SparkGenericSubsystem {
     }
 
     @Override
-    public void configureLoop(PIDSettings pidSettings, FeedForwardSettings feedForwardSettings, TrapezoidProfileSettings trapezoidProfileSettings) {
+    public void configureLoop(PIDSettings pidSettings, FeedForwardSettings feedForwardSettings,
+                              TrapezoidProfileSettings trapezoidProfileSettings) {
         super.configureLoop(pidSettings, feedForwardSettings, trapezoidProfileSettings);
         master.setIdleMode(CANSparkBase.IdleMode.kBrake);
         slaves.get(0).setIdleMode(CANSparkBase.IdleMode.kBrake);
