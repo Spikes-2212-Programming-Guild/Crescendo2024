@@ -147,12 +147,12 @@ public class Drivetrain extends DashboardedSubsystem {
         backRight.resetRelativeTurnEncoder();
     }
 
-    public double getAngle() {
-        return -gyro.getAngle();
-    }
-
     public void resetPosition(Pose2d newPose) {
         odometry.resetPosition(newPose.getRotation(), getModulePositions(), newPose);
+    }
+
+    public double getAngle() {
+        return -gyro.getAngle();
     }
 
     public double getNormalizedAngle() {
