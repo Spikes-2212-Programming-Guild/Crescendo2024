@@ -23,6 +23,11 @@ import java.util.function.Supplier;
 
 public class Shoot extends ParallelDeadlineGroup {
 
+    public static final RootNamespace ROOT = new RootNamespace("shoot");
+    public static final double CLOSE_HEIGHT = 24.6;
+    public static final double MIDDLE_HEIGHT = 22;
+    public static final double RECTANGLE_HEIGHT = 16.3;
+
     private static final Pose2d BLUE_SPEAKER_POSE = new Pose2d(new Translation2d(0.52, 5.59), new Rotation2d());
     private static final Pose2d RED_SPEAKER_POSE = new Pose2d(new Translation2d(16.07, 5.59), new Rotation2d());
 
@@ -35,14 +40,9 @@ public class Shoot extends ParallelDeadlineGroup {
     private static final double WAIT_TIME = 0.7;
     private static final double CROSS_TIMEOUT = 1;
 
-    public static final RootNamespace ROOT = new RootNamespace("shoot");
     private static final Supplier<Double> LEFT_SPEED = () -> 3900.0;
     private static final Supplier<Double> RIGHT_SPEED = () -> 3900.0;
     private static final Supplier<Double> HEIGHT = ROOT.addConstantDouble("shoot height", 0);
-
-    public static final double CLOSE_HEIGHT = 24.6;
-    public static final double MIDDLE_HEIGHT = 22;
-    public static final double RECTANGLE_HEIGHT = 16.3;
 
     private static final SpikesLogger LOGGER = new SpikesLogger();
     private final double height;
