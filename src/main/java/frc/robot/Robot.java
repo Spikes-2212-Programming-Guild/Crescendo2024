@@ -6,30 +6,18 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.revrobotics.CANSparkBase;
 import com.spikes2212.dashboard.RootNamespace;
 import com.spikes2212.dashboard.SpikesLogger;
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.*;
-import frc.robot.commands.auto.DriveStraight;
 import frc.robot.commands.auto.JustShoot;
-import frc.robot.commands.auto.YeetAndRetreat;
-import frc.robot.commands.auto.YeetAndRetreatAmpSide;
 import frc.robot.subsystems.*;
 import frc.robot.util.LEDService;
-import org.littletonrobotics.urcl.URCL;
-
-import java.awt.*;
-
-import static edu.wpi.first.units.Units.Volts;
 
 public class Robot extends TimedRobot {
 
