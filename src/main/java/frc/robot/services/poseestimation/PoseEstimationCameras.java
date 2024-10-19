@@ -39,11 +39,10 @@ public class PoseEstimationCameras {
     }
 
     private PoseEstimationCameras() {
-//        PhotonCameraEstimator centerEstimator = new PhotonCameraEstimator(CENTER_CAMERA_NAME, CENTER_CAMERA_LOCATION);
-//        PhotonCameraEstimator leftEstimator = new PhotonCameraEstimator(LEFT_CAMERA_NAME, LEFT_CAMERA_LOCATION);
-//        PhotonCameraEstimator rightEstimator = new PhotonCameraEstimator(RIGHT_CAMERA_NAME, RIGHT_CAMERA_LOCATION);
-        //@TODO CHANGE
-        estimators = List.of();
+        PhotonCameraEstimator centerEstimator = new PhotonCameraEstimator(CENTER_CAMERA_NAME, CENTER_CAMERA_LOCATION);
+        PhotonCameraEstimator leftEstimator = new PhotonCameraEstimator(LEFT_CAMERA_NAME, LEFT_CAMERA_LOCATION);
+        PhotonCameraEstimator rightEstimator = new PhotonCameraEstimator(RIGHT_CAMERA_NAME, RIGHT_CAMERA_LOCATION);
+        estimators = List.of(centerEstimator, leftEstimator, rightEstimator);
         results = new ArrayList<>();
     }
 
