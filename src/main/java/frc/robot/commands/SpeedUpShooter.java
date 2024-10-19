@@ -22,7 +22,8 @@ public class SpeedUpShooter extends ParallelCommandGroup {
                     }
                 },
                 new MoveSmartMotorControllerGenericSubsystem(shooter.getRightFlywheel(),
-                        shooter.getRightFlywheel().getPIDSettings(), shooter.getRightFlywheel().getFeedForwardSettings(),
+                        shooter.getRightFlywheel().getPIDSettings(),
+                        shooter.getRightFlywheel().getFeedForwardSettings(),
                         UnifiedControlMode.VELOCITY, rightSetpoint) {
                     @Override
                     public void end(boolean interrupted) {
