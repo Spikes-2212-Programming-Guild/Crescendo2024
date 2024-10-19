@@ -16,8 +16,10 @@ import frc.robot.subsystems.Drivetrain;
 public class PathPlannerTest extends FollowPathCommand {
 
     private static final RootNamespace root = new RootNamespace("path planner test");
-    private static final PIDSettings translationSettings = root.addPIDNamespace("translation", PIDSettings.EMPTY_PID_SETTINGS);
-    private static final PIDSettings rotationSettings = root.addPIDNamespace("rotation", PIDSettings.EMPTY_PID_SETTINGS);
+    private static final PIDSettings translationSettings = root.addPIDNamespace("translation",
+            PIDSettings.EMPTY_PID_SETTINGS);
+    private static final PIDSettings rotationSettings = root.addPIDNamespace("rotation",
+            PIDSettings.EMPTY_PID_SETTINGS);
 
     public PathPlannerTest(PathPlannerPath path, Drivetrain drivetrain) {
         super(path, drivetrain::getPose, drivetrain::getRobotRelativeSpeeds,
