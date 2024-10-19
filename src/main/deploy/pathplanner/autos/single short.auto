@@ -1,0 +1,49 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.7859976973515199,
+      "y": 6.817692039942485
+    },
+    "rotation": 62.076410284861616
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "reset-gyro"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "reset-adjuster"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "reset-placer"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot-close"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "espace from short"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}
