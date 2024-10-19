@@ -241,8 +241,10 @@ public class Drivetrain extends DashboardedSubsystem {
             }
         });
         namespace.putNumber("max velocity difference",
-                () -> max(Math.abs(frontLeft.getSpeed()), Math.abs(frontRight.getSpeed()), Math.abs(backLeft.getSpeed()),
-                        Math.abs(backRight.getSpeed())) - min(Math.abs(frontLeft.getSpeed()), Math.abs(frontRight.getSpeed()), Math.abs(backLeft.getSpeed()),
+                () -> max(Math.abs(frontLeft.getSpeed()), Math.abs(frontRight.getSpeed()),
+                        Math.abs(backLeft.getSpeed()),
+                        Math.abs(backRight.getSpeed())) - min(Math.abs(frontLeft.getSpeed()),
+                        Math.abs(frontRight.getSpeed()), Math.abs(backLeft.getSpeed()),
                         Math.abs(backRight.getSpeed())));
         Supplier<Double> setpoint = namespace.addConstantDouble("setpoint", 0);
         namespace.putData("drive in speed i tell you", new DriveSwerve(this, setpoint, () -> 0.0, () -> 0.0, false,
