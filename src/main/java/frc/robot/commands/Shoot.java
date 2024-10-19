@@ -81,13 +81,7 @@ public class Shoot extends ParallelDeadlineGroup {
             } else {
                 speakerPose = RED_SPEAKER_POSE;
             }
-        }
-        );
-        ROOT.putBoolean("adjust finished", adjustCommand::isFinished);
-        ROOT.putBoolean("left on target", () -> shooter.getLeftFlywheel().onTarget(UnifiedControlMode.VELOCITY,
-                shooter.getLeftFlywheel().pidSettings.getTolerance(), getRequiredLeftSpeed().get()));
-        ROOT.putBoolean("right on target", () -> shooter.getRightFlywheel().onTarget(UnifiedControlMode.VELOCITY,
-                shooter.getRightFlywheel().pidSettings.getTolerance(), getRequiredRightSpeed().get()));
+        });
 
         addCommands(setSpeakerPoseCommand, speedUpCommand, adjustCommand);
         ledService.attemptShoot();
