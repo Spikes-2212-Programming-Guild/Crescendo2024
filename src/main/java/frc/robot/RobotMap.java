@@ -51,14 +51,6 @@ public class RobotMap {
 
         int LED = 0;
     }
-    
-    public interface AIN {
-    
-    }
-
-    public interface PCM {
-
-    }
 
     public interface RPH {
 
