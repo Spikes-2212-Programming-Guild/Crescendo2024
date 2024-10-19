@@ -31,12 +31,7 @@ public class ShootWithParameters extends ParallelDeadlineGroup {
 
         RotateSwerveWithPID rotateCommand = new RotateSwerveWithPID(drivetrain, requiredAngle,
                 drivetrain::getAngle, drivetrain.rotateToTargetPIDSettings,
-                drivetrain.rotateToTargetFeedForwardSettings) {
-            @Override
-            public boolean isFinished() {
-                return true;
-            }
-        };
+                drivetrain.rotateToTargetFeedForwardSettings);
 
         SpeedUpShooter speedUpCommand = new SpeedUpShooter(shooter, requiredLeftSpeed,
                 requiredRightSpeed);
