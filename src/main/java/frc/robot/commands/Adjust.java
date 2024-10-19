@@ -3,6 +3,7 @@ package frc.robot.commands;
 import com.spikes2212.command.genericsubsystem.commands.smartmotorcontrollergenericsubsystem.*;
 import com.spikes2212.dashboard.RootNamespace;
 import com.spikes2212.util.UnifiedControlMode;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.ShooterAdjuster;
@@ -22,18 +23,12 @@ public class Adjust extends SequentialCommandGroup {
 
     public Adjust(ShooterAdjuster adjuster, Supplier<Double> setpoint) {
         addRequirements(adjuster);
-        if (Math.abs(adjuster.getPosition() - setpoint.get()) > PID_START_POINT) {
-            addCommands(new RunCommand(() -> adjuster.set(SPEED * Math.signum(adjuster.getPosition() - setpoint.get()))) {
-                            @Override
-                            public boolean isFinished() {
-                                return Math.abs(adjuster.getPosition() - setpoint.get()) > PID_START_POINT;
-                            }
 
-                            @Override
-                            public void end(boolean interrupted) {
-                                adjuster.stop();
-                            }
-                        },
+        if (Math.abs(adjuster.getPosition() - setpoint.get()) > PID_START_POINT) {
+            addCommands(new FunctionalCommand(() -> {},
+                            () -> adjuster.set(SPEED * Math.signum(adjuster.getPosition() - setpoint.get())),
+                            interrupted -> adjuster.stop(),
+                            () -> Math.abs(adjuster.getPosition() - setpoint.get()) > PID_START_POINT),
                     new MoveSmartMotorControllerGenericSubsystem(adjuster, adjuster.getPIDSettings(),
                             adjuster.getFeedForwardSettings(), UnifiedControlMode.POSITION, setpoint));
         } else addCommands(new MoveSmartMotorControllerGenericSubsystem(adjuster, adjuster.getPIDSettings(),
