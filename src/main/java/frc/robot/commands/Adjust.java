@@ -6,6 +6,7 @@ import com.spikes2212.util.UnifiedControlMode;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.ShooterAdjuster;
+
 import java.util.function.Supplier;
 
 /**
@@ -23,7 +24,8 @@ public class Adjust extends SequentialCommandGroup {
         addRequirements(adjuster);
 
         if (Math.abs(adjuster.getPosition() - setpoint.get()) > PID_START_POINT) {
-            addCommands(new FunctionalCommand(() -> {},
+            addCommands(new FunctionalCommand(() -> {
+                    },
                             () -> adjuster.set(SPEED * Math.signum(adjuster.getPosition() - setpoint.get())),
                             interrupted -> adjuster.stop(),
                             () -> Math.abs(adjuster.getPosition() - setpoint.get()) > PID_START_POINT),
