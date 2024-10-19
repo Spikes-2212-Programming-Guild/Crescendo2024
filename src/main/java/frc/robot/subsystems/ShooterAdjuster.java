@@ -42,8 +42,6 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
     private final PIDSettings pidSettings = namespace.addPIDNamespace("", new PIDSettings(0.3, 0.1, 0.05));
     private final FeedForwardSettings feedForwardSettings = namespace.addFeedForwardNamespace("",
             new FeedForwardSettings(0.9, 0));
-    private final FeedForwardSettings resetFFSettings = namespace.addFeedForwardNamespace("reset",
-            new FeedForwardSettings(0.25, 0, 0));
 
     private boolean reset = false;
 
