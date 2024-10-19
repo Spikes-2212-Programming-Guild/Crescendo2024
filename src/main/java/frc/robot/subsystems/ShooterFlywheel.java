@@ -86,16 +86,6 @@ public class ShooterFlywheel extends SparkGenericSubsystem {
                 feedForwardController.calculate(setpoint), SparkPIDController.ArbFFUnits.kVoltage);
     }
 
-    @Override
-    public void configureDashboard() {
-        namespace.putNumber("speed", () -> master.getEncoder().getVelocity());
-        Supplier<Double> setpoint = namespace.addConstantDouble("setpoint", 0);
-        namespace.putCommand("move", new MoveSmartMotorControllerGenericSubsystem(this, pidSettings,
-                feedForwardSettings, UnifiedControlMode.VELOCITY, setpoint));
-        namespace.putCommand("test", new MoveSmartMotorControllerGenericSubsystem(this, pidSettings,
-                feedForwardSettings, UnifiedControlMode.VELOCITY, () -> 800.0));
-    }
-
     public void stop() {
         sparkMax.stopMotor();
     }
@@ -106,5 +96,15 @@ public class ShooterFlywheel extends SparkGenericSubsystem {
 
     public FeedForwardSettings getFeedForwardSettings() {
         return feedForwardSettings;
+    }
+
+    @Override
+    public void configureDashboard() {
+        namespace.putNumber("speed", () -> master.getEncoder().getVelocity());
+        Supplier<Double> setpoint = namespace.addConstantDouble("setpoint", 0);
+        namespace.putCommand("move", new MoveSmartMotorControllerGenericSubsystem(this, pidSettings,
+                feedForwardSettings, UnifiedControlMode.VELOCITY, setpoint));
+        namespace.putCommand("test", new MoveSmartMotorControllerGenericSubsystem(this, pidSettings,
+                feedForwardSettings, UnifiedControlMode.VELOCITY, () -> 800.0));
     }
 }
