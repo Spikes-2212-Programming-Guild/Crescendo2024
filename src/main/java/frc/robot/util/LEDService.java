@@ -1,11 +1,7 @@
 package frc.robot.util;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import frc.robot.RobotMap;
-
-import java.awt.*;
-import java.sql.Driver;
 
 /**
  * Class which is responsible for doing cool animations with the LED strips.
