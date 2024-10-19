@@ -121,8 +121,8 @@ public class Robot extends TimedRobot {
     }
 
     private void configureDashboard() {
-        root.putCommand("shoot test", new Shoot(Shooter.getInstance(), Drivetrain.getInstance(), ShooterAdjuster.getInstance(),
-                Storage.getInstance(), Shoot.CLOSE_HEIGHT).getCommand());
+        root.putCommand("shoot test", new Shoot(Shooter.getInstance(), Drivetrain.getInstance(),
+                ShooterAdjuster.getInstance(), Storage.getInstance(), Shoot.CLOSE_HEIGHT).getCommand());
         root.putCommand("intake note", new IntakeNote(IntakeRoller.getInstance(), Storage.getInstance(),
                 IntakePlacer.getInstance(), ShooterAdjuster.getInstance(), false));
         root.putCommand("2", new PathPlannerAuto("2"));
