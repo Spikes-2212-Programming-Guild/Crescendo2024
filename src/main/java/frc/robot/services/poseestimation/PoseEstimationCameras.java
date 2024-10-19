@@ -1,42 +1,58 @@
 package frc.robot.services.poseestimation;
 
-import edu.wpi.first.math.geometry.Pose2d;
+import com.spikes2212.dashboard.SpikesLogger;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class which represents the cameras placed on the robot.
+ */
 public class PoseEstimationCameras {
 
-    private static final String PHOTON_CAMERA_1_NAME = "jimmy";
-    private static final String PHOTON_CAMERA_2_NAME = "jamie";
-    private static final String PHOTON_CAMERA_3_NAME = "bob";
+    private static final String CENTER_CAMERA_NAME = "center";
+    private static final String LEFT_CAMERA_NAME = "left";
+    private static final String RIGHT_CAMERA_NAME = "right";
 
-    private static final Transform3d CAMERA_1_LOCATION = new Transform3d();
-    private static final Transform3d CAMERA_2_LOCATION = new Transform3d();
-    private static final Transform3d CAMERA_3_LOCATION = new Transform3d();
-
-    private final PhotonCameraEstimator photonPoseEstimator1;
-    private final PhotonCameraEstimator photonPoseEstimator2;
-    private final PhotonCameraEstimator photonPoseEstimator3;
+    private static final Transform3d CENTER_CAMERA_LOCATION = new Transform3d(new Translation3d(-0.205, -0.27, 0.685),
+            new Rotation3d(Math.toRadians(0), Math.toRadians(-40), Math.toRadians(0)));
+    //checked translation
+    private static final Transform3d LEFT_CAMERA_LOCATION = new Transform3d(new Translation3d(-0.145, -0.325, 0.685),
+            new Rotation3d(Math.toRadians(20), Math.toRadians(0), Math.toRadians(90)).unaryMinus());
+    private static final Transform3d RIGHT_CAMERA_LOCATION = new Transform3d();
 
     private final List<PhotonCameraEstimator> estimators;
-    private List<Pose2d> results;
+    private final SpikesLogger logger = new SpikesLogger();
+
+    private List<PoseEstimatorTarget> results;
+
+    private static PoseEstimationCameras instance;
+
+    public static PoseEstimationCameras getInstance() {
+        if (instance == null) {
+            instance = new PoseEstimationCameras();
+        }
+        return instance;
+    }
 
     private PoseEstimationCameras() {
-        this.photonPoseEstimator1 = new PhotonCameraEstimator(PHOTON_CAMERA_1_NAME, CAMERA_1_LOCATION);
-        this.photonPoseEstimator2 = new PhotonCameraEstimator(PHOTON_CAMERA_2_NAME, CAMERA_2_LOCATION);
-        this.photonPoseEstimator3 = new PhotonCameraEstimator(PHOTON_CAMERA_3_NAME, CAMERA_3_LOCATION);
-        estimators = List.of(photonPoseEstimator1, photonPoseEstimator2, photonPoseEstimator3);
+        PhotonCameraEstimator centerEstimator = new PhotonCameraEstimator(CENTER_CAMERA_NAME, CENTER_CAMERA_LOCATION);
+        PhotonCameraEstimator leftEstimator = new PhotonCameraEstimator(LEFT_CAMERA_NAME, LEFT_CAMERA_LOCATION);
+        PhotonCameraEstimator rightEstimator = new PhotonCameraEstimator(RIGHT_CAMERA_NAME, RIGHT_CAMERA_LOCATION);
+        estimators = List.of(centerEstimator, leftEstimator, rightEstimator);
         results = new ArrayList<>();
     }
 
-    public List<Pose2d> getEstimatedPoses() {
+    public List<PoseEstimatorTarget> getEstimatedPoses() {
         results = new ArrayList<>();
         for (PhotonCameraEstimator photonCameraEstimator : estimators) {
             if (photonCameraEstimator != null) {
                 if (photonCameraEstimator.hasResult()) {
-                    results.add(photonCameraEstimator.getRobotPose());
+                    results.add(new PoseEstimatorTarget(photonCameraEstimator.getRobotPose(),
+                            photonCameraEstimator.getLastResultTimestamp()));
                 }
             }
         }
