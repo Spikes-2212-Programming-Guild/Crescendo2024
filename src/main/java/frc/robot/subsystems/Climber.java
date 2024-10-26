@@ -16,7 +16,7 @@ public class Climber extends DoubleSolenoidSubsystem {
     private static final boolean LEFT_INVERTED = false;
     private static final boolean RIGHT_INVERTED = false;
 
-    // in 2024, we had 2 climbers; one of each side
+    // the robot was supposed to have 2 climbers, one of each side
     private static Climber leftInstance;
     private static Climber rightInstance;
 
