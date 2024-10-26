@@ -25,14 +25,14 @@ public class Shoot extends ParallelDeadlineGroup {
 
     public static final RootNamespace ROOT = new RootNamespace("shoot");
 
-    private static final SpikesLogger LOGGER = new SpikesLogger();
-
     // the required adjuster height to shoot from next to the subwoofer
     public static final double SUBWOOFER_ADJUSTER_HEIGHT = 24.6;
     // the required adjuster height to shoot from up close
     public static final double CLOSE_RANGE_ADJUSTER_HEIGHT = 22;
     // the required adjuster height to shoot from the safe zone
     public static final double SAFE_ZONE_ADJUSTER_HEIGHT = 16.3;
+
+    private static final SpikesLogger LOGGER = new SpikesLogger();
 
     private static final Pose2d BLUE_SPEAKER_POSE = new Pose2d(new Translation2d(0.52, 5.59), new Rotation2d());
     private static final Pose2d RED_SPEAKER_POSE = new Pose2d(new Translation2d(16.07, 5.59), new Rotation2d());
