@@ -23,7 +23,7 @@ public class Adjust extends SequentialCommandGroup {
     public Adjust(ShooterAdjuster adjuster, Supplier<Double> setpoint) {
         addRequirements(adjuster);
 
-        if (Math.abs(adjuster.getPosition() - setpoint.get()) > PID_START_POINT) {
+        if (!(Math.abs(adjuster.getPosition() - setpoint.get()) > PID_START_POINT)) {
             addCommands(new FunctionalCommand(() -> {
                     },
                             () -> adjuster.set(SPEED * Math.signum(adjuster.getPosition() - setpoint.get())),
