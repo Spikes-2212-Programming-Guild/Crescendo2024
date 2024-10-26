@@ -22,7 +22,7 @@ public class YeetAndRetreat extends SequentialCommandGroup {
         addCommands(
                 new InstantCommand(intakePlacer::resetPosition),
                 adjuster.getResetCommand(),
-                new Shoot(shooter, drivetrain, adjuster, storage, Shoot.CLOSE_HEIGHT).getCommand(),
+                new Shoot(shooter, drivetrain, adjuster, storage, Shoot.SUBWOOFER_ADJUSTER_HEIGHT).getCommand(),
                 new DriveSwerve(drivetrain, DRIVE_SPEED, () -> 0.0, () -> 0.0, false,
                         false).withTimeout(MOVE_TIMEOUT)
         );

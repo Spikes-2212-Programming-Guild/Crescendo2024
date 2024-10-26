@@ -16,7 +16,7 @@ public class JustShoot extends SequentialCommandGroup {
                 new InstantCommand(drivetrain::resetGyro),
                 new InstantCommand(intakePlacer::resetPosition),
                 adjuster.getResetCommand(),
-                new Shoot(shooter, drivetrain, adjuster, storage, Shoot.CLOSE_HEIGHT)
+                new Shoot(shooter, drivetrain, adjuster, storage, Shoot.SUBWOOFER_ADJUSTER_HEIGHT)
         );
     }
 }

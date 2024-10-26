@@ -122,7 +122,7 @@ public class Robot extends TimedRobot {
 
     private void configureDashboard() {
         root.putCommand("shoot test", new Shoot(Shooter.getInstance(), Drivetrain.getInstance(),
-                ShooterAdjuster.getInstance(), Storage.getInstance(), Shoot.CLOSE_HEIGHT).getCommand());
+                ShooterAdjuster.getInstance(), Storage.getInstance(), Shoot.SUBWOOFER_ADJUSTER_HEIGHT).getCommand());
         root.putCommand("intake note", new IntakeNote(IntakeRoller.getInstance(), Storage.getInstance(),
                 IntakePlacer.getInstance(), ShooterAdjuster.getInstance(), false));
         root.putCommand("2", new PathPlannerAuto("2"));
@@ -141,9 +141,9 @@ public class Robot extends TimedRobot {
         NamedCommands.registerCommand("open-intake", new OpenIntake(intakePlacer));
         NamedCommands.registerCommand("close-intake", new CloseIntake(intakePlacer));
         NamedCommands.registerCommand("shoot-close", new Shoot(shooter, drivetrain, shooterAdjuster, storage,
-                Shoot.CLOSE_HEIGHT).getCommand());
+                Shoot.SUBWOOFER_ADJUSTER_HEIGHT).getCommand());
         NamedCommands.registerCommand("shoot-middle", new Shoot(shooter, drivetrain, shooterAdjuster, storage,
-                Shoot.MIDDLE_HEIGHT).getCommand());
+                Shoot.CLOSE_RANGE_ADJUSTER_HEIGHT).getCommand());
         NamedCommands.registerCommand("intake-note", new IntakeNote(intakeRoller, storage, intakePlacer,
                 shooterAdjuster, false));
         NamedCommands.registerCommand("reset-adjuster", shooterAdjuster.getResetCommand());
