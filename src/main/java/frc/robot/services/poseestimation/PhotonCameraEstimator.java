@@ -24,8 +24,8 @@ public class PhotonCameraEstimator extends BasePoseSource {
 
     public PhotonCameraEstimator(Transform3d cameraToRobotCenter, String cameraName) {
         super(cameraToRobotCenter);
-        this.photonCamera = new PhotonCamera(cameraName);
         this.cameraToRobotCenter = cameraToRobotCenter;
+        this.photonCamera = new PhotonCamera(cameraName);
         PhotonPoseEstimator temp;
         try {
             temp = new PhotonPoseEstimator(
