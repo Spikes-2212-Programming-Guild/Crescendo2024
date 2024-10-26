@@ -37,7 +37,7 @@ public class OI /*GEVALD*/ {
                 Shoot.SAFE_ZONE_ADJUSTER_HEIGHT).getCommand());
         // Moves the storage backwards - LT
         xbox.getLTButton().whileTrue(new MoveGenericSubsystem(storage, STORAGE_RETRACTION_SPEED));
-        // Retracts the shooter's flywheels - RT
+        // Moves the shooter backwards - RT
         xbox.getRTButton().whileTrue(new SpeedUpShooter(shooter, SHOOTER_RETRACTION_SPEED_ROTATIONS_PER_MINUTE,
                 SHOOTER_RETRACTION_SPEED_ROTATIONS_PER_MINUTE));
         // Closes the intake - UP
