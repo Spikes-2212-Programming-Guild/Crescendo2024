@@ -103,7 +103,7 @@ public class ShooterAdjuster extends SparkGenericSubsystem {
     // this command is supposed to run before using any command which uses the adjuster.
     public Command getResetCommand() {
         return new FunctionalCommand(() -> {
-        }, () -> master.set(RESET_SPEED), b -> {
+        }, () -> master.set(RESET_SPEED), interrupted -> {
             stop();
             reset = true;
             master.getEncoder().setPosition(MAX_POSITION);
