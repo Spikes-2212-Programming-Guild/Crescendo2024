@@ -38,16 +38,22 @@ public class ShootWithParameters extends ParallelDeadlineGroup {
 
         MoveSmartMotorControllerGenericSubsystem adjustCommand =
                 new MoveSmartMotorControllerGenericSubsystem(adjuster, adjuster.getPIDSettings(),
-                        adjuster.getFeedForwardSettings(), UnifiedControlMode.POSITION, requiredHeight);
+                        adjuster.getFeedForwardSettings(), UnifiedControlMode.POSITION, requiredHeight) {
+
+                    @Override
+                    public boolean isFinished() {
+                        return super.isFinished() || !adjuster.wasReset();
+                    }
+                };
 
         addCommands(speedUpCommand, adjustCommand);
         setDeadline(
                 new SequentialCommandGroup(
                         new WaitUntilCommand(() -> rotateCommand.isFinished() && adjustCommand.isFinished() &&
-                                        shooter.getLeftFlywheel().onTarget(UnifiedControlMode.VELOCITY,
-                                                LEFT_TOLERANCE, requiredLeftSpeed.get()) &&
-                                        shooter.getRightFlywheel().onTarget(UnifiedControlMode.VELOCITY,
-                                                RIGHT_TOLERANCE, requiredRightSpeed.get())),
+                                shooter.getLeftFlywheel().onTarget(UnifiedControlMode.VELOCITY,
+                                        LEFT_TOLERANCE, requiredLeftSpeed.get()) &&
+                                shooter.getRightFlywheel().onTarget(UnifiedControlMode.VELOCITY,
+                                        RIGHT_TOLERANCE, requiredRightSpeed.get())),
                         new MoveGenericSubsystem(storage, STORAGE_SPEED),
                         new WaitCommand(WAIT_TIME)
                 ));
