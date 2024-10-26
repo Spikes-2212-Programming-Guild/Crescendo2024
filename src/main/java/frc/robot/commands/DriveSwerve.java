@@ -20,6 +20,7 @@ public class DriveSwerve extends Command {
     private final Supplier<Double> rotationSpeed;
     private final boolean fieldRelative;
     private final boolean usePID;
+    // if this is true, speeds that are below the minimum speeds will be set to 0
     private final boolean useMinSpeed;
 
     // limits the acceleration
