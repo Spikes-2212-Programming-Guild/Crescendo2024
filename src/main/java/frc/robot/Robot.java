@@ -59,7 +59,6 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         logger.log(DriverStation.getAlliance().get() == DriverStation.Alliance.Red ? "red" : "blue");
         led.periodic();
-        led.preGame();
         CommandScheduler.getInstance().run();
         root.update();
         Shoot.ROOT.update();
@@ -73,6 +72,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledPeriodic() {
+        led.preGame();
     }
 
     @Override
