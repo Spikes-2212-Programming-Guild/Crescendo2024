@@ -32,6 +32,7 @@ public class Drivetrain extends DashboardedSubsystem {
 
     public static final double TRACK_WIDTH = 0.59;
 
+    public static final Translation2d CENTER_OF_ROBOT = new Translation2d(0, 0);
     public static final Translation2d FRONT_LEFT_WHEEL_POSITION =
             new Translation2d(TRACK_WIDTH / 2, TRACK_WIDTH / 2);
     public static final Translation2d FRONT_RIGHT_WHEEL_POSITION =
@@ -40,9 +41,6 @@ public class Drivetrain extends DashboardedSubsystem {
             new Translation2d(-TRACK_WIDTH / 2, TRACK_WIDTH / 2);
     public static final Translation2d BACK_RIGHT_WHEEL_POSITION =
             new Translation2d(-TRACK_WIDTH / 2, -TRACK_WIDTH / 2);
-    public static final Translation2d CENTER_OF_ROBOT = new Translation2d(
-            (FRONT_LEFT_WHEEL_POSITION.getX() + BACK_RIGHT_WHEEL_POSITION.getX()) / 2,
-            (FRONT_LEFT_WHEEL_POSITION.getY() + BACK_RIGHT_WHEEL_POSITION.getY()) / 2);
     public static final double RADIUS = FRONT_LEFT_WHEEL_POSITION.getDistance(FRONT_RIGHT_WHEEL_POSITION);
 
     public static final double MAX_SPEED_METERS_PER_SECONDS = 4.3;
