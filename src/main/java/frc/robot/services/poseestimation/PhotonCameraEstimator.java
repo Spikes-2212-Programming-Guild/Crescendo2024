@@ -19,12 +19,10 @@ public class PhotonCameraEstimator extends BasePoseSource {
 
     private final PhotonCamera photonCamera;
     private final PhotonPoseEstimator poseEstimator;
-    private final Transform3d cameraToRobotCenter;
     private SpikesLogger logger = new SpikesLogger();
 
     public PhotonCameraEstimator(Transform3d cameraToRobotCenter, String cameraName) {
         super(cameraToRobotCenter);
-        this.cameraToRobotCenter = cameraToRobotCenter;
         this.photonCamera = new PhotonCamera(cameraName);
         PhotonPoseEstimator temp;
         try {

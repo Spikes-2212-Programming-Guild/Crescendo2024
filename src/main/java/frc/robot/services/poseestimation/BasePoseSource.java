@@ -11,7 +11,7 @@ import edu.wpi.first.math.geometry.Transform3d;
  */
 public abstract class BasePoseSource {
 
-    private final Transform3d cameraToRobotCenter;
+    protected final Transform3d cameraToRobotCenter;
     private double lastUpdatedTimestamp;
     private Pose2d lastPose;
 
