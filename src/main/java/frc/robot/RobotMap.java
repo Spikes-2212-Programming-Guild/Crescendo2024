@@ -25,12 +25,12 @@ public class RobotMap {
 
         int SHOOTER_ADJUSTER_SPARK_MAX = 15;
 
-        int INTAKE_ROLLER_SPARK_MAX = 19;
+        int STORAGE_SPARK_MAX = 16;
 
         int INTAKE_PLACER_LEFT_SPARK_MAX = 17;
         int INTAKE_PLACER_RIGHT_SPARK_MAX = 18;
 
-        int STORAGE_SPARK_MAX = 16;
+        int INTAKE_ROLLER_SPARK_MAX = 19;
     }
     
     public interface DIO {
