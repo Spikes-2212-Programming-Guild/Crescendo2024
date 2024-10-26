@@ -40,7 +40,6 @@ public class IntakePlacer extends SparkGenericSubsystem {
         left.setIdleMode(CANSparkBase.IdleMode.kBrake);
         right.setIdleMode(CANSparkBase.IdleMode.kBrake);
         // left is master, right is slaves.get(0)
-        slaves.get(0).follow(master, true);
         master.getEncoder().setPosition(0);
         slaves.get(0).getEncoder().setPosition(0);
         configureDashboard();
