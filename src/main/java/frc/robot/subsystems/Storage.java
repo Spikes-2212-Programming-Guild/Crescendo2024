@@ -50,7 +50,7 @@ public class Storage extends MotoredGenericSubsystem {
         return !infrared.get();
     }
 
-    public boolean cantMove() {
+    public boolean cannotMove() {
         if (seesNote()) {
             seen = true;
         }
@@ -67,7 +67,7 @@ public class Storage extends MotoredGenericSubsystem {
 
     @Override
     public void configureDashboard() {
-        namespace.putCommand("move", new MoveGenericSubsystem(this, -0.4).until(this::cantMove));
+        namespace.putCommand("move", new MoveGenericSubsystem(this, -0.4).until(this::cannotMove));
         namespace.putCommand("just move", new MoveGenericSubsystem(this, -0.6));
         namespace.putNumber("current", sparkMax::getOutputCurrent);
         namespace.putBoolean("sees note", this::seesNote);
