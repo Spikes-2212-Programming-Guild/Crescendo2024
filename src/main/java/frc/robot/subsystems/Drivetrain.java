@@ -72,8 +72,8 @@ public class Drivetrain extends DashboardedSubsystem {
     public static Drivetrain getInstance() {
         if (instance == null) {
             instance = new Drivetrain(SwerveModuleHolder.getFrontLeft(), SwerveModuleHolder.getFrontRight(),
-                    SwerveModuleHolder.getBackLeft(),
-                    SwerveModuleHolder.getBackRight(), new AHRS(SerialPort.Port.kMXP));
+                    SwerveModuleHolder.getBackLeft(), SwerveModuleHolder.getBackRight(),
+                    new AHRS(SerialPort.Port.kMXP));
         }
         return instance;
     }
