@@ -16,7 +16,7 @@ public class YeetAndRetreatAmpSide extends SequentialCommandGroup {
 
     private static final double MOVE_TIMEOUT = 4;
     private static final Supplier<Double> DRIVE_SPEED = () -> 1.0;
-    private static final Supplier<Double> STRAFE_SPEED = () -> getStrafeSign() * 1.0;
+    private static final Supplier<Double> STRAFE_SPEED = YeetAndRetreatAmpSide::getStrafeSign;
 
     //Click A-Stop if necessary!
     public YeetAndRetreatAmpSide(Drivetrain drivetrain, Shooter shooter, ShooterAdjuster adjuster, Storage storage,
@@ -31,7 +31,7 @@ public class YeetAndRetreatAmpSide extends SequentialCommandGroup {
     }
 
     // depending on the alliance, the strafe direction changes as the amps are on opposite sides
-    private static int getStrafeSign() {
+    private static double getStrafeSign() {
         if (DriverStation.getAlliance().isEmpty()) return 0;
         if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) return 1;
         return -1;
